@@ -4,10 +4,13 @@
 #  include <stdlib.h>
 #  include <string.h>
 #  include <math.h>
+#  include <assert.h>
+#  include <time.h>
+#  include "types.h"
 
-typedef enum BOOLEAN {
+enum BOOLEAN {
     false = (1 == 0),
     true = !false
-} bool_t;
+};
 
 #endif				/* __SCMIN_MAIN_H */
