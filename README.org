@@ -1,0 +1,23 @@
+* About
+
+  This is a basic Lisp (technically Scheme) interpreter that was written in C with the following features:
+
+  + [ ] support basic syntax like =define=, =set!=, =eq?=, =if=, =cond=, ...
+  + [ ] support recursion
+  + [ ] support simple objects
+  + [ ] memory is handled via a garbage collector
+
+* Lisp as a programming language
+
+  LISP is a really old /functional programming language/ that stands for literaly for /LISt Processing/ because it is based on a data structure called /List/. It was invented by Mr. /John McCarthy/ (a genius) and the first time lisp was mentioned was in a paper published in 1959 called [[http://www-formal.stanford.edu/jmc/recursive.pdf][Recursive Functions of Symbolic Expressions and Their Computation by Machine]]. Also a nice paper published in 2002 by Mr. /Paul Graham/ called [[http://www.paulgraham.com/rootsoflisp.html][Roots of Lisp]] contain some useful information based on what Lisp did while being around since the first appearance in tha 1959's paper.
+
+  #+BEGIN_QUOTE
+  Lisp is based on s-exps i.e. /symbolic expressions/. An expression is either an /atom/ -- sequence of characters, or a /list of more expressions/
+
+  #+BEGIN_SRC scheme
+    foo			  ;; this is an atom
+    (foo)			  ;; s-exp with a single atom
+    (foo bar)		  ;; s-exp with two atoms
+    (foo (bar baz) fuzz buzz) ;; s-exp with atoms and s-exp
+  #+END_SRC
+  #+END_QUOTE
