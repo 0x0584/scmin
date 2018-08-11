@@ -8,11 +8,13 @@
  *   + if no argument was sent, a repl-system would set up on infinity
  *     loop (until EOF is sent by the user)
  */
-#include "../include/main.h"
-#include "../include/gc.h"
-#include "../include/repl.h"
+#include "../include/vector.h"
 
 int main(int argc, char **argv) {
+    if (argc == 1 && argv[0]) {
 
+    }
+
+    vector_testing();
     return EXIT_SUCCESS;
 }

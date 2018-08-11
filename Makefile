@@ -24,7 +24,7 @@ DEPS:= $(shell find $(DEPSDIR) -name '*.h')
 OBJ := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 
 all: main
-	@echo  "done..\n"
+	@echo  "done.\n"
 
 main: build-dir $(OBJ)
 	@echo  "\nbuilding executable.."
