@@ -1,0 +1,65 @@
+* About
+  Those are the source files for the =scmin= -- /a basic Scheme interpreter/.
+
+* Types -- types.h
+
+* Main -- main.h
+  #+BEGIN_SRC c
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <math.h>
+    #include <assert.h>
+    #include <time.h>
+
+    #include "types.h"
+
+    enum BOOLEAN {
+	false = (1 == 0),
+	true = !false
+    };
+  #+END_SRC
+
+* Lexical analysis -- lexer.h
+
+  #+BEGIN_SRC c
+    #include "main.h"		/* the main header */
+
+    struct TOKEN {
+	enum TOKEN_TYPE {
+	    TOK_L_PAREN = 0, TOK_R_PAREN, TOK_PERIOD,
+	    TOK_S_QUOTE, TOK_D_QUOTE,
+	    TOK_ATOM, TOK_STRING,
+	    TOK_EOF = (-1), TOK_ERR = (-2),
+	    TOK_SIZE_LIMIT = (2<<7)
+	} type;
+	unsigned char buffer[TOK_SIZE_LIMIT];
+    };
+
+    vector_t *read_tokens(string_t);
+    string_t stream_as_string(FILE *); /* helper function */
+    vector_t *read_stream_tokens(FILE *);
+  #+END_SRC
+
+   Defining the token type, =struct TOKEN= that was previously declared in =types.h=, =typedef struct TOKEN token_t=,  as and enumeration of types, =enum TOKEN_TYPE=, and a character array buffer (with size of =TOK_SIZE_LIMIT=). The token types stands for the following:
+
+   + TOK_L_PAREN :: Left parenthesis of an expression =(=
+   + TOK_R_PAREN :: Right parenthesis of an expression =)=
+   + TOK_PERIOD :: A period in a floating point number such as =3.1415=
+   + TOK_S_QUOTE :: A single quote ='= to indicate the =quote= operator
+   + TOK_D_QUOTE :: A double quote ="= to indicate a literal string
+   + TOK_ATOM :: Anything beside a literal string, =3.14=, =foo=
+   + TOK_STRING :: what's between two =TOK_D_QUOTE=
+   + TOK_EOF :: Indicates the End Of File
+   + TOK_ERR :: in case there was an error while reading tokens
+   + TOK_SIZE_LIMIT :: the maximum length a token could be which is 128
+
+   Declaring functions that are responsible of converting a piece of text, i.e. the /source code/ whether it was from a =string_t= (=char *=) or from a stream (=FILE *=), convert it into a =vector_t= of =token_t=. The functions pair =read_tokens()= and =read_stream_tokens()= are responsible of this behavior.
+
+* Parsing -- parser.h
+
+* Evaluation -- repl.h
+
+* Garbage Collector -- gc.h
+
+* Vector Data Structure -- vector.h

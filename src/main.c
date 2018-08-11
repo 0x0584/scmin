@@ -8,13 +8,28 @@
  *   + if no argument was sent, a repl-system would set up on infinity
  *     loop (until EOF is sent by the user)
  */
+#include "../include/gc.h"
 #include "../include/vector.h"
+#include "../include/lexer.h"
+
+#undef VECTOR_DEBUG
 
 int main(int argc, char **argv) {
     if (argc == 1 && argv[0]) {
-
+	/* just to dimiss the warnings for now */
     }
 
+    /* gc_init(); */
+
+#if defined VECTOR_DEBUG
     vector_testing();
+#endif
+
+#if defined LEXER_DEBUG
+    lexer_testing();
+#endif
+
+    /* gc_collect(); */
+
     return EXIT_SUCCESS;
 }

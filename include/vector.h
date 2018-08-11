@@ -1,9 +1,7 @@
 #ifndef __SCMIN_VECTOR_H
 #  define __SCMIN_VECTOR_H
 #  include "main.h"
-#  if !defined	 VECTOR_DEBUG
-#    define VECTOR_DEBUG
-#  endif
+#  define VECTOR_DEBUG
 #  define VECTOR_DEFAULT_CAPACITY	(2<<4)
 
 struct VECTOR {
@@ -30,6 +28,8 @@ object_t vector_pop(vector_t * v);
 
 void vector_set(vector_t * v, int i, object_t o);
 object_t vector_get(vector_t * v, int i);
+
+void vector_log(vector_t * v, void (*logger)(object_t));
 
 #  if defined VECTOR_DEBUG
 void vector_debug(FILE * stream, vector_t * v);

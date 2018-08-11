@@ -18,6 +18,7 @@ typedef struct CONTEXT context_t;
 
 /*! lexer types */
 typedef struct TOKEN token_t;
+typedef enum TOKEN_TYPE token_type;
 
 /*! parser types */
 typedef enum TYPE type_t;

@@ -90,6 +90,14 @@ object_t vector_get(vector_t * v, int i) {
     return v->objs[i];
 }
 
+void vector_log(vector_t * v, void (*logger)(object_t)) {
+    int i;
+    
+    for (i = 0; i < v->size; ++i) {
+	logger(v->objs[i]);
+    }
+}
+
 #if defined VECTOR_DEBUG
 void vector_debug(FILE * stream, vector_t * v) {
     int i;
