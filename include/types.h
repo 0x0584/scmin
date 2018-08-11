@@ -16,8 +16,11 @@ typedef struct SCOPE scope_t;
 typedef struct KEY_VALUE kv_t;
 typedef struct CONTEXT context_t;
 
-/*! token types */
-typedef enum TOKEN_TYPE type_t;
+/*! lexer types */
+typedef struct TOKEN token_t;
+
+/*! parser types */
+typedef enum TYPE type_t;
 typedef struct VALUE value_t;
 typedef struct LAMBDA lambda_t;
 typedef value_t *(*native_t) (int nargs, value_t * args);
