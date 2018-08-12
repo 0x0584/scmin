@@ -22,6 +22,8 @@ struct TOKEN {
 };
 
 token_t *token_new(token_type, token_string, int);
+void token_free(void *);
+
 vector_t *read_tokens(string_t);
 string_t stream_as_string(FILE *);
 vector_t *read_stream_tokens(FILE *);

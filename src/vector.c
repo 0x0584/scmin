@@ -10,7 +10,13 @@ vector_t *vector_new(void) {
     return v;
 }
 
-void vector_free(vector_t * v) {
+void vector_free(vector_t * v, void (*free_func)(object_t)) {
+    int i;
+    
+    for(i = 0; i < v->capacity; ++i) {
+	free_func(v->objs[i]);
+    }
+
     free(v->objs);
     free(v);
 }
@@ -92,6 +98,14 @@ object_t vector_get(vector_t * v, int i) {
 
 void vector_log(vector_t * v, void (*logger)(object_t)) {
     int i;
+
+    #if defined VECTOR_DEBUG
+    /* assert(v != NULL); */
+    #endif
+
+    if (!v) {
+	return;
+    }
     
     for (i = 0; i < v->size; ++i) {
 	logger(v->objs[i]);
@@ -142,6 +156,6 @@ void vector_testing(void) {
     vector_compact(v);
     vector_debug(stdout, v);
     
-    vector_free(v);
+    vector_free(v, free);
 }
 #endif

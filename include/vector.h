@@ -4,6 +4,7 @@
 #  define VECTOR_DEBUG
 #  define VECTOR_DEFAULT_CAPACITY	(2<<4)
 
+/*! implementation of Vector data structure using an array of objects */
 struct VECTOR {
     int capacity;		/*! maximum size before reallocating */
     int size;			/*! current size */
@@ -12,7 +13,7 @@ struct VECTOR {
 
 /* this is handled manually */
 vector_t *vector_new(void);
-void vector_free(vector_t * v);
+void vector_free(vector_t * v, void (*)(object_t));
 
 /*! reduce the size of the array to an optimal size  */
 void vector_compact(vector_t * v);
