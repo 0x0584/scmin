@@ -13,7 +13,7 @@ typedef struct VECTOR vector_t;
 
 /*! repl types */
 typedef struct SCOPE scope_t;
-typedef struct KEY_VALUE kv_t;
+typedef struct DATA data_t;
 typedef struct CONTEXT context_t;
 
 /*! lexer types */
@@ -22,8 +22,9 @@ typedef enum TOKEN_TYPE token_type;
 
 /*! parser types */
 typedef enum TYPE type_t;
-typedef struct VALUE value_t;
+typedef struct PAIR pair_t;
+typedef struct S_EXPR sexpr_t;
 typedef struct LAMBDA lambda_t;
-typedef value_t *(*native_t) (int nargs, value_t * args);
+typedef sexpr_t *(*native_t) (int nargs, sexpr_t * args);
 
 #endif				/* _SCMIN_TYPES_H */

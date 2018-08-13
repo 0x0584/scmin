@@ -33,3 +33,7 @@ int main(int argc, char **argv) {
 
     return EXIT_SUCCESS;
 }
+
+void raise_error(FILE *stream, string_t errmsg) {
+    fputs(errmsg, stream);
+}

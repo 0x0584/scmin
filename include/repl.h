@@ -3,21 +3,21 @@
 #  include "main.h"
 #  include "gc.h"
 
-struct KEY_VALUE {
+struct DATA {
     char *key;
-    value_t *value;
+    sexpr_t *sexpr;
 };
 
 struct SCOPE {
     gc_info info;
     int limit, nargs;
-    kv_t *args;
+    data_t *args;
     scope_t *parent;
 };
 
 struct CONTEXT {
     scope_t *scope;
-    value_t *expr, *childresult;
+    sexpr_t *expr, *childresult;
 };
 
 #endif				/* _SCMIN_REPL_H */

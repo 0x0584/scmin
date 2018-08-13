@@ -14,4 +14,12 @@ enum BOOLEAN {
     true = !false
 };
 
+enum ERROR_TYPE {
+    LEXER_ERROR,
+    PARSER_ERROR,
+    EVAL_ERROR
+};
+
+void raise_error(FILE *stream, string_t errmsg);
+
 #endif				/* __SCMIN_MAIN_H */

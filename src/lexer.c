@@ -8,11 +8,10 @@
 static char getnc(const string_t str) {
     static string_t oldstr = NULL;
     static int i = 0;
-    char c = EOF;
 
-    #if defined LEXER_DEBUG
+#if defined LEXER_DEBUG
     assert(str != NULL);
-    #endif
+#endif
 
     if (!str || !str[i]) {
 	i = 0;
@@ -23,49 +22,170 @@ static char getnc(const string_t str) {
 	oldstr = str;
     }
 
-    c = str[i++];
-
-    return c;
+    return str[i++];
 }
 
-token_t *token_new(token_type type, token_string str, int depth) {
+token_t *token_new(token_type type, string_t str, int depth) {
     token_t *token = malloc(sizeof *token);
 
     token->type = type;
-    strcpy(token->buffer, str);
+    token->buffer = str;
     token->depth = depth;
 
     return token;
 }
 
-void token_free(void *t) {
-    free(t);
+void token_free(object_t o) {
+    assert(((token_t *) o)->buffer != NULL);
+
+    if (((token_t *) o)->buffer != NULL)
+	free(((token_t *) o)->buffer);
+    free(o);
 }
 
-token_t *next_token(char *code) {
-    /* this would save a pointer to the last character
-     * we stopped  at last time */
-    char c;
-    token_t *token = NULL;
+string_t reduce_string_size(string_t str) {
+    return realloc(str, strlen(str) * sizeof(char));
+}
 
-    #if defined LEXER_DEBUG
+string_t read_string(const string_t code) {
+    string_t buffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
+    int i = 0;
+    char c;
+
+    /* this loop must end by its condition
+     * otherwise this would count as an error */
+    while ((c = getnc(code)) != '\"') {
+	buffer[i++] = c;
+	/* the string is too long */
+	if (i > TOK_SIZE_LIMIT - 1) {
+	    goto FAILED;
+	}
+    }
+
+    buffer[i] = '\0';
+
+    puts(buffer);
+
+    return reduce_string_size(buffer);
+
+  FAILED:
+    raise_error(stderr, "STRING IS TOO LONG OR HAS NO END");
+    free(buffer);
+    return NULL;
+}
+
+string_t read_number(const string_t code) {
+    string_t buffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
+    string_t error[] = {
+	"NUMBER FORMAT ERROR: MULTIPLE SIGNS",
+	"NUMBER FORMAT ERROR: MULTIPLE PERIODS",
+	"NUMBER FORMAT ERROR: NOT A DIGIT ",
+	"NUMBER IS TOO LONG"
+    };
+    int i = 0, noerror = 0;
+    bool_t period_found = false;
+    char c;
+
+    /* this loop must end by its condition
+     * otherwise this is an error */
+    while ((c = getnc(code)) != ' ') {
+	if ((c == '+' || c == '-')) {
+	    if (i != 0) {
+		noerror = 0;	/* something like +56- */
+		goto FAILED;
+	    }
+	} else if (c == '.') {
+	    if (!period_found) {
+		period_found = true;
+	    } else {
+		noerror = 1;	/* something like 52.3.2 */
+		goto FAILED;
+	    }
+	} else if (!isdigit(c)) {
+	    noerror = 2;	/* something like 34abc */
+	    goto FAILED;
+	}
+
+	buffer[i++] = c;
+
+	/* the number is too long */
+	if (i > TOK_SIZE_LIMIT - 1) {
+	    noerror = 3;	/* surpassing the limit */
+	    goto FAILED;
+	}
+    }
+
+    buffer[i] = '\0';
+
+    return reduce_string_size(buffer);
+
+  FAILED:
+    raise_error(stderr, error[noerror]);
+    free(buffer);
+    return NULL;
+}
+
+string_t read_atom(const string_t code) {
+    string_t buffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
+    string_t not_allowed = "()#\'\"{}[]";
+    string_t error[] = {
+	"ATOM IS TOO LONG OR HAS NO END",
+	"ATOM CONTAINS CHARACTERS THAT ARE NOT ALLOWED"
+    };
+    char c;
+    int i = 0, noerror = 0;
+
+    /* this loop must end, same as before, by its condition
+     * otherwise, this counts as an error*/
+    while ((c = getnc(code)) != ' ') {
+	if (strchr(not_allowed, c)) {
+	    noerror = 1;	/* not allowed characters */
+	    goto FAILED;
+	}
+
+	buffer[i++] = c;
+
+	/* the string is too long */
+	if (i > TOK_SIZE_LIMIT - 1) {
+	    noerror = 0;	/* surpassing the limit */
+	    goto FAILED;
+	}
+    }
+
+    buffer[i] = '\0';
+
+    return reduce_string_size(buffer);
+
+  FAILED:
+    raise_error(stderr, error[noerror]);
+    free(buffer);
+    return NULL;
+}
+
+token_t *next_token(const string_t code, int depth) {
+    if (depth == -1){
+	return NULL;}
+
+    token_type type = TOK_ATOM;
+    string_t buffer = NULL;
+    char c;
+
+#if defined LEXER_DEBUG
     /* assert(save == NULL); */
     /* assert(code != NULL); */
-    #endif
+#endif
 
-    /* ignoring whitespaces and comments */
+    /* ignoring white spaces and comments */
     while (true) {
-	/* ignore all whitespaces */
-	do {
+	do {			/* ignore all white spaces */
 	    c = getnc(code);
 	} while (c != EOF && isspace(c));
 
-	if (c == EOF) {
-	    goto RET;		/* end of source code */
+	if (c == EOF) {		/* end of source code */
+	    goto RET;
 	}
 
-	/* ignore all comments */
-	if (c == ';') {
+	if (c == ';') {		/* ignore all comments */
 	    do {
 		c = getnc(code);
 	    } while (c != '\n' && c != '\r' && c != EOF);
@@ -77,29 +197,45 @@ token_t *next_token(char *code) {
     /* handling lists and literal strings */
     switch (c) {
     case '(':			/* beginning of a list */
-	puts("list starting");
-	break;
+	type = TOK_L_PAREN;
+	goto RET;
     case ')':			/* end of a list */
-	puts("list ending");
-	break;
+	type = TOK_R_PAREN;
+	goto RET;
     case '\'':			/* quoted list */
-	puts("quoted list");
-	break;
+	type = TOK_S_QUOTE;
+	goto RET;
     case '\"':			/* literal string */
-	puts("string starting/ending");
-	break;
+	if ((buffer = read_string(code))) {
+	    type = TOK_STRING;
+	    puts("sss");
+	} else {
+	    type = TOK_ERR;
+	}
+	goto RET;
     default:
 	break;
     };
 
-    /* handling atoms */
-    /* handling numbers */
-    /* handling lambdas */
-
-    token = token_new(TOK_ATOM, "foo", 1);
+    /* is it a number? */
+    if (isdigit(c) || strchr(".-+", c)) {
+	if ((buffer = read_number(code))) {
+	    type = TOK_NUMBER;
+	} else {
+	    type = TOK_ERR;
+	}
+	goto RET;
+    } else {			/* or an atom */
+	if ((buffer = read_atom(code))) {
+	    type = TOK_ATOM;
+	} else {
+	    type = TOK_ERR;
+	}
+	goto RET;
+    }
 
   RET:
-    return token;
+    return token_new(type, buffer, depth);
 }
 
 /*!
@@ -112,16 +248,36 @@ vector_t *read_tokens(const string_t code) {
 #endif
 
     vector_t *tokens = vector_new();;
-    token_t *token;
-
-    puts(code);
+    token_t *token = NULL;
+    int depth = 0;
 
     /* a loop over the whole source code */
-    while ((token = next_token(code))) {
+    while ((token = next_token(code, depth))) {
+	token_print(token);
+	/* changing the depth of sexpr, hepful at the parsing stage */
+	switch (token->type) {
+	case TOK_L_PAREN:
+	    ++depth;
+	    break;
+	case TOK_R_PAREN:
+	    --depth;
+	    break;
+	case TOK_EOF:
+	    depth = -1;
+	default:
+	case TOK_ERR:
+	    goto FAILED;
+	};
+
 	vector_add(tokens, token);
     }
 
     return tokens;
+
+  FAILED:
+    puts("$$$$");
+    vector_free(tokens, token_free);
+    return NULL;
 }
 
 string_t stream_as_string(FILE * stream) {
@@ -135,12 +291,12 @@ vector_t *read_stream_tokens(FILE * stream) {
 
 #if defined LEXER_DEBUG
 
-void print_token(object_t t) {
+void token_print(object_t t) {
     assert(t);
 
     token_t *foo = (token_t *) t;
-    puts("depth \t token type \t value");
-    printf("%d \t %d \t %s\n", foo->depth, foo->type, foo->buffer);
+    puts("depth \t type \t  sexpr");
+    printf("%-8d %-8d %-8s\n", foo->depth, foo->type, foo->buffer);
 }
 
 void lexer_testing(void) {
@@ -166,9 +322,11 @@ void lexer_testing(void) {
     vector_t *tokens;
 
     for (i = 0; i < size; ++i) {
+	printf("\n-------------\n%s\n-------------\n", exprs[i]);
 	tokens = read_tokens(exprs[i]);
-	vector_log(tokens, print_token);
+	vector_log(tokens, token_print);
 	vector_free(tokens, token_free);
+	puts("%");
     }
 }
 #endif
