@@ -14,12 +14,11 @@ enum BOOLEAN {
     true = !false
 };
 
-enum ERROR_TYPE {
-    LEXER_ERROR,
-    PARSER_ERROR,
-    EVAL_ERROR
-};
-
 void raise_error(FILE *stream, string_t errmsg);
+
+char stream_char(const string_t str, bool_t isget);
+char ungetnc(const string_t str);
+char getnc(const string_t str);
+string_t reduce_string_size(string_t str);
 
 #endif				/* __SCMIN_MAIN_H */

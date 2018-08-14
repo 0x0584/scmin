@@ -2,64 +2,35 @@
  * this would split a text input into tokens, so that the parser
  * could create a parse-tree
  */
+#include "../include/main.h"
 #include "../include/lexer.h"
 #include "../include/vector.h"
 
-static char getnc(const string_t str) {
-    static string_t oldstr = NULL;
-    static int i = 0;
-
-#if defined LEXER_DEBUG
-    assert(str != NULL);
-#endif
-
-    if (!str || !str[i]) {
-	i = 0;
-	oldstr = NULL;
-	return EOF;
-    } else if (oldstr != str) {
-	i = 0;
-	oldstr = str;
-    }
-
-    return str[i++];
-}
-
-token_t *token_new(token_type type, string_t str, int depth) {
-    token_t *token = malloc(sizeof *token);
-
-    token->type = type;
-    token->buffer = str;
-    token->depth = depth;
-
-    return token;
-}
-
-void token_free(object_t o) {
-    assert(((token_t *) o)->buffer != NULL);
-
-    if (((token_t *) o)->buffer != NULL)
-	free(((token_t *) o)->buffer);
-    free(o);
-}
-
-string_t reduce_string_size(string_t str) {
-    return realloc(str, strlen(str) * sizeof(char));
-}
-
 string_t read_string(const string_t code) {
     string_t buffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
-    int i = 0;
+    string_t error[] = {
+	"REACH EOF",
+	"STRING IS TOO LONG OR HAS NO END"
+    };
+    int i = 0, noerror = 0;
     char c;
 
     /* this loop must end by its condition
      * otherwise this would count as an error */
-    while ((c = getnc(code)) != '\"') {
+    while ((c = getnc(code)) != '\"' && c != EOF) {
+
 	buffer[i++] = c;
 	/* the string is too long */
 	if (i > TOK_SIZE_LIMIT - 1) {
+	    noerror = 1;
 	    goto FAILED;
 	}
+    }
+
+    if (c == EOF) {
+	noerror = 0;
+	putchar(ungetnc(code));
+	goto FAILED;
     }
 
     buffer[i] = '\0';
@@ -69,8 +40,9 @@ string_t read_string(const string_t code) {
     return reduce_string_size(buffer);
 
   FAILED:
-    raise_error(stderr, "STRING IS TOO LONG OR HAS NO END");
+    raise_error(stderr, error[noerror]);
     free(buffer);
+
     return NULL;
 }
 
@@ -119,6 +91,7 @@ string_t read_number(const string_t code) {
 
     return reduce_string_size(buffer);
 
+    /* TODO: parse it as a number with warning */
   FAILED:
     raise_error(stderr, error[noerror]);
     free(buffer);
@@ -127,7 +100,7 @@ string_t read_number(const string_t code) {
 
 string_t read_atom(const string_t code) {
     string_t buffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
-    string_t not_allowed = "()#\'\"{}[]";
+    string_t not_allowed = "()#\'\"";
     string_t error[] = {
 	"ATOM IS TOO LONG OR HAS NO END",
 	"ATOM CONTAINS CHARACTERS THAT ARE NOT ALLOWED"
@@ -163,10 +136,11 @@ string_t read_atom(const string_t code) {
 }
 
 token_t *next_token(const string_t code, int depth) {
-    if (depth == -1){
-	return NULL;}
+    if (depth == -1) {
+	return NULL;
+    }
 
-    token_type type = TOK_ATOM;
+    token_type type = TOK_EOF;
     string_t buffer = NULL;
     char c;
 
@@ -194,6 +168,8 @@ token_t *next_token(const string_t code, int depth) {
 	}
     }
 
+    printf("\n>>> %c\n", c);
+
     /* handling lists and literal strings */
     switch (c) {
     case '(':			/* beginning of a list */
@@ -206,9 +182,9 @@ token_t *next_token(const string_t code, int depth) {
 	type = TOK_S_QUOTE;
 	goto RET;
     case '\"':			/* literal string */
+	puts("this must executed one time");
 	if ((buffer = read_string(code))) {
 	    type = TOK_STRING;
-	    puts("sss");
 	} else {
 	    type = TOK_ERR;
 	}
@@ -253,7 +229,6 @@ vector_t *read_tokens(const string_t code) {
 
     /* a loop over the whole source code */
     while ((token = next_token(code, depth))) {
-	token_print(token);
 	/* changing the depth of sexpr, hepful at the parsing stage */
 	switch (token->type) {
 	case TOK_L_PAREN:
@@ -264,12 +239,17 @@ vector_t *read_tokens(const string_t code) {
 	    break;
 	case TOK_EOF:
 	    depth = -1;
-	default:
+	    puts("8888");
+	    break;
 	case TOK_ERR:
+	    puts("TOK_ERR");
 	    goto FAILED;
+	default:
+	    break;
 	};
 
 	vector_add(tokens, token);
+	if (depth == -1) break;
     }
 
     return tokens;
@@ -290,15 +270,6 @@ vector_t *read_stream_tokens(FILE * stream) {
 }
 
 #if defined LEXER_DEBUG
-
-void token_print(object_t t) {
-    assert(t);
-
-    token_t *foo = (token_t *) t;
-    puts("depth \t type \t  sexpr");
-    printf("%-8d %-8d %-8s\n", foo->depth, foo->type, foo->buffer);
-}
-
 void lexer_testing(void) {
     FILE *stream = stdout;
 
