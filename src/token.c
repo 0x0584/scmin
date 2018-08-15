@@ -4,14 +4,16 @@ token_t *token_new(token_type type, string_t str, int depth) {
     token_t *token = malloc(sizeof *token);
 
     token->type = type;
-    token->buffer = str;
+    token->vbuffer = str;
     token->depth = depth;
 
     return token;
 }
 
 void token_print(object_t t) {
-    assert(t);
+#if defined LEXER_DEBUG
+    assert(t != NULL);
+#endif
 
     char *str = NULL;
     token_t *foo = (token_t *) t;
@@ -51,13 +53,15 @@ void token_print(object_t t) {
     }
 
     puts("depth \t    type \t sexpr");
-    printf("%.2d \t %s \t %8s\n", foo->depth, str, foo->buffer);
+    printf("%.2d \t %s \t %8s\n", foo->depth, str, foo->vbuffer);
 }
 
 void token_free(object_t o) {
-    /* assert(((token_t *) o)->buffer != NULL); */
+#if LEXER_DEBUG
+    assert(((token_t *) o)->vbuffer != NULL);
+#endif
 
-    if (((token_t *) o)->buffer != NULL)
-	free(((token_t *) o)->buffer);
+    if (((token_t *) o)->vbuffer != NULL)
+	free(((token_t *) o)->vbuffer);
     free(o);
 }

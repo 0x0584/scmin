@@ -12,12 +12,17 @@ enum TOKEN_TYPE {
 
 struct TOKEN {
     token_type type;
-    string_t buffer;
+    string_t vbuffer;
     int depth;
 };
 
 token_t *token_new(token_type type, string_t str, int depth);
 void token_print(object_t t);
 void token_free(object_t o);
+
+/**
+ *
+ */
+token_type determine_token_type(char c, token_t *token);
 
 #endif				/* _SCMIN_TOKEN_H */
