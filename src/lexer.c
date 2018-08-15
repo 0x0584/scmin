@@ -47,45 +47,63 @@ vector_t *read_tokens(const string_t code) {
     assert(code != NULL);
 #endif
 
+    string_t error[] = {
+	"ERROR: PARENS ARE NOT BALANCED",
+	"ERROR: STARTING WITH A CLOSING PAREN",
+	"ERROR: TOKEN IS NOT CORRECT"
+    };
     vector_t *tokens = vector_new(token_free, token_print);
     token_t *token = NULL;
-    int depth = 0;
+    int depth = 0, noerror = -1;
 
     /* a loop over the whole source code */
-    while ((token = next_token(code))) {
+    while (!depth && (token = next_token(code))) {
 	/**
 	** changing the depth of sexpr hepful at the parsing stage
 	***********************************************************/
+
+	token_print(token);
+
 	switch (token->type) {
-	case TOK_L_PAREN:
+	default:
+	case TOK_ERR:		/* error while lexing */
+	    noerror = 2;
+	    goto FAILED;
+
+	case TOK_EOL:		/* end of lexing */
+	    if (depth != 0) {
+		noerror = 0;
+		goto FAILED;
+	    }
+	    break;
+
+	case TOK_L_PAREN:	/* left paren */
 	    ++depth;
 	    break;
-	case TOK_R_PAREN:
+
+	case TOK_R_PAREN:	/* right paren */
+	    if (depth == 0) {
+		noerror = 1;
+		goto FAILED;
+	    }
+
 	    --depth;
-	    break;
-	case TOK_EOF:
-	    depth = -1;
-	    puts("8888");
-	    break;
-	case TOK_ERR:
-	    puts("TOK_ERR");
-	    goto FAILED;
-	default:
 	    break;
 	};
 
 	token->depth = depth;
 	vector_push(tokens, token);
-
-	if (depth == -1) {
-	    break;}
     }
 
     return tokens;
 
   FAILED:
-    puts("$$$$");
+
+    raise_error(stderr, error[noerror]);
+    assert(noerror != -1);
+
     vector_free(tokens);
+
     return NULL;
 }
 
@@ -113,48 +131,52 @@ token_t *next_token(const string_t code) {
     assert(code != NULL);
 #endif
 
-    token_type type = TOK_EOF;
+    token_type type;
     string_t vbuffer = NULL;
-    char c;
+    bool_t accept_null = false;
 
-    if(!clean_whitespaces(code) || !clean_comments(code)) {
+    if (!clean_whitespaces(code) || !clean_comments(code)) {
 	/* end of file here */
-	type = TOK_EOF;
+	type = TOK_EOL;
+
 	goto RET;
     }
 
-    /* handling lists and literal strings */
-    switch ((c = getnc(code))) {
-    case '(':			/* beginning of a list */
-	type = TOK_L_PAREN;
-	goto RET;
-    case ')':			/* end of a list */
-	type = TOK_R_PAREN;
-	goto RET;
-    case '\'':			/* quoted list */
-	type = TOK_S_QUOTE;
-	goto RET;
-    case '\"':			/* literal string */
-	puts("this must executed one time");
-
-	vbuffer = read_as_string(code);
-	type = vbuffer ? TOK_STRING : TOK_ERR;
-
-	goto RET;
-    default:
+    switch (type = determine_token_type(getnc(code))) {
+    case TOK_S_QUOTE:
+    case TOK_L_PAREN:
+    case TOK_R_PAREN:
+	accept_null = true;
 	break;
+
+    case TOK_D_QUOTE:
+	vbuffer = read_as_string(code);
+	break;
+
+    case TOK_LAMBDA:
+	vbuffer = read_as_lambda(code);
+	break;
+
+    case TOK_ATOM:
+	vbuffer = read_as_atom(code);
+	break;
+
+    case TOK_NUMBER:
+	vbuffer = read_as_number(code);
+	break;
+
+    case TOK_EOL:
+    case TOK_ERR:
+    default:
+	return NULL;
     };
 
-    printf("\n>>> %c\n", c);
+#if LEXER_DEBUG == DBG_ON
+    assert(!vbuffer && accept_null);
+#endif
 
-    if (isdigit(c) || strchr(".-+", c)) {
-	vbuffer = read_as_number(code); /* is it a number? */
-	type = vbuffer ? TOK_NUMBER: TOK_ERR;
-	goto RET;
-    } else {
-	vbuffer = read_as_atom(code); /* or an atom */
-	type = vbuffer ? TOK_ATOM : TOK_ERR;
-	goto RET;
+    if (!vbuffer && accept_null) {
+	type = TOK_ERR;
     }
 
   RET:
@@ -173,11 +195,12 @@ bool_t clean_whitespaces(string_t code) {
 
     while ((c = getnc(code)) != EOF && isspace(c));
 
-    ungetnc(code);
+    if (c != EOF) {
+	ungetnc(code);
+    }
 
     return (c != EOF);
 }
-
 
 /**
  * takes any possible comments from the @p code string
@@ -195,7 +218,9 @@ bool_t clean_comments(string_t code) {
 	} while (c != '\n' && c != '\r' && c != EOF);
     }
 
-    ungetnc(code);
+    if (c != EOF) {
+	ungetnc(code);
+    }
 
     return (c != EOF);
 }
@@ -337,6 +362,10 @@ string_t read_as_atom(const string_t code) {
     return NULL;
 }
 
+string_t read_as_lambda(const string_t code) {
+    return code;
+}
+
 #if defined LEXER_DEBUG
 void lexer_testing(void) {
     FILE *stream = stdout;
@@ -351,8 +380,8 @@ void lexer_testing(void) {
     int i, size = sizeof(exprs) / sizeof(exprs[0]);
 
     for (i = 0; i < size; ++i) {
-	fprintf(stream, "expression: {%s}\n", exprs[i]);
-	fputs("expression using getnc():", stream);
+	fprintf(stream, "expression: {\n%s\n}\n", exprs[i]);
+	fputs("expression using getnc():\n", stream);
 	while ((c = getnc(exprs[i])) != EOF) {
 	    fputc(c, stream);
 	}
@@ -364,6 +393,7 @@ void lexer_testing(void) {
     for (i = 0; i < size; ++i) {
 	printf("\n-------------\n%s\n-------------\n", exprs[i]);
 	tokens = read_tokens(exprs[i]);
+
 	vector_print(tokens);
 	vector_free(tokens);
 	puts("%");

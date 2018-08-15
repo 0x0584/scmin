@@ -132,6 +132,8 @@ string_t read_as_number(string_t code);
  */
 string_t read_as_atom(string_t code);
 
+string_t read_as_lambda(const string_t code);
+
 #  if LEXER_DEBUG == DBG_ON
 void lexer_testing(void);
 #  endif

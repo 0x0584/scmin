@@ -1,10 +1,53 @@
-#include "../include/token.h"
+/**
+ * @file token.c
+ *
+ * the main function here is determine_token_type() to guess the type
+ * of the token
+ */
 
-token_t *token_new(token_type type, string_t str, int depth) {
+#include "../include/token.h"
+#include "../include/characters.h"
+
+token_type determine_token_type(char c) {
+    token_type type;
+
+    /* handling lists and literal strings */
+    switch (c) {
+    case '(':			/* beginning of a list */
+	type = TOK_L_PAREN;
+	goto RET;
+    case ')':			/* end of a list */
+	type = TOK_R_PAREN;
+	goto RET;
+    case '\'':			/* quoted list */
+	type = TOK_S_QUOTE;
+	goto RET;
+    case '\"':			/* literal string */
+	type = TOK_D_QUOTE;
+	goto RET;
+    default:
+	break;
+    };
+
+    printf("\n>>> %c\n", c);
+
+    if (isdigit(c) || strchr(".-+", c)) {	/* number */
+	type = TOK_NUMBER;
+	ungetnc();
+    } else {
+	type = TOK_ATOM;	/* atom */
+	ungetnc();
+    }
+
+  RET:
+    return type;
+}
+
+token_t *token_new(token_type type, string_t vbuffer, int depth) {
     token_t *token = malloc(sizeof *token);
 
     token->type = type;
-    token->vbuffer = str;
+    token->vbuffer = vbuffer;
     token->depth = depth;
 
     return token;
@@ -40,11 +83,8 @@ void token_print(object_t t) {
     case TOK_NUMBER:
 	str = "TOK_NUMBER";
 	break;
-    case TOK_STRING:
-	str = "TOK_STRING";
-	break;
-    case TOK_EOF:
-	str = "TOK_EOF";
+    case TOK_EOL:
+	str = "TOK_EOL";
 	break;
     default:
     case TOK_ERR:
