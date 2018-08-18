@@ -37,7 +37,7 @@ enum BOOLEAN {
  *
  * TODO:
  * detect the error_level decide whether you want
- * to quit or just stop here of somethinbg like this
+ * to quit or just stop here of something like this
  */
 void raise_error(FILE *stream, string_t errmsg);
 

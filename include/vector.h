@@ -1,24 +1,45 @@
 #ifndef __SCMIN_VECTOR_H
 #  define __SCMIN_VECTOR_H
 
+/**
+ * @file vector.h
+ *
+ * this file contains definitions of Vector Data Structure functionalities,
+ * like creating a new vector, free a vector from the memory, and member
+ * manipulations.
+ *
+ * the vector holds an Array of objects (basically void * pointers) which point
+ * to the desired objects. when vector_free() is called, it free the objects
+ * first using the free_func(), if not, it will use the default free()
+ */
+
 #  include "main.h"
 
 /**
- * vector defaults */
+ * vector default capacity
+ */
 #  define VECTOR_DEFAULT_CAPACITY	(2<<4)
-#  define VECTOR_DOUBLE_CAPACITY 1
+
+/**
+ * doubling the capacity instead of adding it up each time
+ * example: current *= 2 instead of current += DEFAULT
+ */
+#  define VECTOR_DOUBLE_CAPACITY 0
 
 /**
  * @brief implementation of Vector data structure using an Objects[]
  *
- * @note the memory managment is done manually for the moment
+ * each vector has a capacity and a size, as well as own printing
+ * function and free function
+ *
+ * @note the memory management is done manually for the moment
  */
 struct VECTOR {
     int capacity;	       /** maximum size before reallocating */
     int size;		       /** current size */
     object_t *objs;	       /** array of Objects */
-    void (*free_func)(object_t); /** to free the Object */
-    void (*print_func)(object_t); /** to print the Object  */
+    void (*free_func) (object_t);/** to free the Object */
+    void (*print_func) (object_t);/** to print the Object  */
 };
 
 /**
@@ -31,7 +52,8 @@ struct VECTOR {
  *
  * @return a new Vector
  */
-vector_t *vector_new(void (*print_func)(object_t), void (*free_func)(object_t));
+vector_t *vector_new(void (*print_func) (object_t),
+		     void (*free_func) (object_t));
 
 /**
  * free @p v and its Object by using free_func() to free each one
@@ -53,10 +75,10 @@ void vector_print(vector_t * v);
  *
  * @param v Vector
  */
-void vector_compact(vector_t * v);
+vector_t *vector_compact(vector_t * v);
 
 /**
- * changes the values of the @p i th Object in @p v object array by @p o
+ * changes the values of the @p i the Object in @p v object array by @p o
  *
  * @param v Vector
  * @param o Object

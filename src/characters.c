@@ -1,7 +1,7 @@
 /**
  * @file characters.c
  *
- * this file contains declaractions of useful character handling functionalities
+ * this file contains declarations of useful character handling functionalities
  * to help simulating string as a stream of characters so that we can keep an
  * eye on the last character we have been on last time.
  */
@@ -11,13 +11,13 @@
 /**
  * stream_string() holds two static variables, one for the old string and one
  * for the current index. if oldstr == @p str that means that the string is
- * the same as the previouis time and  we return  the current character and
+ * the same as the previous time and  we return	 the current character and
  * then increment index. otherwise, we set the oldstr to str, and we return
  * the first character. if false, we return than this is the old string, we
- * look for the isget. if @p isget was true, * return the cuurent character,
- * otherwise, resent the character to the stream by * decrementing the index
+ * look for the isget. if @p isget was true, * return the current character,
+ * otherwise, resent the character to the stream by --index
  *
- * @param str a string to keeo track on
+ * @param str a string to keep track on
  * @param isget take or push back current character
  *
  * @return the desired character
@@ -26,7 +26,6 @@
  * TODO:
  *		try to keep track of multiple string at once
  */
-
 char stream_string(const string_t str, bool_t isget) {
     static int index = 0;
     static char *oldstr = NULL;
@@ -50,7 +49,7 @@ char stream_string(const string_t str, bool_t isget) {
 	    return EOF;
 	}
 
-	return oldstr[index++];	/* move the index to the enxt character */
+	return oldstr[index++];	/* move the index to the next character */
     } else {			/* ungetnc() stream backward */
 	if (index > 0) {
 	    return oldstr[index--];

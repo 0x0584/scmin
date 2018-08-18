@@ -30,8 +30,8 @@ enum TOKEN_TYPE {
 } type;
 
 /**
- * a token bas a type and a value stored in the buffer
- * with a depth in teh s-expr
+ * a token is composed from a type and a value stored in the buffer
+ * with a depth in the s-expr
  */
 struct TOKEN {
     token_type type;
@@ -40,7 +40,7 @@ struct TOKEN {
 };
 
 /**
- * takes a charcater which represent the beginning of a token
+ * takes a character which represent the beginning of a token
  * and then it determines it's type
  *
  * @param c a character
@@ -61,7 +61,7 @@ token_type predict_token_type(char c);
 token_t *token_new(token_type type, string_t vbuffer, int depth);
 
 /**
- * print the token of @p t on the screan
+ * print the token of @p t on the screen
  *
  * @param t a token
  */

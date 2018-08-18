@@ -4,7 +4,7 @@
 /**
  * @file lexer.h
  *
- * this file contains declarations of funtionalities to verify the grammar
+ * this file contains declarations of functionalities to verify the grammar
  * of a Scheme-like code and get all tokens in there and then using read_tokes()
  * or read_stream_tokens(), it collects the tokens in a into a Vector
  *
@@ -50,7 +50,7 @@ vector_t *read_stream_tokens(FILE * stream);
  *
  * first, it calls clean_comments() and clean_whitespaces() to
  * clean the @p code. after that, using getnc() to keep track on
- * the stream, it gets a character. it calles predict_token_type()
+ * the stream, it gets a character. it calls predict_token_type()
  * to determine the type of the next token. the it calls one of the
  * read functions based on the result.
  *
@@ -70,7 +70,7 @@ token_t *next_token(char *code);
  *
  * @param code a Scheme-like syntax
  *
- * @return false if it reatches EOF
+ * @return false if it reaches EOF
  *
  * @see getnc() in @file characters.c
  * @note this function modifies the static values in of getnc()
@@ -83,7 +83,7 @@ bool_t clean_comments(string_t code);
  *
  * @param code a Scheme-like syntax
  *
- * @return false if it reatches EOF
+ * @return false if it reaches EOF
  *
  * @see getnc() in @file characters.c
  * @note this function modifies the static values in of getnc()
@@ -95,7 +95,7 @@ bool_t clean_whitespaces(string_t code);
  *
  * @param code a Scheme-like syntax
  *
- * @return value of the token if type maches, or NULL otherwise
+ * @return value of the token if type matches, or NULL otherwise
  *
  * @see @file token.h
  * @see getnc() in @file characters.c
@@ -109,7 +109,7 @@ string_t read_as_string(string_t code);
  *
  * @param code a Scheme-like syntax
  *
- * @return value of the token if type maches, or NULL otherwise
+ * @return value of the token if type matches, or NULL otherwise
  *
  * @see @file token.h
  * @see getnc() in @file characters.c
@@ -123,7 +123,7 @@ string_t read_as_number(string_t code);
  *
  * @param code a Scheme-like syntax
  *
- * @return value of the token if type maches, or NULL otherwise
+ * @return value of the token if type matches, or NULL otherwise
  *
  * @see @file token.h
  * @see getnc() in @file characters.c

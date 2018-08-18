@@ -11,32 +11,28 @@
 token_type predict_token_type(char c) {
     token_type type;
 
-    printf("\n>>> %c\n", c);
+    /* printf("\n>>> %c\n", c); */
 
     /* handling lists and literal strings */
     switch (c) {
     case '(':			/* beginning of a list */
 	type = TOK_L_PAREN;
-	puts("done L PAREN");
 	goto RET;
     case ')':			/* end of a list */
 	type = TOK_R_PAREN;
-	puts("done R PAREN");
 	goto RET;
     case '\'':			/* quoted list */
 	type = TOK_S_QUOTE;
-	puts("done S QUOTE");
 	goto RET;
     case '\"':			/* literal string */
 	type = TOK_D_QUOTE;
-	puts("done D QUOTE");
 	goto RET;
     default:
 	break;
     };
 
-    if (isdigit(c) || strchr(".-+", c)) {	/* number */
-	type = TOK_NUMBER;
+    if (isdigit(c) || strchr(".-+", c)) {
+	type = TOK_NUMBER;	/* number */
 	ungetnc();
     } else {
 	type = TOK_ATOM;	/* atom */
@@ -62,42 +58,42 @@ void token_print(object_t t) {
     assert(t != NULL);
 #endif
 
-    char *str = NULL;
-    token_t *foo = (token_t *) t;
+    char *type_str = NULL;
+    token_t *token = (token_t *) t;
 
-    switch (foo->type) {
+    switch (token->type) {
     case TOK_L_PAREN:
-	str = "TOK_L_PAREN";
+	type_str = "TOK_L_PAREN";
 	break;
     case TOK_R_PAREN:
-	str = "TOK_R_PAREN";
+	type_str = "TOK_R_PAREN";
 	break;
     case TOK_S_QUOTE:
-	str = "TOK_S_QUOTE";
+	type_str = "TOK_S_QUOTE";
 	break;
     case TOK_D_QUOTE:
-	str = "TOK_D_QUOTE";
+	type_str = "TOK_D_QUOTE";
 	break;
     case TOK_LAMBDA:
-	str = "TOK_LAMBDA";
+	type_str = "TOK_LAMBDA";
 	break;
     case TOK_ATOM:
-	str = "TOK_ATOM";
+	type_str = "TOK_ATOM";
 	break;
     case TOK_NUMBER:
-	str = "TOK_NUMBER";
+	type_str = "TOK_NUMBER";
 	break;
     case TOK_EOL:
-	str = "TOK_EOL";
+	type_str = "TOK_EOL";
 	break;
     default:
     case TOK_ERR:
-	str = "TOK_EOF";
+	type_str = "TOK_EOF";
 	break;
     }
 
-    puts("\ndepth \t	type \t	sexpr");
-    printf("%.2d \t %s \t %8s\n", foo->depth, str, foo->vbuffer);
+    printf(" (depth:%.2d) - (type:%11s) - (value:%s)\n",
+	   token->depth, type_str, token->vbuffer);
 }
 
 void token_free(object_t o) {

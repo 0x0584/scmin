@@ -1,13 +1,13 @@
 # DEFAULT COMPILER SETUP
 CC = gcc
-CFLAGS = -ggdb -O2 -Wall -Wextra #-Werror
-# -pedantic -Wpadded
+CFLAGS = -ggdb -O2 -Wall -Wextra
+# -Werror -pedantic -Wpadded
 LDFLAGS = -I. -lm
 
 # DEFAULT PROGRAM NAME
 EXEC = scmin
 # DEFAULT PROGRAM ARGUMENTS
-ARGS = 9 2
+ARGS = "(+ 4 5)"
 
 # SOURCE OF C FILES
 SRCDIR = src

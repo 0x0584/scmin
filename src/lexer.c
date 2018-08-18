@@ -1,7 +1,7 @@
 /**
  * @file lexer.c
  *
- * @brief this file contains declarations of funtionalities to verify
+ * @brief this file contains declarations of functionalities to verify
  * the grammar of a Scheme-like code and get all tokens in there
  *
  * read_tokens() and read_stream_tokens() are the top level functions
@@ -17,8 +17,8 @@
  *	    block the lexing process if an error occurs
  *
  * after the token is found, read_tokens() collects it into a Vector
- * and the those tokens would be used by the parser to convert thats
- * et of tokens into a s-expression
+ * and the those tokens would be used by the parser to convert that
+ * set of tokens into a s-expression
  *
  * @see @file lexer.h about further documentation for each function
  * @see @file token.h information about Tokens
@@ -46,34 +46,27 @@ vector_t *read_tokens(const string_t code) {
 #if defined LEXER_DEBUG
     assert(code != NULL);
 #endif
+    vector_t *tokens = vector_new(token_free, token_print);
+    token_t *token = NULL;
 
+    int depth = 0, noerror = -1, i = 0;
     string_t error[] = {
 	"ERROR: PARENS ARE NOT BALANCED",
 	"ERROR: STARTING WITH A CLOSING PAREN",
 	"ERROR: TOKEN IS NOT CORRECT"
     };
-    vector_t *tokens = vector_new(token_free, token_print);
-    token_t *token = NULL;
-    int depth = 0, noerror = -1;
 
-    bool_t islast = false;
-
-    /***********************************************************
-     * bug: getting characters is not good
-     * todo: use a foor loop to get characters somehow.
-     ***********************************************************/
-    int i = 0;
-    /* a loop over the whole source code */
+    bool_t islastloop = false;
 
     while ((token = next_token(code))) {
-	printf("\n+++++++++++++++++\ntimes: %d\n", ++i);
+	/* printf("\n+++++++++++++++++\ntimes: %d\n", ++i); */
 
 	/* assert(token->type == TOK_ERR); */
 	/* assert(token == NULL	 && token->type != TOK_S_QUOTE */
 	/*	  && token->type != TOK_L_PAREN */
 	/*	  && token->type != TOK_R_PAREN); */
 
-	printf(" - -> %d\n", token->type);
+	/* printf(" - -> %d\n", token->type); */
 	switch (token->type) {
 	case TOK_ERR:		/* error while lexing */
 	    noerror = 2;
@@ -84,7 +77,7 @@ vector_t *read_tokens(const string_t code) {
 		noerror = 0;
 		goto FAILED;
 	    }
-	    islast = true;
+	    islastloop = true;
 	    break;
 
 	case TOK_L_PAREN:	/* left paren */
@@ -93,13 +86,13 @@ vector_t *read_tokens(const string_t code) {
 
 	case TOK_R_PAREN:	/* right paren */
 	    token->depth = --depth;
-	    puts("this is in");
+	    /* puts("this is in"); */
 	    if (depth < 0) {
 		noerror = 1;
 		goto FAILED;
 	    }
 
-	    islast = depth ? false : true;
+	    islastloop = depth ? false : true;
 	    break;
 
 	case TOK_S_QUOTE:
@@ -109,21 +102,21 @@ vector_t *read_tokens(const string_t code) {
 	    break;
 	};
 
-	token_print(token);
-	printf("islast:%s depth = %d\n", islast? "true":"false", depth);
+	/* token_print(token); */
+	/* printf("islast:%s depth = %d\n",
+	 * islastloop ? "true":"false", depth); */
 
 	vector_push(tokens, token);
-	vector_debug(stderr, tokens);
+	/* vector_debug(stderr, tokens); */
 
-	if (islast) {
+	if (islastloop) {
 	    break;
 	}
 
-	puts("++++++ end ++++++");
-	getchar();
+	/* puts("++++++ end ++++++"); */
     }
 
-    return tokens;
+    return vector_compact(tokens);
 
   FAILED:
 
@@ -177,7 +170,7 @@ token_t *next_token(const string_t code) {
     case TOK_L_PAREN:
     case TOK_R_PAREN:
 	accept_null = true;
-	printf(">>> %d, %c\n", type, accept_null ? 't' : 'f');
+	/* printf(">>> %d, %c\n", type, accept_null ? 't' : 'f'); */
 	break;
 
     case TOK_D_QUOTE:
@@ -220,7 +213,7 @@ token_t *next_token(const string_t code) {
 }
 
 /**
- * takes any possible whitespaces from the @p code string
+ * takes any possible white-spaces from the @p code string
  *
  * @param code a string containing Scheme-like syntax
  *
@@ -263,8 +256,8 @@ bool_t clean_comments(string_t code) {
 
 /*
  * ==================================================================
- * the follwing read functions return NULL if an error occurs
- * TODO: tope the whole process then. this might need to implement
+ * the following read functions return NULL if an error occurs
+ * TODO: stop the whole process then. this might need to implement
  * an error system
  * ==================================================================
  */
@@ -294,7 +287,7 @@ string_t read_as_string(const string_t code) {
 
     vbuffer[i] = '\0';
 
-    printf(" => %s \n", vbuffer);
+    /* printf(" => %s \n", vbuffer); */
 
     return reduce_string_size(vbuffer);
 
@@ -415,18 +408,18 @@ void lexer_testing(void) {
 	"(4512 2054)",
 	"\'(foo bar)",
 	"    ; this is cool\n(bar baz)"
-    }, c;
+    };
 
     int i, size = sizeof(exprs) / sizeof(exprs[0]);
 
-    for (i = 0; i < size; ++i) {
-	fprintf(stream, "expression: {\n%s\n}\n", exprs[i]);
-	fputs("expression using getnc():\n", stream);
-	while ((c = getnc(exprs[i])) != EOF) {
-	    fputc(c, stream);
-	}
-	fputs("\n\n", stream);
-    }
+    /* for (int i = 0, c; i < size; ++i) { */
+    /*	fprintf(stream, "expression: {\n%s\n}\n", exprs[i]); */
+    /*	fputs("expression using getnc():\n", stream); */
+    /*	while ((c = getnc(exprs[i])) != EOF) { */
+    /*	    fputc(c, stream); */
+    /*	} */
+    /*	fputs("\n\n", stream); */
+    /* } */
 
     vector_t *tokens;
 
@@ -441,6 +434,7 @@ void lexer_testing(void) {
 	puts("free the tokens");
 	vector_free(tokens);
 	puts("%");
+	/* getchar(); */
     }
 }
 #endif

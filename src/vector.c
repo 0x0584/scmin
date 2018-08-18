@@ -1,3 +1,18 @@
+/**
+ * @file vector.c
+ *
+ * this file contains declaration of the functions defined in header file.
+ *
+ * the main routine to handle a vector, is to first create a vector using 
+ * vector_new() and passing own printing and freeing functions, or NULL.
+ * then to free the vector, vector_free() is called. to add and remove
+ * members we use vector_add() or vector_push(). to get elements we either
+ * use vector_get() or vector_pop(). to remove an element vector_del() or 
+ * to change its value we use vector_set()
+ *
+ * @see @file vector.h
+ */
+
 #include "../include/vector.h"
 
 vector_t *vector_new(void (*free_func) (object_t),
@@ -10,7 +25,7 @@ vector_t *vector_new(void (*free_func) (object_t),
 
     v->print_func = print_func;
     v->free_func = free_func;
-	
+
     return v;
 }
 
@@ -18,15 +33,23 @@ void vector_free(vector_t * v) {
     int i;
 
     for (i = 0; i < v->capacity; ++i) {
-	v->free_func(v->objs[i]);
+	if (v->free_func) {
+	    v->free_func(v->objs[i]);
+	} else {
+	    free(v->objs[i]);
+	}
     }
 
     free(v->objs);
     free(v);
 }
 
-void vector_compact(vector_t * v) {
+vector_t *vector_compact(vector_t * v) {
     int i, j, size = v->size;
+
+    if (!v) {
+	return NULL;
+    }
 
     for (i = 0; i < size; ++i) {
 	if (!(v->objs[i])) {
@@ -41,15 +64,18 @@ void vector_compact(vector_t * v) {
     v->capacity = size;
 
     v->objs = realloc(v->objs, size * sizeof(object_t));
+
+    return v;
 }
 
 void vector_add(vector_t * v, object_t o, int i) {
-    /*  THAT WAS THE FUCKING BUG! GOD DAME IT! */
-    if (i < 0 || i > v->capacity - 1) {
+    /*  THAT WAS THE FUCKING BUG! GOD DAMN IT! */
+    if (i < 0 || i > v->capacity) {
 	return;
     }
 
-    printf("%d \n", i);
+    /* printf("%d \n", i); */
+
     if (v->size == v->capacity) {
 	const int dc = VECTOR_DEFAULT_CAPACITY;
 	const int oc = v->capacity;	/* old capacity */
@@ -133,8 +159,12 @@ void vector_debug(FILE * stream, vector_t * v) {
     puts("--------------");
     fprintf(stream, "[size:%d] [capacity:%d]\n", v->size, v->capacity);
     puts("--------------");
-    for (i = 0; i < v->capacity; ++i) {
-	fprintf(stream, "[%d] - %p \n", i, v->objs[i]);
+    for (i = 0; i < v->size; ++i) {
+	fprintf(stream, "[%d] - (addr:%p) -", i, v->objs[i]);
+	if (v->print_func) {
+	    v->print_func(v->objs[i]);
+	}
+	puts("");
     }
     puts("--------------");
 }

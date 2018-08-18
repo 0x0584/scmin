@@ -17,7 +17,7 @@
  * order, or decrement the location by one and returning the returned character
  *
  * @param str a string
- * @param isget whether getting teh current one, or push it back to the stream
+ * @param isget whether getting the current one, or push it back to the stream
  *	  again
  *
  * @return the desired character
