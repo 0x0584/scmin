@@ -50,7 +50,7 @@ vector_t *read_stream_tokens(FILE * stream);
  *
  * first, it calls clean_comments() and clean_whitespaces() to
  * clean the @p code. after that, using getnc() to keep track on
- * the stream, it gets a character. it calles determine_token_type()
+ * the stream, it gets a character. it calles predict_token_type()
  * to determine the type of the next token. the it calls one of the
  * read functions based on the result.
  *

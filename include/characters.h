@@ -31,7 +31,7 @@ char stream_string(const string_t str, bool_t isget);
  *
  * @return the desired character
  */
-char ungetnc();
+char ungetnc(void);
 
 /**
  * this is literally a call to stream_string() by passing isget as true

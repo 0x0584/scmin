@@ -1,35 +1,39 @@
 /**
  * @file token.c
  *
- * the main function here is determine_token_type() to guess the type
+ * the main function here is predict_token_type() to guess the type
  * of the token
  */
 
 #include "../include/token.h"
 #include "../include/characters.h"
 
-token_type determine_token_type(char c) {
+token_type predict_token_type(char c) {
     token_type type;
+
+    printf("\n>>> %c\n", c);
 
     /* handling lists and literal strings */
     switch (c) {
     case '(':			/* beginning of a list */
 	type = TOK_L_PAREN;
+	puts("done L PAREN");
 	goto RET;
     case ')':			/* end of a list */
 	type = TOK_R_PAREN;
+	puts("done R PAREN");
 	goto RET;
     case '\'':			/* quoted list */
 	type = TOK_S_QUOTE;
+	puts("done S QUOTE");
 	goto RET;
     case '\"':			/* literal string */
 	type = TOK_D_QUOTE;
+	puts("done D QUOTE");
 	goto RET;
     default:
 	break;
     };
-
-    printf("\n>>> %c\n", c);
 
     if (isdigit(c) || strchr(".-+", c)) {	/* number */
 	type = TOK_NUMBER;
@@ -92,7 +96,7 @@ void token_print(object_t t) {
 	break;
     }
 
-    puts("depth \t    type \t sexpr");
+    puts("\ndepth \t	type \t	sexpr");
     printf("%.2d \t %s \t %8s\n", foo->depth, str, foo->vbuffer);
 }
 

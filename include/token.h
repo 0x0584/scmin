@@ -47,7 +47,7 @@ struct TOKEN {
  *
  * @return a token type or TOK_ERR if no type matches
  */
-token_type determine_token_type(char c);
+token_type predict_token_type(char c);
 
 /**
  * create a token

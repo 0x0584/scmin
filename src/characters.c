@@ -21,36 +21,44 @@
  * @param isget take or push back current character
  *
  * @return the desired character
+ * @note string must not be NULL
+ *
+ * TODO:
+ *		try to keep track of multiple string at once
  */
+
 char stream_string(const string_t str, bool_t isget) {
-    static int i = 0;
-    static string_t oldstr = NULL;
+    static int index = 0;
+    static char *oldstr = NULL;
 
-#if defined LEXER_DEBUG
-    assert(str != NULL);
-#endif
-
-    if (!str || !str[i]) {
-	i = 0;
-	oldstr = NULL;
+    /* string must not be NULL */
+    if (!str) {
 	return EOF;
-    } else if (oldstr != str) {
-	i = 0;
-	oldstr = str;
     }
 
-    if (isget) {
-	char c;
+    /* if this is a different string, use the new string */
+    if (str != oldstr && isget) {
+	oldstr = str;
+	index = 0;
+    }
 
-	if ((c = str[i++])) {
-	    return c;
-	} else {
+    if (isget) {		/* getnc() stream forward */
+	if (!oldstr[index]) {	/* we have reached the end of the string
+				 * so set everything back again */
+	    index = 0;
+	    oldstr = NULL;
 	    return EOF;
 	}
-    } else if (!isget && i > 0) {
-	return oldstr ? oldstr[i--] : EOF;
-    } else {
-	return str[i];
+
+	return oldstr[index++];	/* move the index to the enxt character */
+    } else {			/* ungetnc() stream backward */
+	if (index > 0) {
+	    return oldstr[index--];
+	} else if (index == 0) {
+	    return oldstr[index];
+	} else {
+	    return EOF;		/* not reachable */
+	}
     }
 }
 
@@ -60,7 +68,7 @@ string_t stream_as_string(FILE * stream) {
 }
 
 char ungetnc(void) {
-    return stream_string("NIL", false);
+    return stream_string("0x0584", false);
 }
 
 char getnc(const string_t str) {
@@ -68,5 +76,5 @@ char getnc(const string_t str) {
 }
 
 string_t reduce_string_size(string_t str) {
-    return realloc(str, strlen(str) * sizeof(char));
+    return realloc(str, 1 + strlen(str) * sizeof(char));
 }

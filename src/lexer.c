@@ -56,16 +56,25 @@ vector_t *read_tokens(const string_t code) {
     token_t *token = NULL;
     int depth = 0, noerror = -1;
 
+    bool_t islast = false;
+
+    /***********************************************************
+     * bug: getting characters is not good
+     * todo: use a foor loop to get characters somehow.
+     ***********************************************************/
+    int i = 0;
     /* a loop over the whole source code */
-    while (!depth && (token = next_token(code))) {
-	/**
-	** changing the depth of sexpr hepful at the parsing stage
-	***********************************************************/
 
-	token_print(token);
+    while ((token = next_token(code))) {
+	printf("\n+++++++++++++++++\ntimes: %d\n", ++i);
 
+	/* assert(token->type == TOK_ERR); */
+	/* assert(token == NULL	 && token->type != TOK_S_QUOTE */
+	/*	  && token->type != TOK_L_PAREN */
+	/*	  && token->type != TOK_R_PAREN); */
+
+	printf(" - -> %d\n", token->type);
 	switch (token->type) {
-	default:
 	case TOK_ERR:		/* error while lexing */
 	    noerror = 2;
 	    goto FAILED;
@@ -75,24 +84,41 @@ vector_t *read_tokens(const string_t code) {
 		noerror = 0;
 		goto FAILED;
 	    }
+	    islast = true;
 	    break;
 
 	case TOK_L_PAREN:	/* left paren */
-	    ++depth;
+	    token->depth = depth++;
 	    break;
 
 	case TOK_R_PAREN:	/* right paren */
-	    if (depth == 0) {
+	    token->depth = --depth;
+	    puts("this is in");
+	    if (depth < 0) {
 		noerror = 1;
 		goto FAILED;
 	    }
 
-	    --depth;
+	    islast = depth ? false : true;
+	    break;
+
+	case TOK_S_QUOTE:
+	case TOK_D_QUOTE:
+	default:
+	    token->depth = depth;
 	    break;
 	};
 
-	token->depth = depth;
+	token_print(token);
+	printf("islast:%s depth = %d\n", islast? "true":"false", depth);
+
 	vector_push(tokens, token);
+	if (islast) {
+	    break;
+	}
+
+	puts("++++++ end ++++++");
+	getchar();
     }
 
     return tokens;
@@ -100,7 +126,10 @@ vector_t *read_tokens(const string_t code) {
   FAILED:
 
     raise_error(stderr, error[noerror]);
+
+#if LEXER_DEBUG == DBG_ON
     assert(noerror != -1);
+#endif
 
     vector_free(tokens);
 
@@ -134,19 +163,19 @@ token_t *next_token(const string_t code) {
     token_type type;
     string_t vbuffer = NULL;
     bool_t accept_null = false;
+    token_t *token;
 
     if (!clean_whitespaces(code) || !clean_comments(code)) {
-	/* end of file here */
 	type = TOK_EOL;
-
 	goto RET;
     }
 
-    switch (type = determine_token_type(getnc(code))) {
+    switch (type = predict_token_type(getnc(code))) {
     case TOK_S_QUOTE:
     case TOK_L_PAREN:
     case TOK_R_PAREN:
 	accept_null = true;
+	printf(">>> %d, %c\n", type, accept_null ? 't' : 'f');
 	break;
 
     case TOK_D_QUOTE:
@@ -172,15 +201,20 @@ token_t *next_token(const string_t code) {
     };
 
 #if LEXER_DEBUG == DBG_ON
-    assert(!vbuffer && accept_null);
+
 #endif
 
-    if (!vbuffer && accept_null) {
+    if (!vbuffer && !accept_null) {
+	puts("i'm really lost");
 	type = TOK_ERR;
     }
 
+    /* printf("	 ==> %c\n", getnc(code)); */
+    /* ungetnc(); */
+
   RET:
-    return token_new(type, vbuffer, 0);
+    token = token_new(type, vbuffer, 0);
+    return token;
 }
 
 /**
@@ -196,7 +230,7 @@ bool_t clean_whitespaces(string_t code) {
     while ((c = getnc(code)) != EOF && isspace(c));
 
     if (c != EOF) {
-	ungetnc(code);
+	ungetnc();
     }
 
     return (c != EOF);
@@ -219,7 +253,7 @@ bool_t clean_comments(string_t code) {
     }
 
     if (c != EOF) {
-	ungetnc(code);
+	ungetnc();
     }
 
     return (c != EOF);
@@ -244,7 +278,6 @@ string_t read_as_string(const string_t code) {
     /* this loop must end by its condition
      * otherwise this would count as an error */
     while ((c = getnc(code)) != '\"' && c != EOF) {
-
 	vbuffer[i++] = c;
 	/* the string is too long */
 	if (i > TOK_SIZE_LIMIT - 1) {
@@ -253,16 +286,13 @@ string_t read_as_string(const string_t code) {
 	}
     }
 
-    if (c == EOF) {
-	noerror = 0;
-	putchar(ungetnc(code));
-	/* 0001 verify this line */
-	goto FAILED;
+    if (c != EOF && c != '\"') {
+	putchar(ungetnc());
     }
 
     vbuffer[i] = '\0';
 
-    puts(vbuffer);
+    printf(" => %s \n", vbuffer);
 
     return reduce_string_size(vbuffer);
 
@@ -287,7 +317,7 @@ string_t read_as_number(const string_t code) {
 
     /* this loop must end by its condition
      * otherwise this is an error */
-    while ((c = getnc(code)) != ' ') {
+    while ((c = getnc(code)) != ' ' && c != ')') {
 	if ((c == '+' || c == '-')) {
 	    if (i != 0) {
 		noerror = 0;	/* something like +56- */
@@ -314,6 +344,10 @@ string_t read_as_number(const string_t code) {
 	}
     }
 
+    if (c == ')') {
+	ungetnc();
+    }
+
     vbuffer[i] = '\0';
 
     return reduce_string_size(vbuffer);
@@ -337,7 +371,7 @@ string_t read_as_atom(const string_t code) {
 
     /* this loop must end, same as before, by its condition
      * otherwise, this counts as an error*/
-    while ((c = getnc(code)) != ' ') {
+    while ((c = getnc(code)) != ' ' && c != ')') {
 	if (strchr(not_allowed, c)) {
 	    noerror = 1;	/* not allowed characters */
 	    goto FAILED;
@@ -350,6 +384,10 @@ string_t read_as_atom(const string_t code) {
 	    noerror = 0;	/* surpassing the limit */
 	    goto FAILED;
 	}
+    }
+
+    if (c == ')') {
+	ungetnc();
     }
 
     vbuffer[i] = '\0';
@@ -371,7 +409,7 @@ void lexer_testing(void) {
     FILE *stream = stdout;
 
     char *exprs[] = {
-	"(\"this is a string\")",
+	"(\"this is a string\")	 ",
 	"(4512 2054)",
 	"\'(foo bar)",
 	"    ; this is cool\n(bar baz)"
@@ -392,9 +430,13 @@ void lexer_testing(void) {
 
     for (i = 0; i < size; ++i) {
 	printf("\n-------------\n%s\n-------------\n", exprs[i]);
+	puts("get the tokens");
 	tokens = read_tokens(exprs[i]);
 
+	puts("printing the tokens");
 	vector_print(tokens);
+
+	puts("free the tokens");
 	vector_free(tokens);
 	puts("%");
     }
