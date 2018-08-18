@@ -44,10 +44,12 @@ void vector_compact(vector_t * v) {
 }
 
 void vector_add(vector_t * v, object_t o, int i) {
-    if (i < 0 || i < v->capacity) {
+    /*  THAT WAS THE FUCKING BUG! GOD DAME IT! */
+    if (i < 0 || i > v->capacity - 1) {
 	return;
     }
 
+    printf("%d \n", i);
     if (v->size == v->capacity) {
 	const int dc = VECTOR_DEFAULT_CAPACITY;
 	const int oc = v->capacity;	/* old capacity */
@@ -72,7 +74,7 @@ void vector_del(vector_t * v, int i) {
 }
 
 void vector_push(vector_t * v, object_t o) {
-    vector_add(v, o, 0);
+    vector_add(v, o, v->size);
 }
 
 object_t vector_pop(vector_t * v) {

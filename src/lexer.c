@@ -113,6 +113,8 @@ vector_t *read_tokens(const string_t code) {
 	printf("islast:%s depth = %d\n", islast? "true":"false", depth);
 
 	vector_push(tokens, token);
+	vector_debug(stderr, tokens);
+
 	if (islast) {
 	    break;
 	}
@@ -434,7 +436,7 @@ void lexer_testing(void) {
 	tokens = read_tokens(exprs[i]);
 
 	puts("printing the tokens");
-	vector_print(tokens);
+	vector_debug(stdout, tokens);
 
 	puts("free the tokens");
 	vector_free(tokens);
