@@ -110,7 +110,7 @@ object_t vector_get(vector_t * v, int i);
 void vector_add(vector_t * v, object_t o, int i);
 
 /**
- * removes the Object `o` of the i-th index from the `v->objs[]`
+ * removes the Object `o` of the @p i th index from the @p v Object[]
  * free_func() is called to `free()` Object
  *
  * @param v Vector
@@ -136,7 +136,7 @@ void vector_push(vector_t * v, object_t o);
 object_t vector_pop(vector_t * v);
 
 
-#  if defined VECTOR_DEBUG
+#  if VECTOR_DEBUG == DBG_ON
 /* debugging functionalities */
 void vector_debug(FILE * stream, vector_t * v);
 void vector_testing(void);

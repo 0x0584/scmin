@@ -135,7 +135,7 @@ object_t vector_get(vector_t * v, int i) {
 void vector_print(vector_t * v) {
     int i;
 
-#if defined VECTOR_DEBUG
+#if VECTOR_DEBUG == DBG_ON
     assert(v != NULL);
 #endif
 
@@ -152,7 +152,7 @@ void vector_print(vector_t * v) {
     }
 }
 
-#if defined VECTOR_DEBUG
+#if VECTOR_DEBUG == DBG_ON
 void vector_debug(FILE * stream, vector_t * v) {
     int i;
 

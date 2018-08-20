@@ -8,32 +8,32 @@
  *   + if no argument was sent, a repl-system would set up on infinity
  *     loop (until EOF is sent by the user)
  */
+#include "../include/main.h"
 #include "../include/gc.h"
+
 #include "../include/vector.h"
 #include "../include/lexer.h"
-
-#undef VECTOR_DEBUG
 
 int main(int argc, char **argv) {
     if (argc == 1 && argv[0]) {
 	/* just to dimiss the warnings for now */
     }
 
-    /* gc_init(); */
+    gc_init();
 
-#if defined VECTOR_DEBUG
+#if VECTOR_DEBUG == DBG_ON
     vector_testing();
 #endif
 
-#if defined LEXER_DEBUG
+#if LEXER_DEBUG == DBG_ON
     lexer_testing();
 #endif
 
-    /* gc_collect(); */
+    gc_collect();
 
     return EXIT_SUCCESS;
 }
 
-void raise_error(FILE *stream, string_t errmsg) {
+void raise_error(FILE * stream, string_t errmsg) {
     fputs(errmsg, stream);
 }

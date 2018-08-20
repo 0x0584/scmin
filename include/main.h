@@ -10,7 +10,6 @@
 #  include <time.h>
 
 #  include "types.h"
-#  include "gc.h"
 
 /**
  * turn the debugging flag
@@ -21,8 +20,9 @@
 /**
  * debug information
  */
-#  define LEXER_DEBUG DBG_ON
-#  define VECTOR_DEBUG DBG_ON
+#  define LEXER_DEBUG DBG_OFF
+#  define VECTOR_DEBUG DBG_OFF
+#  define GC_DEBUG DGB_ON
 
 /**
  * the boolean type

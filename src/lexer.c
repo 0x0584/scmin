@@ -43,9 +43,10 @@
  * @return a Vector of tokens
  */
 vector_t *read_tokens(const string_t code) {
-#if defined LEXER_DEBUG
+#if LEXER_DEBUG == DBG_ON
     assert(code != NULL);
 #endif
+
     vector_t *tokens = vector_new(token_free, token_print);
     token_t *token = NULL;
 
@@ -151,7 +152,7 @@ vector_t *read_stream_tokens(FILE * stream) {
  * @return a Token
  */
 token_t *next_token(const string_t code) {
-#if defined LEXER_DEBUG
+#if LEXER_DEBUG == DBG_ON
     assert(code != NULL);
 #endif
 
@@ -399,7 +400,7 @@ string_t read_as_lambda(const string_t code) {
     return code;
 }
 
-#if defined LEXER_DEBUG
+#if LEXER_DEBUG == DBG_ON
 void lexer_testing(void) {
     FILE *stream = stdout;
 

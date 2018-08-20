@@ -5,8 +5,9 @@
  * @file lexer.h
  *
  * this file contains declarations of functionalities to verify the grammar
- * of a Scheme-like code and get all tokens in there and then using read_tokes()
- * or read_stream_tokens(), it collects the tokens in a into a Vector
+ * of a Scheme-like code and get all tokens in there and then using
+ * read_tokes() or read_stream_tokens(), it collects the tokens in a into
+ * a Vector
  *
  * @see @file token.h
  * @see @file vector.h

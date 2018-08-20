@@ -34,7 +34,5 @@ typedef enum TOKEN_TYPE token_type;
 typedef enum TYPE type_t;
 typedef struct PAIR pair_t;
 typedef struct S_EXPR sexpr_t;
-typedef struct LAMBDA lambda_t;
-typedef sexpr_t *(*native_t) (int nargs, sexpr_t * args);
 
 #endif				/* _SCMIN_TYPES_H */
