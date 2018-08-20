@@ -142,6 +142,8 @@ sexpr_t *parse_as_list(vector_t * v, int *start) {
     for (i = *start + 1; i < v->size; ++i) {
 	token = v->objs[i];
 
+
+
 	/* end of the list */
 	if (token->type == TOK_R_PAREN) {
 

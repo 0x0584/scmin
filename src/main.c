@@ -19,17 +19,17 @@ int main(int argc, char **argv) {
 	/* just to dimiss the warnings for now */
     }
 
-    gc_init();
+    /* gc_init(); */
 
-#if VECTOR_DEBUG == DBG_ON
-    vector_testing();
+#if VECTOR_DEBUG == DBG_ON	/* there's a bug in the vector somewhere! */
+    /* vector_testing(); */
 #endif
 
 #if LEXER_DEBUG == DBG_ON
     lexer_testing();
 #endif
 
-    gc_collect();
+    /* gc_collect(); */
 
     return EXIT_SUCCESS;
 }

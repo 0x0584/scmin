@@ -60,14 +60,6 @@ vector_t *read_tokens(const string_t code) {
     bool_t islastloop = false;
 
     while ((token = next_token(code))) {
-	/* printf("\n+++++++++++++++++\ntimes: %d\n", ++i); */
-
-	/* assert(token->type == TOK_ERR); */
-	/* assert(token == NULL	 && token->type != TOK_S_QUOTE */
-	/*	  && token->type != TOK_L_PAREN */
-	/*	  && token->type != TOK_R_PAREN); */
-
-	/* printf(" - -> %d\n", token->type); */
 	switch (token->type) {
 	case TOK_ERR:		/* error while lexing */
 	    noerror = 2;
@@ -103,18 +95,11 @@ vector_t *read_tokens(const string_t code) {
 	    break;
 	};
 
-	/* token_print(token); */
-	/* printf("islast:%s depth = %d\n",
-	 * islastloop ? "true":"false", depth); */
-
 	vector_push(tokens, token);
-	/* vector_debug(stderr, tokens); */
 
 	if (islastloop) {
 	    break;
 	}
-
-	/* puts("++++++ end ++++++"); */
     }
 
     return vector_compact(tokens);
@@ -166,20 +151,15 @@ token_t *next_token(const string_t code) {
 	goto RET;
     }
 
-    switch (type = predict_token_type(getnc(code))) {
+    switch (type = predict_token_type(code)) {
     case TOK_S_QUOTE:
     case TOK_L_PAREN:
     case TOK_R_PAREN:
 	accept_null = true;
-	/* printf(">>> %d, %c\n", type, accept_null ? 't' : 'f'); */
 	break;
 
     case TOK_D_QUOTE:
 	vbuffer = read_as_string(code);
-	break;
-
-    case TOK_LAMBDA:
-	vbuffer = read_as_lambda(code);
 	break;
 
     case TOK_ATOM:
@@ -288,8 +268,6 @@ string_t read_as_string(const string_t code) {
 
     vbuffer[i] = '\0';
 
-    /* printf(" => %s \n", vbuffer); */
-
     return reduce_string_size(vbuffer);
 
   FAILED:
@@ -396,17 +374,13 @@ string_t read_as_atom(const string_t code) {
     return NULL;
 }
 
-string_t read_as_lambda(const string_t code) {
-    return code;
-}
-
 #if LEXER_DEBUG == DBG_ON
 void lexer_testing(void) {
-    FILE *stream = stdout;
+    /* FILE *stream = stdout; */
 
     char *exprs[] = {
 	"(\"this is a string\")	 ",
-	"(4512 2054)",
+	"(+ 4512 (* 45 2054))",
 	"\'(foo bar)",
 	"    ; this is cool\n(bar baz)"
     };

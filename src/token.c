@@ -8,13 +8,13 @@
 #include "../include/token.h"
 #include "../include/characters.h"
 
-token_type predict_token_type(char c) {
-    token_type type;
-
+token_type predict_token_type(string_t code) {
+    token_type type = TOK_ERR;
+    char c;
     /* printf("\n>>> %c\n", c); */
 
     /* handling lists and literal strings */
-    switch (c) {
+    switch (c = getnc(code)) {
     case '(':			/* beginning of a list */
 	type = TOK_L_PAREN;
 	goto RET;
@@ -32,12 +32,17 @@ token_type predict_token_type(char c) {
     };
 
     if (isdigit(c) || strchr(".-+", c)) {
-	type = TOK_NUMBER;	/* number */
+	if ((c = getnc(code)) == ' ' ||	!isdigit(c) ) {
+	    type = TOK_ATOM;	/* number */
+	} else {
+	    type = TOK_NUMBER;	/* number */
+	}
 	ungetnc();
     } else {
 	type = TOK_ATOM;	/* atom */
-	ungetnc();
     }
+
+    ungetnc();
 
   RET:
     return type;
