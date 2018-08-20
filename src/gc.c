@@ -15,7 +15,7 @@ static long gc_limit_size = (2 << 15);
 #endif
 
 void gc_init(void) {
-    gc_allocated_sexprs = vector_new(gc_free_sexpr, sexpr_describe);
+    gc_allocated_sexprs = vector_new(gc_free_sexpr, NULL);
 }
 
 void gc_clean(void) {

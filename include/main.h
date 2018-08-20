@@ -20,9 +20,9 @@
 /**
  * debug information
  */
-#  define LEXER_DEBUG DBG_OFF
-#  define VECTOR_DEBUG DBG_OFF
-#  define GC_DEBUG DGB_ON
+#  define LEXER_DEBUG DBG_ON
+#  define VECTOR_DEBUG DBG_ON
+#  define GC_DEBUG DGB_OFF
 
 /**
  * the boolean type
