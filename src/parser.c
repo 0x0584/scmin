@@ -222,16 +222,46 @@ void parser_testing(void) {
     sexpr_describe(number);
 
     sexpr_t *str = sexpr_new(T_STRING);
-    str->v.s = "this is a test cool";
+    str->v.s = "this is";
     sexpr_describe(str);
 
     sexpr_t *atom = sexpr_new(T_ATOM);
     atom->v.s = "foo";
     sexpr_describe(atom);
 
-    sexpr_t *list = cons(number, cons(str, cons(atom, sexpr_new(T_NIL))));
 
+    puts("\n ================= list ================= ");
+    puts("(11 \"this is\" foo)");
+    sexpr_t *list = cons(number, cons(str, cons(atom, sexpr_new(T_NIL))));
     sexpr_describe(list);
+
+    puts("\n ================= complex list ================= ");
+
+    sexpr_t *atom0 = sexpr_new(T_ATOM);
+    atom0->v.s = "bar";
+    sexpr_describe(atom0);
+
+    sexpr_t *number0 = sexpr_new(T_NUMBER);
+    number0->v.n = 3.14159;
+    sexpr_describe(number0);
+
+    puts("(3.14159 (11 \"this is\" foo) bar)");
+    sexpr_t *list0 = cons(number0, cons(list, cons(atom0, sexpr_new(T_NIL))));
+    sexpr_describe(list0);
+
+    puts("\n ================= cons operations ================= ");
+    puts("(car list)");
+    sexpr_describe(car(list));
+
+    puts("(cdr list)");
+    sexpr_describe(cdr(list));
+
+    puts("(car (cdr list))");
+    sexpr_describe(car(cdr(list)));
+
+    puts("(car (cdr (cdr list)))");
+    sexpr_describe(car(cdr(cdr(list))));
+
 
     /* vector_t *v = NULL; */
     /* sexpr_t *expr = NULL; */

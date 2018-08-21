@@ -93,19 +93,18 @@ void sexpr_describe(sexpr_t * expr) {
     print_tabs(++ntabs);
 
     if (type == T_STRING || type == T_ATOM) {
-	printf("content: %s", expr->v.s);
+	printf("content: %s\n", expr->v.s);
     } else if (type == T_NUMBER) {
-	printf("content: %lf", expr->v.n);
+	printf("content: %lf\n", expr->v.n);
     } else if (type == T_BOOLEAN) {
-	printf("content: %s", expr->v.b ? "TRUE" : "FALSE");
+	printf("content: %s\n", expr->v.b ? "TRUE" : "FALSE");
     } else if (type == T_PAIR) {
 	printf("content: \n");
 	print_tabs(ntabs);
 	sexpr_describe(expr->v.c->car);
+	putchar('\n');
 	print_tabs(ntabs);
 	sexpr_describe(expr->v.c->cdr);
-
     }
-    putchar('\n');
     --ntabs;
 }
