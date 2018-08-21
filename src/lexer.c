@@ -381,7 +381,7 @@ void lexer_testing(void) {
     char *exprs[] = {
 	"(\"this is a string\")	 ",
 	"(+ 4512 (* 45 2054))",
-	"\'(foo bar)",
+	"(car \'((foo bar) (fuzz buzz)))",
 	"    ; this is cool\n(bar baz)"
     };
 

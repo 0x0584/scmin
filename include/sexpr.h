@@ -15,11 +15,6 @@ enum TYPE {
     T_NIL, T_ERR
 };
 
-struct PAIR {
-    sexpr_t *car;		/* data */
-    sexpr_t *cdr;		/* next */
-};
-
 /**
  * A Lisp token sexpr must contain it's type and then one of
  *   the possible sexprs based on that type
@@ -38,5 +33,6 @@ struct S_EXPR {
 };
 
 sexpr_t *sexpr_new(type_t type);
+void sexpr_describe(sexpr_t * expr);
 
 #endif				/* _SCMIN_SEXPR_H */

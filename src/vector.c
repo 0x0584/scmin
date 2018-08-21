@@ -35,11 +35,10 @@ void vector_free(vector_t * v) {
     for (i = 0; i < v->capacity; ++i) {
 	if (v->free_func) {
 	    v->free_func(v->objs[i]);
-	} else {
-	    free(v->objs[i]);
 	}
     }
-
+    
+    assert(v->objs != NULL);
     free(v->objs);
     free(v);
 }
@@ -170,10 +169,10 @@ void vector_debug(FILE * stream, vector_t * v) {
 }
 
 void vector_testing(void) {
-    vector_t *v = vector_new(free, NULL);
+    vector_t *v = vector_new(NULL, NULL);
     int i, size = 30, tab[size];
 
-
+    puts("ss");
     for (i = 0; i < size; ++i) {
 	tab[i] = 2 * i;
     }
@@ -187,7 +186,7 @@ void vector_testing(void) {
     for (i = 0; i < v->size; ++i) {
 	fprintf(stdout, "[%d] = %d\n", i, *((int *) v->objs[i]));
     }
-    puts("--------------");
+    puts("-------------- stage one --------------");
 
     for (i = 0; i < size; ++i) {
 	if (i % 3 == 0) {
@@ -195,11 +194,14 @@ void vector_testing(void) {
 	}
     }
 
+    puts("-------------- stage two --------------");
     vector_debug(stdout, v);
 
     vector_compact(v);
+    puts("-------------- stage three --------------");
     vector_debug(stdout, v);
-
+    puts("-------------- stage four --------------");
     vector_free(v);
+    puts("-------------- final stage --------------");
 }
 #endif

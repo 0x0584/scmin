@@ -5,21 +5,23 @@
 
 #include "../include/parser.h"
 
-#include "../include/sexpr.h"
-#include "../include/token.h"
 #include "../include/vector.h"
+#include "../include/token.h"
 
-sexpr_t *parse_expression(vector_t * tokens) {
+#include "../include/pair.h"
+#include "../include/sexpr.h"
+
+sexpr_t *parse_sexpr(vector_t * tokens) {
     int i;
     sexpr_t *expr = NULL;
     token_t *token = NULL;
 
-    for (i = 0; i < tokens->size; ++i) {
-	token = vector_get(tokens, i);
+    while (true) {
+	token = vector_pop(tokens);
 
 	switch (token->type) {
 	case TOK_L_PAREN:
-	    expr = parse_as_list(tokens, &i);
+	    expr = parse_as_list(tokens);
 	    break;
 
 	case TOK_NUMBER:
@@ -35,6 +37,10 @@ sexpr_t *parse_expression(vector_t * tokens) {
 	default:
 	    break;
 	}
+
+	if (token->type == TOK_R_PAREN && token->depth == 0) {
+	    break;		/* we have finished parsing */
+	}
     }
 
     assert(expr != NULL);
@@ -43,6 +49,72 @@ sexpr_t *parse_expression(vector_t * tokens) {
 				 * not seem like a good idea. or is it? */
 
     return expr;
+}
+
+sexpr_t *parse_as_list(vector_t * tokens) {
+    string_t error[] = {
+	"LIST HAS NO CLOSE PAREN"
+    };
+    int noerror = 0;
+    bool_t isfinished = false, isfirstloop = true;
+    sexpr_t *expr;
+    sexpr_t *car = NULL, *cdr = NULL, *value;
+
+    token_t *token = NULL;
+
+    while (true) {
+	token = vector_pop(tokens);
+
+	if (token->type == TOK_R_PAREN) {
+	    /* empty list check '() */
+	    if (isfirstloop) return sexpr_new(T_NIL);
+	    isfinished = true;
+	    break;
+	} else {
+	    switch (token->type) {
+	    case TOK_NUMBER:
+		value = parse_as_number(token->vbuffer);
+		break;
+	    case TOK_D_QUOTE:
+		value = parse_as_string(token->vbuffer);
+		break;
+	    case TOK_ATOM:
+		value = parse_as_atom(token->vbuffer);
+		break;
+	    case TOK_L_PAREN:
+		value = parse_as_list(tokens);
+		break;
+	    default:
+		break;
+	    }
+	}
+
+	expr = sexpr_new(T_PAIR);
+	expr->v.c = cons(value, NULL);
+
+	if (!cdr) {
+	    car = expr;
+	} else {
+	    set_cdr(cdr, expr);
+	}
+
+	cdr = expr;
+
+	token_free(token);
+	isfirstloop = false;
+    }
+
+    if (!isfinished) {
+	noerror = 0;
+	goto FAILED;
+    }
+
+    return expr;
+
+  FAILED:
+
+    raise_error(stderr, error[noerror]);
+    return NULL;
 }
 
 sexpr_t *parse_as_number(string_t value) {
@@ -130,37 +202,32 @@ sexpr_t *parse_as_atom(string_t value) {
     return expr;
 }
 
-sexpr_t *parse_as_list(vector_t * v, int *start) {
-    string_t error[] = {
-	"LIST HAS NO CLOSE PAREN"
+#if PARSER_DEBUG == DBG_ON
+#  include "../include/lexer.h"
+
+void parser_testing(void) {
+    string_t exprs[] = {
+	"(\"this is a string\")	 ",
+	"(+ 4512 (* 45 2054))",
+	"(car \'((foo bar) (fuzz buzz)))",
+	"    ; this is cool\n(bar baz)"
     };
-    int i = 0, noerror = 0;
-    bool_t isfinished = false;
-    sexpr_t *expr = sexpr_new(T_PAIR);
-    token_t *token = NULL;
+    puts(">>>");
+    int i, size = sizeof(exprs) / sizeof(exprs[0]);
+    vector_t *v = NULL;
+    sexpr_t *expr = NULL;
+    for (i = 0; i < size; ++i) {
+	v = read_tokens(exprs[i]);
+	vector_print(v);
 
-    for (i = *start + 1; i < v->size; ++i) {
-	token = v->objs[i];
+	expr = parse_sexpr(v);
 
-
-
-	/* end of the list */
-	if (token->type == TOK_R_PAREN) {
-
-	    isfinished = true;
-	    break;
-	}
+	puts("ssjjjj");
+	sexpr_describe(expr);
+	vector_free(v);
     }
 
-    if (!isfinished) {
-	noerror = 0;
-	goto FAILED;
-    }
-
-    return expr;
-
-  FAILED:
-
-    raise_error(stderr, error[noerror]);
-    return NULL;
+    /* memory should be freed using GC
+     * but for the moment it is not! */
 }
+#endif

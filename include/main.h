@@ -20,9 +20,11 @@
 /**
  * debug information
  */
-#  define LEXER_DEBUG DBG_ON
-#  define VECTOR_DEBUG DBG_ON
-#  define GC_DEBUG DGB_ON
+#  define GC_DEBUG DGB_OFF
+
+#  define VECTOR_DEBUG DBG_OFF
+#  define LEXER_DEBUG DBG_OFF
+#  define PARSER_DEBUG DBG_ON
 
 /**
  * the boolean type
@@ -39,6 +41,6 @@ enum BOOLEAN {
  * detect the error_level decide whether you want
  * to quit or just stop here of something like this
  */
-void raise_error(FILE *stream, string_t errmsg);
+void raise_error(FILE * stream, string_t errmsg);
 
 #endif				/* __SCMIN_MAIN_H */

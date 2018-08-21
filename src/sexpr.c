@@ -1,7 +1,5 @@
 #include "../include/sexpr.h"
 
-static sexpr_t sexpr_nil = {.type = T_NIL};
-
 sexpr_t *sexpr_new(type_t type) {
     sexpr_t *expr = gc_alloc_sexpr();
 
