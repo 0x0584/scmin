@@ -102,6 +102,7 @@ void vector_push(vector_t * v, object_t o) {
     vector_add(v, o, v->size);
 }
 
+/* getting element as a LIFO */
 object_t vector_pop(vector_t * v) {
     if (v->size < 0) {
 	return NULL;
@@ -113,6 +114,22 @@ object_t vector_pop(vector_t * v) {
 
     vector_compact(v);
 
+    return o;
+}
+
+/* 
+ * getting the an element as a FIFO
+ * NOTE: this is not too efficiant, i have to find another way.
+ * but at least this gets the job done for now */
+object_t vector_peek(vector_t *v) {
+    assert(v != NULL);
+    assert(v->size != 0);
+    
+    object_t o = vector_get(v, 0);
+    vector_set(v, 0, NULL);
+
+    vector_compact(v);
+    
     return o;
 }
 

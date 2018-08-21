@@ -135,6 +135,7 @@ void vector_push(vector_t * v, object_t o);
  */
 object_t vector_pop(vector_t * v);
 
+object_t vector_peek(vector_t *v);
 
 #  if VECTOR_DEBUG == DBG_ON
 /* debugging functionalities */

@@ -32,7 +32,7 @@ token_type predict_token_type(string_t code) {
     };
 
     if (isdigit(c) || strchr(".-+", c)) {
-	if ((c = getnc(code)) == ' ' ||	!isdigit(c) ) {
+	if ((c = getnc(code)) == ' ' || !isdigit(c)) {
 	    type = TOK_ATOM;	/* number */
 	} else {
 	    type = TOK_NUMBER;	/* number */
@@ -103,7 +103,18 @@ void token_print(object_t t) {
 
 void token_free(object_t o) {
 #if LEXER_DEBUG
-    assert(((token_t *) o)->vbuffer != NULL);
+    token_t *t = o;
+    static int i = 0;
+
+    /* printf("%d - this>>\n", ++i); */
+    /* token_print(t); */
+    /* printf("<<<<\n\n"); */
+
+    if(t->type != TOK_L_PAREN && t->type != TOK_R_PAREN
+       && t->type != TOK_S_QUOTE) {
+	assert(t->vbuffer != NULL);
+    }
+
 #endif
 
     if (((token_t *) o)->vbuffer != NULL)

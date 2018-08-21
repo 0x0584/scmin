@@ -35,12 +35,20 @@ sexpr_t *cons(sexpr_t * car, sexpr_t * cdr) {
 }
 
 sexpr_t *car(sexpr_t * expr) {
-    assert(expr != NULL);
+    /* assert(expr != NULL); */
 
     return ispair(expr) ? expr->v.c->car : NULL;
 }
 
 sexpr_t *cdr(sexpr_t * expr) {
+    assert(expr != NULL);
+
+    if (expr->v.c->cdr->type == T_NIL) {
+	return NULL;
+    }
+
+    assert(expr->type != T_NIL);
+
     return ispair(expr) ? expr->v.c->cdr : NULL;
 }
 

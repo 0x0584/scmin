@@ -16,7 +16,10 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
     token_t *token = NULL;
 
     while (true) {
-	token = vector_pop(tokens);
+	token = vector_peek(tokens);
+
+	vector_print(tokens);
+	puts("+++++++++++");
 
 	switch (token->type) {
 	case TOK_L_PAREN:
@@ -46,7 +49,6 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 
     vector_free(tokens);	/* free the tokens in the parser does
 				 * not seem like a good idea. or is it? */
-
     return expr;
 }
 
@@ -57,21 +59,31 @@ sexpr_t *parse_as_list(vector_t * tokens) {
     int noerror = 0;
     bool_t isfinished = false, isfirstloop = true;
     sexpr_t *expr;
-    sexpr_t *car = NULL, *cdr = NULL, *value;
+    sexpr_t *head = NULL, *value;
 
     token_t *token = NULL;
 
+    puts("\nLIST PARSING START\n");
     while (true) {
-	token = vector_pop(tokens);
+	token = vector_peek(tokens);
+
+	vector_print(tokens);
 
 	if (token->type == TOK_R_PAREN) {
 	    /* empty list check '() */
 	    /* HERE */
-	    if (isfirstloop) expr = sexpr_new(T_NIL);
+	    if (isfirstloop) {
+		expr = sexpr_new(T_NIL);
+	    }
+
 	    isfinished = true;
 	    break;
 	} else {
 	    switch (token->type) {
+	    case TOK_L_PAREN:
+		value = parse_as_list(tokens);
+		break;
+
 	    case TOK_NUMBER:
 		value = parse_as_number(token->vbuffer);
 		break;
@@ -81,24 +93,22 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	    case TOK_ATOM:
 		value = parse_as_atom(token->vbuffer);
 		break;
-	    case TOK_L_PAREN:
-		value = parse_as_list(tokens);
-		break;
+
 	    default:
 		value = sexpr_new(T_NIL);
 		break;
 	    }
 	}
 
+	/* ====================== testing this ====================== */
 	expr = cons(value, sexpr_new(T_NIL));
 
-	if (!cdr) {
-	    car = expr;
+	if (!head) {
+	    head = expr;
 	} else {
-	    set_cdr(expr, expr);
+	    set_cdr(head, expr);
 	}
-
-	cdr = expr;
+	/* ========================================================== */
 
 	token_free(token);
 	isfirstloop = false;
@@ -108,6 +118,13 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	noerror = 0;
 	goto FAILED;
     }
+
+    assert(expr != NULL);
+
+    puts("final:");
+    sexpr_describe(expr);
+
+    sexpr_describe(car(expr));
 
     return expr;
 
@@ -123,18 +140,13 @@ sexpr_t *parse_as_number(string_t value) {
     };
     int noerror;
 
+    assert(value != NULL);
+
     sexpr_t *expr = sexpr_new(T_NUMBER);
-    number_t val;
-    unsigned int count_chars = 0;
 
-    count_chars = sscanf(value, "%lf\n", &val);
+    expr->v.n = strtod(value, NULL);
 
-    if (strlen(value) == count_chars) {
-	expr->v.n = val;
-    } else {
-	noerror = 0;
-	goto FAILED;
-    }
+    sexpr_describe(expr);
 
     return expr;
 
@@ -159,6 +171,8 @@ sexpr_t *parse_as_string(string_t value) {
 	goto FAILED;
     }
 
+    sexpr_describe(expr);
+
     return expr;
 
   FAILED:
@@ -168,6 +182,7 @@ sexpr_t *parse_as_string(string_t value) {
 
 sexpr_t *parse_as_boolean(string_t value) {
     string_t error[] = {
+	"",
 	"ERROR WHILE PARSING BOOLEAN"
     };
     int noerror;
@@ -182,6 +197,8 @@ sexpr_t *parse_as_boolean(string_t value) {
 	noerror = 0;
 	goto FAILED;
     }
+
+    sexpr_describe(expr);
 
     return expr;
 
@@ -199,6 +216,8 @@ sexpr_t *parse_as_atom(string_t value) {
 	assert(expr != NULL);
     }
 
+    sexpr_describe(expr);
+
     return expr;
 }
 
@@ -207,14 +226,15 @@ sexpr_t *parse_as_atom(string_t value) {
 
 void parser_testing(void) {
     string_t exprs[] = {
+	"(+ 11111 (* 22222 33333))",
 	"(\"this is a string\")	 ",
-	"(+ 4512 (* 45 2054))",
 	"(car \'((foo bar) (fuzz buzz)))",
 	"    ; this is cool\n(bar baz)"
     };
 
     int i, size = sizeof(exprs) / sizeof(exprs[0]);
 
+    /*
     puts(" ================= s-exprs ================= ");
 
     sexpr_t *number = sexpr_new(T_NUMBER);
@@ -228,13 +248,14 @@ void parser_testing(void) {
     sexpr_t *atom = sexpr_new(T_ATOM);
     atom->v.s = "foo";
     sexpr_describe(atom);
-
-
+    */
+    /*
     puts("\n ================= list ================= ");
     puts("(11 \"this is\" foo)");
     sexpr_t *list = cons(number, cons(str, cons(atom, sexpr_new(T_NIL))));
     sexpr_describe(list);
-
+    */
+    /*
     puts("\n ================= complex list ================= ");
 
     sexpr_t *atom0 = sexpr_new(T_ATOM);
@@ -246,9 +267,11 @@ void parser_testing(void) {
     sexpr_describe(number0);
 
     puts("(3.14159 (11 \"this is\" foo) bar)");
-    sexpr_t *list0 = cons(number0, cons(list, cons(atom0, sexpr_new(T_NIL))));
+    sexpr_t *list0 =
+	cons(number0, cons(list, cons(atom0, sexpr_new(T_NIL))));
     sexpr_describe(list0);
-
+    */
+    /*
     puts("\n ================= cons operations ================= ");
     puts("(car list)");
     sexpr_describe(car(list));
@@ -262,19 +285,54 @@ void parser_testing(void) {
     puts("(car (cdr (cdr list)))");
     sexpr_describe(car(cdr(cdr(list))));
 
+    puts("(car (cdr (cdr (cdr (list)))))");	// must return T_NIL //
+    sexpr_describe(car(cdr(cdr(cdr(list)))));
+    */
+    /*
+    puts("\n ================= more on lists ================= ");
+    sexpr_t *fuzz = sexpr_new(T_NUMBER);
+    fuzz->v.n = 465;
 
-    /* vector_t *v = NULL; */
-    /* sexpr_t *expr = NULL; */
-    /* for (i = 0; i < size; ++i) { */
-    /*	/\* v = read_tokens(exprs[i]); *\/ */
-    /*	/\* vector_print(v); *\/ */
+    sexpr_t *tripl_list = cons(
+	cons(
+	    cons(
+		fuzz,
+		sexpr_new(T_NIL)
+		),
+	    sexpr_new(T_NIL)
+	    ),
+	sexpr_new(T_NIL)
+    );
+    */
+    /*
+    puts("(((465)))");
+    sexpr_describe(tripl_list);
 
-    /*	/\* expr = parse_sexpr(v); *\/ */
+    puts("\n(car '(((465)))) ; ((465))");
+    sexpr_describe(car(tripl_list));
 
-    /*	/\* puts("ssjjjj"); *\/ */
-    /*	/\* sexpr_describe(expr); *\/ */
-    /*	/\* vector_free(v); *\/ */
-    /* } */
+    puts("\n(car (car '(((465))))) ; (465)");
+    sexpr_describe(car(car(tripl_list)));
+
+    puts("\n(car (cdr '(((465))))) ; NIL");
+    sexpr_describe(car(cdr(tripl_list)));
+    */
+
+    vector_t *v = NULL;
+    sexpr_t *expr = NULL;
+
+    for (i = 0; i < size; ++i) {
+	v = read_tokens(exprs[i]);
+	puts(exprs[i]);
+	vector_print(v);
+	puts("===================");
+	expr = parse_sexpr(v);
+
+	sexpr_describe(expr);
+	vector_free(v);
+
+	getchar();
+    }
 
     /* memory should be freed using GC
      * but for the moment it is not! */

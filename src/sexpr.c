@@ -22,7 +22,7 @@ bool_t isboolean(sexpr_t *expr) {
 }
 
 bool_t ispair(sexpr_t *expr) {
-    return expr->type == T_PAIR;
+    return expr && expr->type == T_PAIR;
 }
 
 sexpr_t *sexpr_new(type_t type) {
@@ -51,6 +51,14 @@ void print_tabs(int ntabs) {
 };
 
 void sexpr_describe(sexpr_t * expr) {
+
+    if (expr == NULL) {
+	sexpr_describe(&(sexpr_t ){.type = T_NIL});
+	return;
+    }
+
+    assert(expr != NULL);
+
     static int ntabs = 0;
     char *type_str = NULL;
     type_t type;
@@ -104,7 +112,11 @@ void sexpr_describe(sexpr_t * expr) {
 	sexpr_describe(expr->v.c->car);
 	putchar('\n');
 	print_tabs(ntabs);
+	if (expr->v.c->cdr->type == T_NIL) {
+
+	}
 	sexpr_describe(expr->v.c->cdr);
+
     }
     --ntabs;
 }
