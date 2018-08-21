@@ -1,9 +1,19 @@
-#include "sexpr.h"
+#ifndef _SCMIN_PAIR_H
+#  define _SCMIN_PAIR_H
+
+#  include "main.h"
+#  include "gc.h"
 
 struct PAIR {
-    sexpr_t *car;		/* data */
-    sexpr_t *cdr;		/* next */
+    sexpr_t *car;		/* current */
+    sexpr_t *cdr;		/* rest */
+    bool_t islist;
 };
 
-pair_t *cons(sexpr_t *car, sexpr_t *cdr);
-void set_cdr(sexpr_t *old_cdr, sexpr_t *new_cdr);
+sexpr_t *cons(sexpr_t * car, sexpr_t * cdr);
+sexpr_t *car(sexpr_t * expr);
+sexpr_t *cdr(sexpr_t * expr);
+void set_cdr(sexpr_t * expr, sexpr_t * cdr);
+void set_car(sexpr_t * expr, sexpr_t * car);
+
+#endif

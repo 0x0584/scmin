@@ -1,4 +1,29 @@
 #include "../include/sexpr.h"
+#include "../include/pair.h"
+
+bool_t isnil(sexpr_t *expr) {
+    return expr->type == T_NIL;
+}
+
+bool_t isatom(sexpr_t *expr) {
+    return expr->type == T_ATOM;
+}
+
+bool_t isnumber(sexpr_t *expr) {
+    return expr->type == T_NUMBER;
+}
+
+bool_t isstring(sexpr_t *expr) {
+    return expr->type == T_STRING;
+}
+
+bool_t isboolean(sexpr_t *expr) {
+    return expr->type == T_BOOLEAN || isnil(expr);
+}
+
+bool_t ispair(sexpr_t *expr) {
+    return expr->type == T_PAIR;
+}
 
 sexpr_t *sexpr_new(type_t type) {
     sexpr_t *expr = gc_alloc_sexpr();
@@ -6,8 +31,8 @@ sexpr_t *sexpr_new(type_t type) {
     expr->type = type;
 
 #if GC_DEBUG == DBG_ON
-    printf("%d", type);
-    gc_debug_memory();
+    /* printf("%d", type); */
+    /* gc_debug_memory(); */
 #endif
 
     return expr;
@@ -68,19 +93,19 @@ void sexpr_describe(sexpr_t * expr) {
     print_tabs(++ntabs);
 
     if (type == T_STRING || type == T_ATOM) {
-	printf("content:%s", expr->v.s);
+	printf("content: %s", expr->v.s);
     } else if (type == T_NUMBER) {
-	printf("content:%lf", expr->v.n);
+	printf("content: %lf", expr->v.n);
     } else if (type == T_BOOLEAN) {
-	printf("content:%s", expr->v.b ? "TRUE" : "FALSE");
+	printf("content: %s", expr->v.b ? "TRUE" : "FALSE");
     } else if (type == T_PAIR) {
 	printf("content: \n");
 	print_tabs(ntabs);
 	sexpr_describe(expr->v.c->car);
-	print_tabs(ntabs - 1);
+	print_tabs(ntabs);
 	sexpr_describe(expr->v.c->cdr);
 
     }
-
+    putchar('\n');
     --ntabs;
 }

@@ -12,7 +12,6 @@
 #include "../include/sexpr.h"
 
 sexpr_t *parse_sexpr(vector_t * tokens) {
-    int i;
     sexpr_t *expr = NULL;
     token_t *token = NULL;
 
@@ -67,7 +66,8 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 
 	if (token->type == TOK_R_PAREN) {
 	    /* empty list check '() */
-	    if (isfirstloop) return sexpr_new(T_NIL);
+	    /* HERE */
+	    if (isfirstloop) expr = sexpr_new(T_NIL);
 	    isfinished = true;
 	    break;
 	} else {
@@ -85,17 +85,17 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 		value = parse_as_list(tokens);
 		break;
 	    default:
+		value = sexpr_new(T_NIL);
 		break;
 	    }
 	}
 
-	expr = sexpr_new(T_PAIR);
-	expr->v.c = cons(value, NULL);
+	expr = cons(value, sexpr_new(T_NIL));
 
 	if (!cdr) {
 	    car = expr;
 	} else {
-	    set_cdr(cdr, expr);
+	    set_cdr(expr, expr);
 	}
 
 	cdr = expr;
@@ -121,7 +121,7 @@ sexpr_t *parse_as_number(string_t value) {
     string_t error[] = {
 	"NUMBER PARSING ERROR!"
     };
-    int i = 0, noerror;
+    int noerror;
 
     sexpr_t *expr = sexpr_new(T_NUMBER);
     number_t val;
@@ -212,20 +212,39 @@ void parser_testing(void) {
 	"(car \'((foo bar) (fuzz buzz)))",
 	"    ; this is cool\n(bar baz)"
     };
-    puts(">>>");
+
     int i, size = sizeof(exprs) / sizeof(exprs[0]);
-    vector_t *v = NULL;
-    sexpr_t *expr = NULL;
-    for (i = 0; i < size; ++i) {
-	v = read_tokens(exprs[i]);
-	vector_print(v);
 
-	expr = parse_sexpr(v);
+    puts(" ================= s-exprs ================= ");
 
-	puts("ssjjjj");
-	sexpr_describe(expr);
-	vector_free(v);
-    }
+    sexpr_t *number = sexpr_new(T_NUMBER);
+    number->v.n = 11;
+    sexpr_describe(number);
+
+    sexpr_t *str = sexpr_new(T_STRING);
+    str->v.s = "this is a test cool";
+    sexpr_describe(str);
+
+    sexpr_t *atom = sexpr_new(T_ATOM);
+    atom->v.s = "foo";
+    sexpr_describe(atom);
+
+    sexpr_t *list = cons(number, cons(str, cons(atom, sexpr_new(T_NIL))));
+
+    sexpr_describe(list);
+
+    /* vector_t *v = NULL; */
+    /* sexpr_t *expr = NULL; */
+    /* for (i = 0; i < size; ++i) { */
+    /*	/\* v = read_tokens(exprs[i]); *\/ */
+    /*	/\* vector_print(v); *\/ */
+
+    /*	/\* expr = parse_sexpr(v); *\/ */
+
+    /*	/\* puts("ssjjjj"); *\/ */
+    /*	/\* sexpr_describe(expr); *\/ */
+    /*	/\* vector_free(v); *\/ */
+    /* } */
 
     /* memory should be freed using GC
      * but for the moment it is not! */

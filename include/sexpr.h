@@ -32,7 +32,16 @@ struct S_EXPR {
     } v;
 };
 
+
+bool_t isnil(sexpr_t *expr);
+bool_t isatom(sexpr_t *expr);
+bool_t isnumber(sexpr_t *expr);
+bool_t isstring(sexpr_t *expr);
+bool_t isboolean(sexpr_t *expr);
+bool_t ispair(sexpr_t *expr);
+
 sexpr_t *sexpr_new(type_t type);
 void sexpr_describe(sexpr_t * expr);
+
 
 #endif				/* _SCMIN_SEXPR_H */

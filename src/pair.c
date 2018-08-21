@@ -1,4 +1,5 @@
 #include "../include/pair.h"
+#include "../include/sexpr.h"
 
 /* ==========================================================================
  * NOTES ON CONS: THIS IS WHAT THIS IS SUPPOSED TO SOLVE
@@ -10,13 +11,47 @@
  * +
  * ==========================================================================
  */
-pair_t *cons(sexpr_t *car, sexpr_t *cdr) {
-    pair_t *p = malloc(sizeof *p);
+sexpr_t *cons(sexpr_t * car, sexpr_t * cdr) {
+    assert(car != NULL);
+    assert(cdr != NULL);
 
-    p->car = car;
-    p->cdr = cdr;
+    sexpr_t *expr = sexpr_new(T_PAIR);
+    pair_t *pair = malloc(sizeof *pair);
 
-    return p;
+    pair->car = car;
+    pair->cdr = cdr;
+
+    if (isnil(cdr)) {
+	pair->islist = true;
+    } else if (ispair(cdr)) {
+	pair->islist = cdr->v.c->islist;
+    } else {
+	pair->islist = false;
+    }
+
+    expr->v.c = pair;
+
+    return expr;
 }
 
-void set_cdr(sexpr_t *old_cdr, sexpr_t *new_cdr);
+sexpr_t *car(sexpr_t * expr) {
+    assert(expr != NULL);
+
+    return ispair(expr) ? expr->v.c->car : NULL;
+}
+
+sexpr_t *cdr(sexpr_t * expr) {
+    return ispair(expr) ? expr->v.c->cdr : NULL;
+}
+
+void set_cdr(sexpr_t * expr, sexpr_t * cdr) {
+    if (ispair(expr)) {
+	expr->v.c->cdr = cdr;
+    }
+}
+
+void set_car(sexpr_t * expr, sexpr_t * car) {
+    if (ispair(expr)) {
+	expr->v.c->car = car;
+    }
+}
