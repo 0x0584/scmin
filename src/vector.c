@@ -37,9 +37,10 @@ void vector_free(vector_t * v) {
 	    v->free_func(v->objs[i]);
 	}
     }
+    assert(v != NULL);
     
-    assert(v->objs != NULL);
-    free(v->objs);
+    if (v->objs)
+	free(v->objs);
     free(v);
 }
 
@@ -121,15 +122,17 @@ object_t vector_pop(vector_t * v) {
  * getting the an element as a FIFO
  * NOTE: this is not too efficiant, i have to find another way.
  * but at least this gets the job done for now */
-object_t vector_peek(vector_t *v) {
+object_t vector_peek(vector_t * v) {
     assert(v != NULL);
-    assert(v->size != 0);
-    
+
+    if (v->size == 0)
+	return NULL;
+
     object_t o = vector_get(v, 0);
     vector_set(v, 0, NULL);
 
     vector_compact(v);
-    
+
     return o;
 }
 

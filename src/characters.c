@@ -61,8 +61,10 @@ char stream_string(const string_t str, bool_t isget) {
     }
 }
 
+/* todo: write this to read the files */
 string_t stream_as_string(FILE * stream) {
     fputc('\0', stream);
+
     return "";
 }
 

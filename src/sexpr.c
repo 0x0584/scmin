@@ -1,27 +1,27 @@
 #include "../include/sexpr.h"
 #include "../include/pair.h"
 
-bool_t isnil(sexpr_t *expr) {
+bool_t isnil(sexpr_t * expr) {
     return expr->type == T_NIL;
 }
 
-bool_t isatom(sexpr_t *expr) {
+bool_t isatom(sexpr_t * expr) {
     return expr->type == T_ATOM;
 }
 
-bool_t isnumber(sexpr_t *expr) {
+bool_t isnumber(sexpr_t * expr) {
     return expr->type == T_NUMBER;
 }
 
-bool_t isstring(sexpr_t *expr) {
+bool_t isstring(sexpr_t * expr) {
     return expr->type == T_STRING;
 }
 
-bool_t isboolean(sexpr_t *expr) {
+bool_t isboolean(sexpr_t * expr) {
     return expr->type == T_BOOLEAN || isnil(expr);
 }
 
-bool_t ispair(sexpr_t *expr) {
+bool_t ispair(sexpr_t * expr) {
     return expr && expr->type == T_PAIR;
 }
 
@@ -53,7 +53,7 @@ void print_tabs(int ntabs) {
 void sexpr_describe(sexpr_t * expr) {
 
     if (expr == NULL) {
-	sexpr_describe(&(sexpr_t ){.type = T_NIL});
+	sexpr_describe(&(sexpr_t) {.type = T_NIL});
 	return;
     }
 
@@ -94,7 +94,8 @@ void sexpr_describe(sexpr_t * expr) {
 
     printf("expr: %p, type:%d (%s)\n", expr, type, type_str);
 
-    if (isfinished){
+    if (isfinished) {
+	print_tabs(ntabs - 1);
 	return;
     }
 
