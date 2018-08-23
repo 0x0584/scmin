@@ -150,8 +150,6 @@ void gc_free_sexpr(object_t o) {
 
     sexpr_t *expr = o;
 
-    sexpr_describe(expr);
-
     /* because they got an allocated string */
     if (expr->type == T_STRING || expr->type == T_ATOM) {
 	free(expr->v.s);
@@ -180,5 +178,7 @@ void gc_debug_memory(void) {
 
     sexpr_t *ssss = sexpr_new(T_NUMBER);
     ssss->v.n = 775;
+
+    gc_collect(true);
 }
 #endif

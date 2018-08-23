@@ -29,9 +29,8 @@ vector_t *vector_new(operation_t free_obj, operation_t print_obj) {
     v->capacity = 0;
     v->size = 0;
     v->objs = malloc(sizeof(object_t));
-
-    v->print_obj = print_obj;
     v->free_obj = free_obj;
+    v->print_obj = print_obj;
 
     return v;
 }
@@ -185,11 +184,13 @@ object_t vector_get(vector_t * v, int i) {
  * @param v Vector
  */
 vector_t *vector_compact(vector_t * v) {
-    int i, j, size = v->size;
-
     if (!v) {
 	return NULL;
+    } else if (v->size == 0) {
+	return v;
     }
+
+    int i, j, size = v->size;
 
     /* this would literaly shift elements in the array
      * and there'is a case where the first element
@@ -200,16 +201,22 @@ vector_t *vector_compact(vector_t * v) {
     for (i = 0; i < size; ++i) {
 	if (!(v->objs[i])) {
 	    for (j = i; j < size - 1; ++j) {
+		if (!v->objs[j + 1])
+		    --size;
 		v->objs[j] = v->objs[j + 1];
 	    }
 	    --size;
 	}
     }
 
-    v->objs = realloc(v->objs, size * sizeof(object_t));
+    v->size = size;
+    v->capacity = size;
 
-    v->size = v->objs[0] ? size : 0;
-    v->capacity = v->objs[0] ? size : 0;
+    if (size == 0) {
+	++size;
+    }
+
+    v->objs = realloc(v->objs, size * sizeof(object_t));
 
     return v;
 }
@@ -256,42 +263,49 @@ void vector_debug(FILE * stream, vector_t * v) {
 }
 
 #if VECTOR_DEBUG == DBG_ON
-void vector_testing(void) {
-    vector_t *v = vector_new(NULL, NULL);
-    int i, size = 30, tab[size];
 
-    puts("ss");
+void print_int(object_t o) {
+    if (!o) {
+	return;
+    }
+    int *i = o;
+
+    printf(" %d \n", *i);
+}
+
+void free_int(object_t o) {
+    return;
+}
+
+void vector_testing(void) {
+    vector_t *v = vector_new(free_int, print_int);
+    int i, size = 15, tab[size];
+
     for (i = 0; i < size; ++i) {
-	tab[i] = 2 * i;
+	tab[i] = i + 1;
     }
 
     for (i = 0; i < size; ++i) {
 	vector_push(v, &tab[i]);
     }
 
+    puts("after pushing all objects...");
     vector_debug(stdout, v);
 
     for (i = 0; i < v->size; ++i) {
-	fprintf(stdout, "[%d] = %d\n", i, *((int *) v->objs[i]));
-    }
-
-    puts("-------------- stage one --------------");
-    for (i = 0; i < size; ++i) {
 	if (i % 3 == 0) {
-	    vector_del(v, i);
+	    vector_set(v, i, NULL);
 	}
     }
 
-    puts("-------------- stage two --------------");
+    puts("after removing mod 3 elements");
     vector_debug(stdout, v);
+
+    puts("after compacting the vector");
     vector_compact(v);
-
-    puts("-------------- stage three --------------");
     vector_debug(stdout, v);
 
-    puts("-------------- stage four --------------");
+    puts("freeing the vector");
     vector_free(v);
-
-    puts("-------------- final stage --------------");
 }
 #endif
