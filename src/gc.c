@@ -67,9 +67,9 @@ void gc_mark_sexpr(sexpr_t * expr) {
 	sexpr_t *head = car(expr), *rest = cdr(expr);
 
 	if (head)
-	    gc_mark_sexpr(car(expr));
+	    gc_mark_sexpr(head);
 	if (rest)
-	    gc_mark_sexpr(cdr(expr));
+	    gc_mark_sexpr(rest);
     }
 }
 
@@ -156,6 +156,7 @@ void gc_free_sexpr(object_t o) {
     } else if (expr->type == T_PAIR) {
 	gc_free_sexpr(car(expr));
 	gc_free_sexpr(cdr(expr));
+	free(expr->v.c);
     }
 
     free(expr);
@@ -170,14 +171,20 @@ void gc_debug_memory(void) {
     sexpr_t *sss = sexpr_new(T_STRING);
     sss->v.s = strdup("this is a string");
 
-    /* making the atom as reachable */
-    gc_mark_sexpr(s);
+    sexpr_t *ssss = sexpr_new(T_STRING);
+    ssss->v.s = strdup("this would not be marked!");
 
-    /* force garbage collection */
-    gc_collect(true);
+    sexpr_describe(ssss);
+    puts("");
 
-    sexpr_t *ssss = sexpr_new(T_NUMBER);
-    ssss->v.n = 775;
+    sexpr_t *expected = cons(s,
+			     cons(ss,
+				  cons(sss,
+				       sexpr_new(T_NIL))));
+
+    sexpr_describe(expected);
+    puts("");
+    gc_mark_sexpr(expected);
 
     gc_collect(true);
 }

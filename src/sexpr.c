@@ -93,7 +93,9 @@ void sexpr_describe(object_t o) {
 	break;
     }
 
-    printf("expr: %p, type:%d (%s)\n", expr, type, type_str);
+    printf(" expr: %p, type:%d (%s), [%s]\n",
+	   expr, type, type_str,
+	   expr->gci.ismarked ? "X" : "O");
 
     if (isfinished) {
 	print_tabs(ntabs - 1);

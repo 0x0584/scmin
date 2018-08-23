@@ -209,6 +209,8 @@ vector_t *vector_compact(vector_t * v) {
 	}
     }
 
+    assert(size >= 0);		/* not sure! */
+
     v->size = size;
     v->capacity = size;
 

@@ -104,7 +104,7 @@ void token_print(object_t t) {
 void token_free(object_t o) {
 #if LEXER_DEBUG
     token_t *t = o;
-    static int i = 0;
+    /* static int i = 0; */
 
     /* printf("%d - this>>\n", ++i); */
     /* token_print(t); */

@@ -16,20 +16,19 @@ sexpr_t *cons(sexpr_t * car, sexpr_t * cdr) {
     assert(cdr != NULL);
 
     sexpr_t *expr = sexpr_new(T_PAIR);
-    pair_t *pair = malloc(sizeof *pair);
 
-    pair->car = car;
-    pair->cdr = cdr;
+    expr->v.c = malloc(sizeof(pair_t));
+    expr->v.c->car = car;
+    expr->v.c->cdr = cdr;
 
     if (isnil(cdr)) {
-	pair->islist = true;
+	expr->v.c->islist = true;
     } else if (ispair(cdr)) {
-	pair->islist = cdr->v.c->islist;
+	expr->v.c->islist = cdr->v.c->islist;
     } else {
-	pair->islist = false;
+	expr->v.c->islist = false;
     }
 
-    expr->v.c = pair;
 
     return expr;
 }
@@ -44,7 +43,7 @@ sexpr_t *cdr(sexpr_t * expr) {
     assert(expr != NULL);
 
     if (expr->v.c->cdr->type == T_NIL) {
-	return NULL;
+	return expr->v.c->cdr;
     }
 
     assert(expr->type != T_NIL);

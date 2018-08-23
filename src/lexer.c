@@ -45,7 +45,7 @@ vector_t *read_tokens(const string_t code) {
     vector_t *tokens = vector_new(token_free, token_print);
     token_t *token = NULL;
 
-    int depth = 0, noerror = -1, i = 0;
+    int depth = 0, noerror = -1;
     string_t error[] = {
 	"ERROR: PARENS ARE NOT BALANCED",
 	"ERROR: STARTING WITH A CLOSING PAREN",
