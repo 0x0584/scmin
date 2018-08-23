@@ -24,25 +24,22 @@ int main(int argc, char **argv) {
 
     gc_init();
 
-    sexpr_t *s = sexpr_new(T_NIL);
-    sexpr_t *ss = sexpr_new(T_NIL);
-    sexpr_t *sss = sexpr_new(T_NIL);
-
-    gc_collect(false);
-
-#if VECTOR_DEBUG == DBG_ON	/* there's a bug in the vector somewhere! */
-    /* vector_testing(); */
+#if VECTOR_DEBUG == DBG_ON
+    vector_testing();
 #endif
 
 #if LEXER_DEBUG == DBG_ON
-    /* lexer_testing(); */
+    lexer_testing();
 #endif
 
 #if PARSER_DEBUG == DBG_ON
-    /* parser_testing(); */
+    parser_testing();
 #endif
 
-    gc_collect(true);
+#if GC_DEBUG == DBG_ON
+    gc_debug_memory();
+#endif
+
     gc_clean();
 
     return EXIT_SUCCESS;

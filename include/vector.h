@@ -56,8 +56,7 @@ struct VECTOR {
  *
  * @return a new Vector
  */
-vector_t *vector_new(void (*print_obj) (object_t),
-		     void (*free_obj) (object_t));
+vector_t *vector_new(operation_t free_obj, operation_t print_obj);
 
 /**
  * free @p v and its Object by using free_obj() to free each one
@@ -136,10 +135,22 @@ void vector_push(vector_t * v, object_t o);
  * get the Object as a stack pop -- calling get() with index 0
  *
  * @param v Vector
+ *
+ * @return the popped object
  */
 object_t vector_pop(vector_t * v);
 
-object_t vector_peek(vector_t *v);
+
+/**
+ * getting the an element as a FIFO
+ * NOTE: this is not too efficiant, i have to find another way.
+ * but at least this gets the job done for now
+ *
+ * @param v Vector
+ *
+ * @return the popped object
+ */
+object_t vector_peek(vector_t * v);
 
 void vector_debug(FILE * stream, vector_t * v);
 

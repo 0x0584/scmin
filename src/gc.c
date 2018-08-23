@@ -30,22 +30,26 @@ bool_t gc_has_space_left() {
 /* ===================================================================
 ** FIXME: NOW
  */
-void gc_collect(bool_t isfinal) {
+void gc_collect(bool_t iscleanup) {
 #if GC_DEBUG == DBG_ON
-    if (isfinal)
+    if (iscleanup)
 	printf("%s ", "final");
-    puts("collectng");
+    else
+	puts("collectng");
 #endif
 
     /* ignore garbage collection in case of not surpassing limit */
-    if (gc_has_space_left() && !isfinal) {
+    if (gc_has_space_left() && !iscleanup) {
 	return;
     }
 
-    vector_debug(stderr, gc_allocated_sexprs);
-
     /* gc_mark_stack_sexprs(gc_allocated_sexprs); */
     gc_sweep_sexprs(gc_allocated_sexprs);
+
+#if GC_DEBUG == DBG_ON
+    puts("======================================\n");
+#endif
+
 }
 
 void gc_mark_sexpr(sexpr_t * expr) {
@@ -85,30 +89,41 @@ void gc_sweep_sexprs(vector_t * v) {
 
 #if GC_DEBUG == DBG_ON
     int freed = 0, size = v->size;
+
+    puts("stack before");
+    vector_debug(stderr, v);
 #endif
 
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
 	if (!tmp->gci.ismarked) {
-		gc_free_sexpr(tmp);
-		vector_set(v, i, NULL);
+	    gc_free_sexpr(tmp);
+	    vector_set(v, i, NULL);
 
 #if GC_DEBUG == DBG_ON
 	    ++freed;		/* not reachable */
 #endif
 
 	} else {
-	    /* mark already reachable as reachable */
+	    /* mark already reachable as not reachable */
 	    tmp->gci.ismarked = false;
 	}
     }
 
+#if GC_DEBUG == DBG_ON
+    puts("stack after");
+    vector_debug(stderr, v);
+#endif
+
     vector_compact(v);
 
 #if GC_DEBUG == DBG_ON
-    printf("previous: %d - current: %d - freed: %d \n", size, v->size,
-	   freed);
+    printf("previous: %d - current: %d - added: %d  - freed: %d \n",
+	   size, v->size, size - freed, freed);
+
+    puts("final stack");
+    vector_debug(stderr, v);
 #endif
 
 }
@@ -117,12 +132,13 @@ sexpr_t *gc_alloc_sexpr(void) {
     /* FIXME: check this line along while making teh evaluation */
 
     if (!gc_has_space_left()) {
-	gc_collect(false);
+	gc_collect(true);
     }
 
     sexpr_t *s = malloc(sizeof *s);
 
     s->gci.ismarked = false;
+
     vector_push(gc_allocated_sexprs, s);
 
     return s;
@@ -139,6 +155,9 @@ void gc_free_sexpr(object_t o) {
     /* because they got an allocated string */
     if (expr->type == T_STRING || expr->type == T_ATOM) {
 	free(expr->v.s);
+    } else if (expr->type == T_PAIR) {
+	gc_free_sexpr(car(expr));
+	gc_free_sexpr(cdr(expr));
     }
 
     free(expr);
@@ -146,6 +165,20 @@ void gc_free_sexpr(object_t o) {
 
 #if GC_DEBUG == DBG_ON
 void gc_debug_memory(void) {
-    vector_print(gc_allocated_sexprs);
+    sexpr_t *s = sexpr_new(T_ATOM);
+    s->v.s = strdup("foo");
+    sexpr_t *ss = sexpr_new(T_NUMBER);
+    ss->v.n = 502;
+    sexpr_t *sss = sexpr_new(T_STRING);
+    sss->v.s = strdup("this is a string");
+
+    /* making the atom as reachable */
+    gc_mark_sexpr(s);
+
+    /* force garbage collection */
+    gc_collect(true);
+
+    sexpr_t *ssss = sexpr_new(T_NUMBER);
+    ssss->v.n = 775;
 }
 #endif

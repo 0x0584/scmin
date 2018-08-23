@@ -12,12 +12,6 @@
  */
 #  include "main.h"
 
-/**
- * it's like calling free() right after each time you finished
- * but it causes some lack in performance
- */
-#  define GC_ALWAYSs
-
 struct GC_INFO {
     bool_t ismarked;		/** is marked as reachable! */
 };
