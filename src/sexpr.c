@@ -50,7 +50,8 @@ void print_tabs(int ntabs) {
     }
 };
 
-void sexpr_describe(sexpr_t * expr) {
+void sexpr_describe(object_t o) {
+    sexpr_t * expr = (sexpr_t *) o;
 
     if (expr == NULL) {
 	sexpr_describe(&(sexpr_t) {.type = T_NIL});

@@ -13,9 +13,6 @@
  * tokens in the provided code. if no token is found or or it didn't
  * match the Scheme grammar, it returns an TOK_ERR type of token
  *
- * TODO:
- *	    block the lexing process if an error occurs
- *
  * after the token is found, read_tokens() collects it into a Vector
  * and the those tokens would be used by the parser to convert that
  * set of tokens into a s-expression
@@ -25,8 +22,6 @@
  * @see @file vector.h for information about Vectors
  * @see @file characters.h for information about getting strings
  *
- * TODO:
- *	  stop the process somehow!
  */
 
 #include "../include/main.h"
@@ -326,7 +321,6 @@ string_t read_as_number(const string_t code) {
 
     return reduce_string_size(vbuffer);
 
-    /* TODO: parse it as a number with warning */
   FAILED:
     raise_error(stderr, error[noerror]);
     free(vbuffer);

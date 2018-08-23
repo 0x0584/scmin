@@ -41,7 +41,6 @@ bool_t isboolean(sexpr_t *expr);
 bool_t ispair(sexpr_t *expr);
 
 sexpr_t *sexpr_new(type_t type);
-void sexpr_describe(sexpr_t * expr);
-
+void sexpr_describe(object_t expr);
 
 #endif				/* _SCMIN_SEXPR_H */

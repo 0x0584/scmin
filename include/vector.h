@@ -10,7 +10,7 @@
  *
  * the vector holds an Array of objects (basically void * pointers) which point
  * to the desired objects. when vector_free() is called, it free the objects
- * first using the free_func(), if not, it will use the default free()
+ * first using the free_obj(), if not, it will use the default free()
  */
 
 #  include "main.h"
@@ -27,6 +27,11 @@
 #  define VECTOR_DOUBLE_CAPACITY 0
 
 /**
+ * this is the typical function for vector operation
+ */
+typedef void (*operation_t) (object_t);
+
+/**
  * @brief implementation of Vector data structure using an Objects[]
  *
  * each vector has a capacity and a size, as well as own printing
@@ -38,32 +43,31 @@ struct VECTOR {
     int capacity;	       /** maximum size before reallocating */
     int size;		       /** current size */
     object_t *objs;	       /** array of Objects */
-    void (*free_func) (object_t);/** to free the Object */
-    void (*print_func) (object_t);/** to print the Object  */
+    operation_t free_obj, print_obj;
 };
 
 /**
  * allocates the memory for the new vector and its members
  *
- * @param free_func a function the free the Object.
+ * @param free_obj a function the free the Object.
  *	  if NULL, stdlib/free is used
- * @param print_func a function to print the Object.
+ * @param print_obj a function to print the Object.
  *	  if NULL, stdlib/printf is used to print the pointer
  *
  * @return a new Vector
  */
-vector_t *vector_new(void (*print_func) (object_t),
-		     void (*free_func) (object_t));
+vector_t *vector_new(void (*print_obj) (object_t),
+		     void (*free_obj) (object_t));
 
 /**
- * free @p v and its Object by using free_func() to free each one
+ * free @p v and its Object by using free_obj() to free each one
  *
  * @param v Vector
  */
 void vector_free(vector_t * v);
 
 /**
- * prints the @p v elements using print_func()
+ * prints the @p v elements using print_obj()
  *
  * @param v Vector
  */
@@ -111,7 +115,7 @@ void vector_add(vector_t * v, object_t o, int i);
 
 /**
  * removes the Object `o` of the @p i th index from the @p v Object[]
- * free_func() is called to `free()` Object
+ * free_obj() is called to `free()` Object
  *
  * @param v Vector
  * @param i index of the Object
@@ -137,9 +141,9 @@ object_t vector_pop(vector_t * v);
 
 object_t vector_peek(vector_t *v);
 
-#  if VECTOR_DEBUG == DBG_ON
-/* debugging functionalities */
 void vector_debug(FILE * stream, vector_t * v);
+
+#  if VECTOR_DEBUG == DBG_ON
 void vector_testing(void);
 #  endif
 

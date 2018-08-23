@@ -19,18 +19,26 @@
 #  define GC_ALWAYSs
 
 struct GC_INFO {
-    bool_t ismarked;		/** is marked to be cleaned */
+    bool_t ismarked;		/** is marked as reachable! */
 };
+
+#  define GC_STACK_LIMIT_SIZE	(2 << 15)
+
+#  define GC_FREQUENCY		 4
+
+#  define GC_RATIO		(GC_STACK_LIMIT_SIZE / GC_FREQUENCY)
 
 /**
  * initialize the GC
  */
 void gc_init(void);
 
+void gc_clean(void);
+
 /**
  * collect the garbage
  */
-void gc_collect(void);
+void gc_collect(bool_t final);
 
 long gc_allocated_size(void);
 
@@ -38,9 +46,12 @@ long gc_allocated_size(void);
  * allocate memory for a sexpr
  */
 sexpr_t *gc_alloc_sexpr(void);
-void gc_free_sexpr(object_t);
-void gc_mark_sexpr(sexpr_t *);
-void gc_sweep_sexprs(vector_t *);
+void gc_free_sexpr(object_t o);
+void gc_mark_sexpr(sexpr_t * expr);
+void gc_sweep_sexprs(vector_t * v);
+
+
+void gc_mark_stack_sexprs(vector_t * v);
 
 #  if GC_DEBUG == DBG_ON
 /**

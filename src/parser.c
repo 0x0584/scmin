@@ -20,9 +20,6 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 	if (!token)
 	    break;
 
-	vector_print(tokens);
-	puts("+++++++++++");
-
 	switch (token->type) {
 	case TOK_L_PAREN:
 	    expr = parse_as_list(tokens);
@@ -51,9 +48,6 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 
     assert(expr != NULL);
 
-    puts("-------------");
-    /* sexpr_describe(expr); */
-
     vector_free(tokens);	/* free the tokens in the parser does
 				 * not seem like a good idea. or is it? */
 
@@ -61,6 +55,8 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
     return expr;
 }
 
+/* there is no check parens here, the lexer did the job
+ * FIXME: improve the code */
 sexpr_t *parse_as_list(vector_t * tokens) {
     string_t error[] = {
 	"LIST HAS NO CLOSE PAREN"
@@ -72,11 +68,8 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 
     token_t *token = NULL;
 
-    /* puts("\nLIST PARSING START\n"); */
     while (true) {
 	token = vector_peek(tokens);
-
-	/* vector_print(tokens); */
 
 	if (token->type == TOK_R_PAREN) {
 	    /* empty list check '() */
@@ -88,6 +81,7 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	    isfinished = true;
 	    break;
 	} else {
+	    /* FIXME: handle 'a to (quote a) */
 	    switch (token->type) {
 	    case TOK_L_PAREN:
 		value = parse_as_list(tokens);
@@ -112,20 +106,11 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	/* ====================== testing this ====================== */
 	expr = cons(value, sexpr_new(T_NIL));
 
-	/* puts("//////////////////"); */
-	/* sexpr_describe(value); */
-	/* sexpr_describe(expr); */
-	/* puts("//////////////////"); */
-
 	if (!head) {
 	    head = expr;
 	} else {
 	    set_cdr(tail, expr);
 	}
-
-	/* puts("****************"); */
-	/* sexpr_describe(head); */
-	/* puts("****************"); */
 
 	tail = expr;
 	/* ========================================================== */
@@ -141,16 +126,6 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 
     assert(expr != NULL);
 
-    /* puts("final:"); */
-    /* sexpr_describe(head); */
-    /* puts("=========="); */
-
-    /* sexpr_t *atom = car(head); */
-    /* printf("%s -- %p \n", atom->v.s,atom->v.s); */
-
-    /* puts("=========="); */
-    /* sexpr_describe(car(head)); */
-
     return head;
 
   FAILED:
@@ -160,78 +135,42 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 }
 
 sexpr_t *parse_as_number(string_t value) {
-    /* string_t error[] = { */
-    /*	"NUMBER PARSING ERROR!" */
-    /* }; */
-    /* int noerror; */
-
     assert(value != NULL);
 
     sexpr_t *expr = sexpr_new(T_NUMBER);
 
     expr->v.n = strtod(value, NULL);
 
-    /* sexpr_describe(expr); */
-
     return expr;
-
-  /* FAILED: */
-
-  /*   raise_error(stderr, error[noerror]); */
-  /*   return NULL; */
 }
 
 sexpr_t *parse_as_string(string_t value) {
-    string_t error[] = {
-	"STRING PARSING ERROR!"
-    };
-    int noerror;
-
     sexpr_t *expr = sexpr_new(T_STRING);
 
     expr->v.s = strdup(value);
 
-    if (expr->v.s == NULL) {
-	noerror = 0;
-	goto FAILED;
-    }
-
-    /* sexpr_describe(expr); */
-
     return expr;
-
-  FAILED:
-    raise_error(stderr, error[noerror]);
-    return NULL;
 }
 
 sexpr_t *parse_as_boolean(string_t value) {
-    string_t error[] = {
-	"",
-	"ERROR WHILE PARSING BOOLEAN"
-    };
-    int noerror;
-
     sexpr_t *expr = sexpr_new(T_BOOLEAN);
 
     if (!strcmp(value, "nil") || !strcmp(value, "#f")) {
 	expr->v.b = false;
     } else if (!strcmp(value, "#t") || !strcmp(value, "t")) {
 	expr->v.b = true;
-    } else {
-	noerror = 0;
-	goto FAILED;
     }
 
-    /* sexpr_describe(expr); */
-
-    return expr;
-
-  FAILED:
-    raise_error(stderr, error[noerror]);
     return NULL;
 }
 
+/*
+expr: 0x557dfac88740, type:4 (CONS-PAIR)
+    content:
+    expr: 0x557dfac886e0, type:3 (ATOM)
+	content: +
+
+ */
 sexpr_t *parse_as_atom(string_t value) {
     sexpr_t *expr;
 
@@ -240,8 +179,6 @@ sexpr_t *parse_as_atom(string_t value) {
 	expr->type = T_ATOM;
 	assert(expr != NULL);
     }
-
-    /* sexpr_describe(expr); */
 
     return expr;
 }

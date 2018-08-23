@@ -15,16 +15,16 @@
 
 #include "../include/vector.h"
 
-vector_t *vector_new(void (*free_func) (object_t),
-		     void (*print_func) (object_t)) {
+vector_t *vector_new(void (*free_obj) (object_t),
+		     void (*print_obj) (object_t)) {
     vector_t *v = malloc(sizeof *v);
 
     v->capacity = 0;
     v->size = 0;
     v->objs = malloc(sizeof(object_t));
 
-    v->print_func = print_func;
-    v->free_func = free_func;
+    v->print_obj = print_obj;
+    v->free_obj = free_obj;
 
     return v;
 }
@@ -33,8 +33,8 @@ void vector_free(vector_t * v) {
     int i;
 
     for (i = 0; i < v->capacity; ++i) {
-	if (v->free_func) {
-	    v->free_func(v->objs[i]);
+	if (v->free_obj) {
+	    v->free_obj(v->objs[i]);
 	}
     }
     assert(v != NULL);
@@ -42,6 +42,7 @@ void vector_free(vector_t * v) {
     if (v->objs)
 	free(v->objs);
     free(v);
+    v = NULL;
 }
 
 vector_t *vector_compact(vector_t * v) {
@@ -163,15 +164,14 @@ void vector_print(vector_t * v) {
     }
 
     for (i = 0; i < v->size; ++i) {
-	if (v->print_func) {
-	    v->print_func(v->objs[i]);
+	if (v->print_obj) {
+	    v->print_obj(v->objs[i]);
 	} else {
 	    printf("%p -- %d", v->objs[i], i);
 	}
     }
 }
 
-#if VECTOR_DEBUG == DBG_ON
 void vector_debug(FILE * stream, vector_t * v) {
     int i;
 
@@ -180,14 +180,15 @@ void vector_debug(FILE * stream, vector_t * v) {
     puts("--------------");
     for (i = 0; i < v->size; ++i) {
 	fprintf(stream, "[%d] - (addr:%p) -", i, v->objs[i]);
-	if (v->print_func) {
-	    v->print_func(v->objs[i]);
+	if (v->print_obj) {
+	    v->print_obj(v->objs[i]);
 	}
 	puts("");
     }
     puts("--------------");
 }
 
+#if VECTOR_DEBUG == DBG_ON
 void vector_testing(void) {
     vector_t *v = vector_new(NULL, NULL);
     int i, size = 30, tab[size];

@@ -23,8 +23,7 @@
  * @return the desired character
  * @note string must not be NULL
  *
- * TODO:
- *		try to keep track of multiple string at once
+ * FIXME: try to keep track of multiple string at once
  */
 char stream_string(const string_t str, bool_t isget) {
     static int index = 0;
