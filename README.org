@@ -2,10 +2,12 @@
 
   This is a basic Lisp (technically Scheme) interpreter that was written in C with the following features:
 
+  + [X] read and split text contaning lisp syntax into tokens
+  + [ ] parse the tokens into a s-expression object
+  + [ ] memory is handled via a garbage collector
   + [ ] support basic syntax like =define=, =set!=, =eq?=, =if=, =cond=, ...
   + [ ] support recursion
   + [ ] support simple objects
-  + [ ] memory is handled via a garbage collector
 
 * Lisp as a programming language
 
@@ -15,9 +17,30 @@
   Lisp is based on s-exps i.e. /symbolic expressions/. An expression is either an /atom/ -- sequence of characters, or a /list of more expressions/
 
   #+BEGIN_SRC scheme
-    foo			  ;; this is an atom
-    (foo)			  ;; s-exp with a single atom
-    (foo bar)		  ;; s-exp with two atoms
-    (foo (bar baz) fuzz buzz) ;; s-exp with atoms and s-exp
+    ;;; Comments start with ';'.
+    ;;; anything form the ';' to '\n' is ignored
+
+    ;; Basic Arithmetic
+    (* (+ 3 (/ 4 2)) (- 3 4))		; >> -5
+    (sqrt (square 2))			; >> 2
+
+    ;; build a list using cons
+    (cons 'a (cons 'b (cons 'c nil))) ; (a b c)
+
+    ;; appliying car/cdr
+    (car (cons 'a (cons 'b (cons 'c nil))))	; a
+    (cdr (cons 'a (cons 'b (cons 'c nil))))	; (b c)
+
+    ;; Recursion with factorial and fibonacci
+    (define factorial (lambda (n)
+	(if (<= n 1) 1
+	    (* n (fact (- n 1))))))
+    (fact 5)				; >> 120
+
+    (define fibonacci (lambda (n)
+	(if (= n 0) 1
+	    (if (= n 1) 1
+		(+ (fib1 (- n 2)) (fib1 (- n 1)))))))
+    (fibonacci0 (* 2 5))			; >> 55
   #+END_SRC
   #+END_QUOTE
