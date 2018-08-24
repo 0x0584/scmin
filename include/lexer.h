@@ -118,7 +118,7 @@ string_t read_as_string(string_t code);
 string_t read_as_number(string_t code);
 
 /**
- * reads the token value from @p code as number
+ * reads the token value from @p code as symbol
  *
  * @param code a Scheme-like syntax
  *
@@ -129,7 +129,7 @@ string_t read_as_number(string_t code);
  *
  * @note this function modifies the static values in of getnc()
  */
-string_t read_as_atom(string_t code);
+string_t read_as_symbol(string_t code);
 
 string_t read_as_lambda(const string_t code);
 

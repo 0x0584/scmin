@@ -22,10 +22,10 @@ token_type predict_token_type(string_t code) {
 	type = TOK_R_PAREN;
 	goto RET;
     case '\'':			/* quoted list */
-	type = TOK_S_QUOTE;
+	type = TOK_QUOTE;
 	goto RET;
     case '\"':			/* literal string */
-	type = TOK_D_QUOTE;
+	type = TOK_STRING;
 	goto RET;
     default:
 	break;
@@ -33,13 +33,13 @@ token_type predict_token_type(string_t code) {
 
     if (isdigit(c) || strchr(".-+", c)) {
 	if ((c = getnc(code)) == ' ' || !isdigit(c)) {
-	    type = TOK_ATOM;	/* number */
+	    type = TOK_SYMBOL;	/* number */
 	} else {
 	    type = TOK_NUMBER;	/* number */
 	}
 	ungetnc();
     } else {
-	type = TOK_ATOM;	/* atom */
+	type = TOK_SYMBOL;	/* atom */
     }
 
     ungetnc();
@@ -73,23 +73,23 @@ void token_print(object_t t) {
     case TOK_R_PAREN:
 	type_str = "TOK_R_PAREN";
 	break;
-    case TOK_S_QUOTE:
-	type_str = "TOK_S_QUOTE";
+    case TOK_QUOTE:
+	type_str = "TOK_QUOTE";
 	break;
-    case TOK_D_QUOTE:
-	type_str = "TOK_D_QUOTE";
+    case TOK_STRING:
+	type_str = "TOK_STRING";
 	break;
     case TOK_LAMBDA:
 	type_str = "TOK_LAMBDA";
 	break;
-    case TOK_ATOM:
-	type_str = "TOK_ATOM";
+    case TOK_SYMBOL:
+	type_str = "TOK_SYMBOL";
 	break;
     case TOK_NUMBER:
 	type_str = "TOK_NUMBER";
 	break;
-    case TOK_EOL:
-	type_str = "TOK_EOL";
+    case EOL:
+	type_str = "EOL";
 	break;
     default:
     case TOK_ERR:
@@ -111,7 +111,7 @@ void token_free(object_t o) {
     /* printf("<<<<\n\n"); */
 
     if(t->type != TOK_L_PAREN && t->type != TOK_R_PAREN
-       && t->type != TOK_S_QUOTE) {
+       && t->type != TOK_QUOTE) {
 	assert(t->vbuffer != NULL);
     }
 

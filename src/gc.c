@@ -29,6 +29,7 @@ bool_t gc_has_space_left() {
 
 /* ===================================================================
 ** FIXME: NOW
+** this was the worst idea ever!
  */
 void gc_collect(bool_t iscleanup) {
 #if GC_DEBUG == DBG_ON

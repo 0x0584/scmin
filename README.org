@@ -4,6 +4,7 @@
 
   + [X] read and split text contaning lisp syntax into tokens
   + [ ] parse the tokens into a s-expression object
+  + [ ] evaluate the parsed s-expression object
   + [ ] memory is handled via a garbage collector
   + [ ] support basic syntax like =define=, =set!=, =eq?=, =if=, =cond=, ...
   + [ ] support recursion

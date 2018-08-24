@@ -11,22 +11,22 @@
 
 #  include "main.h"
 
+#  define TOK_SIZE_LIMIT	(2 << 8)
+
 /**
  * set of token types
  */
 enum TOKEN_TYPE {
-    TOK_L_PAREN = 0,		/* ( */
-    TOK_R_PAREN,		/* ) */
-    TOK_S_QUOTE,		/* (quote foo) */
-    TOK_D_QUOTE,		/* "string" */
-    TOK_LAMBDA,			/* lambda (params, ..) s-exprs.. */
-    TOK_ATOM,			/* bar */
-    TOK_NUMBER,			/* .3 -3.1415  */
+    TOK_L_PAREN = 0,
+    TOK_R_PAREN,
+    TOK_QUOTE,
+    TOK_LAMBDA,
+    TOK_SYMBOL,
+    TOK_STRING,
+    TOK_NUMBER,
 
-    /* flags */
-    TOK_EOL = (-1),		/* end of lexing */
-    TOK_ERR = (-2),		/* lexing error */
-    TOK_SIZE_LIMIT = (2 << 8)
+    TOK_ERR,
+    EOL
 } type;
 
 /**

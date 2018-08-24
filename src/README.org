@@ -14,10 +14,13 @@
   This file contains the functions that are responsible of converting a piece of text, i.e. the source code, whether it was from a =string_t= (=char *=) or from a stream (=FILE *=)
 
 
-
 * parser.c
 
 * repl.c
+  using =eval()=, we evaluate the value of a sexpr, which give a result, /i.e. return/
+
+  the way to do that is to determine the operator and the set of operands.
+
 
 * gc.c
 

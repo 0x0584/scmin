@@ -24,11 +24,12 @@
  *
  */
 
+#include "../include/lexer.h"
+#include "../include/characters.h"
+
 #include "../include/main.h"
 #include "../include/vector.h"
 
-#include "../include/lexer.h"
-#include "../include/characters.h"
 
 /**
  * this function reads a @p code string, i.e. source code
@@ -60,7 +61,7 @@ vector_t *read_tokens(const string_t code) {
 	    noerror = 2;
 	    goto FAILED;
 
-	case TOK_EOL:		/* end of lexing */
+	case EOL:		/* end of lexing */
 	    if (depth != 0) {
 		noerror = 0;
 		goto FAILED;
@@ -83,8 +84,8 @@ vector_t *read_tokens(const string_t code) {
 	    islastloop = depth ? false : true;
 	    break;
 
-	case TOK_S_QUOTE:
-	case TOK_D_QUOTE:
+	case TOK_QUOTE:
+	case TOK_STRING:
 	default:
 	    token->depth = depth;
 	    break;
@@ -142,30 +143,30 @@ token_t *next_token(const string_t code) {
     token_t *token;
 
     if (!clean_whitespaces(code) || !clean_comments(code)) {
-	type = TOK_EOL;
+	type = EOL;
 	goto RET;
     }
 
     switch (type = predict_token_type(code)) {
-    case TOK_S_QUOTE:
+    case TOK_QUOTE:
     case TOK_L_PAREN:
     case TOK_R_PAREN:
 	accept_null = true;
 	break;
 
-    case TOK_D_QUOTE:
+    case TOK_STRING:
 	vbuffer = read_as_string(code);
 	break;
 
-    case TOK_ATOM:
-	vbuffer = read_as_atom(code);
+    case TOK_SYMBOL:
+	vbuffer = read_as_symbol(code);
 	break;
 
     case TOK_NUMBER:
 	vbuffer = read_as_number(code);
 	break;
 
-    case TOK_EOL:
+    case EOL:
     case TOK_ERR:
     default:
 	return NULL;
@@ -233,8 +234,8 @@ bool_t clean_comments(string_t code) {
 /*
  * ==================================================================
  * the following read functions return NULL if an error occurs
- * TODO: stop the whole process then. this might need to implement
- * an error system
+ * TODO: stop the whole process.
+ * this might need to implement an error system
  * ==================================================================
  */
 string_t read_as_string(const string_t code) {
@@ -327,7 +328,7 @@ string_t read_as_number(const string_t code) {
     return NULL;
 }
 
-string_t read_as_atom(const string_t code) {
+string_t read_as_symbol(const string_t code) {
     string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
     string_t not_allowed = "()#\'\"";
     string_t error[] = {
