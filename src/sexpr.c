@@ -52,13 +52,13 @@ void print_tabs(int ntabs) {
 
 void sexpr_describe(object_t o) {
     sexpr_t * expr = (sexpr_t *) o;
+    assert(expr != NULL);
 
     if (expr == NULL) {
+	puts("expr was NULL");
 	sexpr_describe(&(sexpr_t) {.type = T_NIL});
 	return;
     }
-
-    assert(expr != NULL);
 
     static int ntabs = 0;
     char *type_str = NULL;
@@ -93,12 +93,13 @@ void sexpr_describe(object_t o) {
 	break;
     }
 
-    printf(" expr: %p, type:%d (%s), [%s]\n",
-	   expr, type, type_str,
-	   expr->gci.ismarked ? "X" : "O");
+    printf(" [%s] expr: %p, type:%d (%s)\n",
+	   expr->gci.ismarked ? "X" : "O",
+	   expr, type, type_str);
 
     if (isfinished) {
-	print_tabs(ntabs - 1);
+	print_tabs(ntabs);
+	puts("+---------------- \n");
 	return;
     }
 
@@ -111,7 +112,7 @@ void sexpr_describe(object_t o) {
     } else if (type == T_BOOLEAN) {
 	printf("content: %s\n", expr->v.b ? "TRUE" : "FALSE");
     } else if (type == T_PAIR) {
-	printf("content: \n");
+	printf("content: ----------------- \n");
 	print_tabs(ntabs);
 	sexpr_describe(expr->v.c->car);
 	putchar('\n');

@@ -20,6 +20,8 @@
 #include "../include/pair.h"
 #include "../include/sexpr.h"
 
+static bool_t isfinished = false;
+
 /**
  * @brief this function is resposible of turning a set of tokens into a
  * s-expression.
@@ -62,6 +64,16 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 	    break;
 	}
 
+	puts("==================");
+	sexpr_describe(expr);
+	puts(isfinished ? "finished" : "not finished");
+	puts("==================");
+
+	if (isfinished) {
+	    isfinished = false;
+	    break;
+	}
+
 	/* ====================== testing this ====================== */
 	expr = cons(value, sexpr_new(T_NIL));
 
@@ -77,16 +89,12 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
     }
 
     vector_free(tokens);
+    isfinished = false;
 
-    return head;
+    return expr;
 
   FAILED:
-
-	gc_collect(true);
-	return NULL;
-}
-
-sexpr_t *parse_token(token_t * token) {
+    gc_collect(true);
     return NULL;
 }
 
@@ -101,9 +109,18 @@ sexpr_t *parse_as_list(vector_t * tokens) {
     token_t *token = NULL;
     bool_t isfirstloop = true;
 
+    puts("list starting");
     while ((token = vector_peek(tokens))) {
 	token_print(token);
+
 	if (token->type == TOK_R_PAREN) {
+	    /*
+	     * if it's the right paren and first loop
+	     * we return nil
+	     */
+	    if(token->depth == 0)
+		isfinished =true;
+
 	    if (isfirstloop)
 		return sexpr_new(T_NIL);	/* '() */
 	    else
@@ -143,8 +160,10 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	token_free(token);
 	isfirstloop = false;
 
-	sexpr_describe(head);
     }
+
+    sexpr_describe(head);
+    puts("list ending\n--------------\n");
 
     return head;
 }
@@ -219,7 +238,7 @@ void parser_testing(void) {
 
 	puts("\n + list of tokens");
 	vector_print(v);
-
+	puts("-----------\n");
 
 	expr = parse_sexpr(v);
 	puts("\n + parsed expression");
