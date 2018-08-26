@@ -86,7 +86,6 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 	/* ========================================================== */
     }
 
-    vector_free(tokens);
     sexpr_describe(expr);
 
     isfinished = false;
