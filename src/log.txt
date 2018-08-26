@@ -1,0 +1,513 @@
+ + parsing (+ 11111 (* 22222 33333))
+
+ + list of tokens
+//////////////////////////////
+ (depth:00) - (type:TOK_L_PAREN) - (value:(null))
+//////////////////////////////
+ (depth:01) - (type: TOK_SYMBOL) - (value:+)
+//////////////////////////////
+ (depth:01) - (type: TOK_NUMBER) - (value:11111)
+//////////////////////////////
+ (depth:01) - (type:TOK_L_PAREN) - (value:(null))
+//////////////////////////////
+ (depth:02) - (type: TOK_SYMBOL) - (value:*)
+//////////////////////////////
+ (depth:02) - (type: TOK_NUMBER) - (value:22222)
+//////////////////////////////
+ (depth:02) - (type: TOK_NUMBER) - (value:33333)
+//////////////////////////////
+ (depth:01) - (type:TOK_R_PAREN) - (value:(null))
+//////////////////////////////
+ (depth:00) - (type:TOK_R_PAREN) - (value:(null))
+//////////////////////////////
+-----------
+
+ (depth:00) - (type:TOK_L_PAREN) - (value:(null))
+list starting
+ (depth:01) - (type: TOK_SYMBOL) - (value:+)
+ (depth:01) - (type: TOK_NUMBER) - (value:11111)
+ (depth:01) - (type:TOK_L_PAREN) - (value:(null))
+list starting
+ (depth:02) - (type: TOK_SYMBOL) - (value:*)
+ (depth:02) - (type: TOK_NUMBER) - (value:22222)
+ (depth:02) - (type: TOK_NUMBER) - (value:33333)
+ (depth:01) - (type:TOK_R_PAREN) - (value:(null))
+ [O] expr: 0x562ea669c540, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669b760, type:3 (ATOM)
+	content: *
+
+     [O] expr: 0x562ea669c580, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669beb0, type:0 (NUMBER)
+	    content: 22222.000000
+
+	 [O] expr: 0x562ea669c5c0, type:4 (CONS-PAIR)
+	    content: -----------------
+	     [O] expr: 0x562ea669c0e0, type:0 (NUMBER)
+		content: 33333.000000
+
+	     [O] expr: 0x562ea669bed0, type:5 (NIL)
+	    +----------------
+
+list ending
+--------------
+
+ (depth:00) - (type:TOK_R_PAREN) - (value:(null))
+ [O] expr: 0x562ea669c4c0, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669c370, type:3 (ATOM)
+	content: +
+
+     [O] expr: 0x562ea669c500, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669b6f0, type:0 (NUMBER)
+	    content: 11111.000000
+
+	 [O] expr: 0x562ea669c100, type:4 (CONS-PAIR)
+	    content: -----------------
+	     [O] expr: 0x562ea669c540, type:4 (CONS-PAIR)
+		content: -----------------
+		 [O] expr: 0x562ea669b760, type:3 (ATOM)
+		    content: *
+
+		 [O] expr: 0x562ea669c580, type:4 (CONS-PAIR)
+		    content: -----------------
+		     [O] expr: 0x562ea669beb0, type:0 (NUMBER)
+			content: 22222.000000
+
+		     [O] expr: 0x562ea669c5c0, type:4 (CONS-PAIR)
+			content: -----------------
+			 [O] expr: 0x562ea669c0e0, type:0 (NUMBER)
+			    content: 33333.000000
+
+			 [O] expr: 0x562ea669bed0, type:5 (NIL)
+			+----------------
+
+
+	     [O] expr: 0x562ea669c310, type:5 (NIL)
+	    +----------------
+
+list ending
+--------------
+
+===============================================
+  finished
+===============================================
+ [O] expr: 0x562ea669c4c0, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669c370, type:3 (ATOM)
+	content: +
+
+     [O] expr: 0x562ea669c500, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669b6f0, type:0 (NUMBER)
+	    content: 11111.000000
+
+	 [O] expr: 0x562ea669c100, type:4 (CONS-PAIR)
+	    content: -----------------
+	     [O] expr: 0x562ea669c540, type:4 (CONS-PAIR)
+		content: -----------------
+		 [O] expr: 0x562ea669b760, type:3 (ATOM)
+		    content: *
+
+		 [O] expr: 0x562ea669c580, type:4 (CONS-PAIR)
+		    content: -----------------
+		     [O] expr: 0x562ea669beb0, type:0 (NUMBER)
+			content: 22222.000000
+
+		     [O] expr: 0x562ea669c5c0, type:4 (CONS-PAIR)
+			content: -----------------
+			 [O] expr: 0x562ea669c0e0, type:0 (NUMBER)
+			    content: 33333.000000
+
+			 [O] expr: 0x562ea669bed0, type:5 (NIL)
+			+----------------
+
+
+	     [O] expr: 0x562ea669c310, type:5 (NIL)
+	    +----------------
+
+
+ + parsed expression
+ [O] expr: 0x562ea669c4c0, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669c370, type:3 (ATOM)
+	content: +
+
+     [O] expr: 0x562ea669c500, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669b6f0, type:0 (NUMBER)
+	    content: 11111.000000
+
+	 [O] expr: 0x562ea669c100, type:4 (CONS-PAIR)
+	    content: -----------------
+	     [O] expr: 0x562ea669c540, type:4 (CONS-PAIR)
+		content: -----------------
+		 [O] expr: 0x562ea669b760, type:3 (ATOM)
+		    content: *
+
+		 [O] expr: 0x562ea669c580, type:4 (CONS-PAIR)
+		    content: -----------------
+		     [O] expr: 0x562ea669beb0, type:0 (NUMBER)
+			content: 22222.000000
+
+		     [O] expr: 0x562ea669c5c0, type:4 (CONS-PAIR)
+			content: -----------------
+			 [O] expr: 0x562ea669c0e0, type:0 (NUMBER)
+			    content: 33333.000000
+
+			 [O] expr: 0x562ea669bed0, type:5 (NIL)
+			+----------------
+
+
+	     [O] expr: 0x562ea669c310, type:5 (NIL)
+	    +----------------
+
+ ================== ================= =================
+
+ + parsing     ; this is cool
+(bar baz)
+
+ + list of tokens
+//////////////////////////////
+ (depth:00) - (type:TOK_L_PAREN) - (value:(null))
+//////////////////////////////
+ (depth:01) - (type: TOK_SYMBOL) - (value:bar)
+//////////////////////////////
+ (depth:01) - (type: TOK_SYMBOL) - (value:baz)
+//////////////////////////////
+ (depth:00) - (type:TOK_R_PAREN) - (value:(null))
+//////////////////////////////
+-----------
+
+ (depth:00) - (type:TOK_L_PAREN) - (value:(null))
+list starting
+ (depth:01) - (type: TOK_SYMBOL) - (value:bar)
+ (depth:01) - (type: TOK_SYMBOL) - (value:baz)
+ (depth:00) - (type:TOK_R_PAREN) - (value:(null))
+ [O] expr: 0x562ea669cc10, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669cbb0, type:3 (ATOM)
+	content: bar
+
+     [O] expr: 0x562ea669cc70, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669bc80, type:3 (ATOM)
+	    content: baz
+
+	 [O] expr: 0x562ea669cc50, type:5 (NIL)
+	+----------------
+
+list ending
+--------------
+
+===============================================
+  finished
+===============================================
+ [O] expr: 0x562ea669cc10, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669cbb0, type:3 (ATOM)
+	content: bar
+
+     [O] expr: 0x562ea669cc70, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669bc80, type:3 (ATOM)
+	    content: baz
+
+	 [O] expr: 0x562ea669cc50, type:5 (NIL)
+	+----------------
+
+
+ + parsed expression
+ [O] expr: 0x562ea669cc10, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669cbb0, type:3 (ATOM)
+	content: bar
+
+     [O] expr: 0x562ea669cc70, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669bc80, type:3 (ATOM)
+	    content: baz
+
+	 [O] expr: 0x562ea669cc50, type:5 (NIL)
+	+----------------
+
+ ================== ================= =================
+
+ + parsing ("this is a string")
+
+ + list of tokens
+//////////////////////////////
+ (depth:00) - (type:TOK_L_PAREN) - (value:(null))
+//////////////////////////////
+ (depth:01) - (type: TOK_STRING) - (value:this is a string)
+//////////////////////////////
+ (depth:00) - (type:TOK_R_PAREN) - (value:(null))
+//////////////////////////////
+-----------
+
+ (depth:00) - (type:TOK_L_PAREN) - (value:(null))
+list starting
+ (depth:01) - (type: TOK_STRING) - (value:this is a string)
+ (depth:00) - (type:TOK_R_PAREN) - (value:(null))
+ [O] expr: 0x562ea669ce60, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669ce00, type:2 (STRING)
+	content: this is a string
+
+     [O] expr: 0x562ea669ce40, type:5 (NIL)
+    +----------------
+
+list ending
+--------------
+
+===============================================
+  finished
+===============================================
+ [O] expr: 0x562ea669ce60, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669ce00, type:2 (STRING)
+	content: this is a string
+
+     [O] expr: 0x562ea669ce40, type:5 (NIL)
+    +----------------
+
+
+ + parsed expression
+ [O] expr: 0x562ea669ce60, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669ce00, type:2 (STRING)
+	content: this is a string
+
+     [O] expr: 0x562ea669ce40, type:5 (NIL)
+    +----------------
+
+ ================== ================= =================
+============= allocated sexprs =================
+//////////////////////////////
+ [O] expr: 0x562ea669c370, type:3 (ATOM)
+    content: +
+//////////////////////////////
+ [O] expr: 0x562ea669c4a0, type:5 (NIL)
++----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669c4c0, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669c370, type:3 (ATOM)
+	content: +
+
+     [O] expr: 0x562ea669c500, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669b6f0, type:0 (NUMBER)
+	    content: 11111.000000
+
+	 [O] expr: 0x562ea669c100, type:4 (CONS-PAIR)
+	    content: -----------------
+	     [O] expr: 0x562ea669c540, type:4 (CONS-PAIR)
+		content: -----------------
+		 [O] expr: 0x562ea669b760, type:3 (ATOM)
+		    content: *
+
+		 [O] expr: 0x562ea669c580, type:4 (CONS-PAIR)
+		    content: -----------------
+		     [O] expr: 0x562ea669beb0, type:0 (NUMBER)
+			content: 22222.000000
+
+		     [O] expr: 0x562ea669c5c0, type:4 (CONS-PAIR)
+			content: -----------------
+			 [O] expr: 0x562ea669c0e0, type:0 (NUMBER)
+			    content: 33333.000000
+
+			 [O] expr: 0x562ea669bed0, type:5 (NIL)
+			+----------------
+
+
+	     [O] expr: 0x562ea669c310, type:5 (NIL)
+	    +----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669b6f0, type:0 (NUMBER)
+    content: 11111.000000
+//////////////////////////////
+ [O] expr: 0x562ea669b840, type:5 (NIL)
++----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669c500, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669b6f0, type:0 (NUMBER)
+	content: 11111.000000
+
+     [O] expr: 0x562ea669c100, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669c540, type:4 (CONS-PAIR)
+	    content: -----------------
+	     [O] expr: 0x562ea669b760, type:3 (ATOM)
+		content: *
+
+	     [O] expr: 0x562ea669c580, type:4 (CONS-PAIR)
+		content: -----------------
+		 [O] expr: 0x562ea669beb0, type:0 (NUMBER)
+		    content: 22222.000000
+
+		 [O] expr: 0x562ea669c5c0, type:4 (CONS-PAIR)
+		    content: -----------------
+		     [O] expr: 0x562ea669c0e0, type:0 (NUMBER)
+			content: 33333.000000
+
+		     [O] expr: 0x562ea669bed0, type:5 (NIL)
+		    +----------------
+
+
+	 [O] expr: 0x562ea669c310, type:5 (NIL)
+	+----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669b760, type:3 (ATOM)
+    content: *
+//////////////////////////////
+ [O] expr: 0x562ea669ba50, type:5 (NIL)
++----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669c540, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669b760, type:3 (ATOM)
+	content: *
+
+     [O] expr: 0x562ea669c580, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669beb0, type:0 (NUMBER)
+	    content: 22222.000000
+
+	 [O] expr: 0x562ea669c5c0, type:4 (CONS-PAIR)
+	    content: -----------------
+	     [O] expr: 0x562ea669c0e0, type:0 (NUMBER)
+		content: 33333.000000
+
+	     [O] expr: 0x562ea669bed0, type:5 (NIL)
+	    +----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669beb0, type:0 (NUMBER)
+    content: 22222.000000
+//////////////////////////////
+ [O] expr: 0x562ea669bca0, type:5 (NIL)
++----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669c580, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669beb0, type:0 (NUMBER)
+	content: 22222.000000
+
+     [O] expr: 0x562ea669c5c0, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669c0e0, type:0 (NUMBER)
+	    content: 33333.000000
+
+	 [O] expr: 0x562ea669bed0, type:5 (NIL)
+	+----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669c0e0, type:0 (NUMBER)
+    content: 33333.000000
+//////////////////////////////
+ [O] expr: 0x562ea669bed0, type:5 (NIL)
++----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669c5c0, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669c0e0, type:0 (NUMBER)
+	content: 33333.000000
+
+     [O] expr: 0x562ea669bed0, type:5 (NIL)
+    +----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669c310, type:5 (NIL)
++----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669c100, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669c540, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669b760, type:3 (ATOM)
+	    content: *
+
+	 [O] expr: 0x562ea669c580, type:4 (CONS-PAIR)
+	    content: -----------------
+	     [O] expr: 0x562ea669beb0, type:0 (NUMBER)
+		content: 22222.000000
+
+	     [O] expr: 0x562ea669c5c0, type:4 (CONS-PAIR)
+		content: -----------------
+		 [O] expr: 0x562ea669c0e0, type:0 (NUMBER)
+		    content: 33333.000000
+
+		 [O] expr: 0x562ea669bed0, type:5 (NIL)
+		+----------------
+
+
+     [O] expr: 0x562ea669c310, type:5 (NIL)
+    +----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669cbb0, type:3 (ATOM)
+    content: bar
+//////////////////////////////
+ [O] expr: 0x562ea669cbf0, type:5 (NIL)
++----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669cc10, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669cbb0, type:3 (ATOM)
+	content: bar
+
+     [O] expr: 0x562ea669cc70, type:4 (CONS-PAIR)
+	content: -----------------
+	 [O] expr: 0x562ea669bc80, type:3 (ATOM)
+	    content: baz
+
+	 [O] expr: 0x562ea669cc50, type:5 (NIL)
+	+----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669bc80, type:3 (ATOM)
+    content: baz
+//////////////////////////////
+ [O] expr: 0x562ea669cc50, type:5 (NIL)
++----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669cc70, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669bc80, type:3 (ATOM)
+	content: baz
+
+     [O] expr: 0x562ea669cc50, type:5 (NIL)
+    +----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669ce00, type:2 (STRING)
+    content: this is a string
+//////////////////////////////
+ [O] expr: 0x562ea669ce40, type:5 (NIL)
++----------------
+
+//////////////////////////////
+ [O] expr: 0x562ea669ce60, type:4 (CONS-PAIR)
+    content: -----------------
+     [O] expr: 0x562ea669ce00, type:2 (STRING)
+	content: this is a string
+
+     [O] expr: 0x562ea669ce40, type:5 (NIL)
+    +----------------
+
+//////////////////////////////
+================================================

@@ -45,7 +45,7 @@ endef
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $< $(LDFLAGS) 
 
-test: all
+run: build
 	@echo "Passed Arguments:\t \033[0;32m" $(ARGS)
 	@echo "\033[0m"
 	./$(EXEC) $(ARGS)

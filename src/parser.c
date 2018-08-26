@@ -64,10 +64,9 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 	    break;
 	}
 
-	puts("==================");
-	sexpr_describe(expr);
-	puts(isfinished ? "finished" : "not finished");
-	puts("==================");
+	puts("===============================================");
+	puts(isfinished ? "  finished" : "  not finished");
+	puts("===============================================");
 
 	if (isfinished) {
 	    isfinished = false;
@@ -85,10 +84,11 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 
 	tail = expr;
 	/* ========================================================== */
-	sexpr_describe(head);
     }
 
     vector_free(tokens);
+    sexpr_describe(expr);
+
     isfinished = false;
 
     return expr;
@@ -187,11 +187,13 @@ sexpr_t *parse_as_string(string_t value) {
 }
 
 sexpr_t *parse_as_boolean(string_t value) {
-    sexpr_t *expr = sexpr_new(T_BOOLEAN);
+    sexpr_t *expr;
 
     if (!strcmp(value, "nil") || !strcmp(value, "#f")) {
+	expr = sexpr_new(T_BOOLEAN);
 	expr->v.b = false;
     } else if (!strcmp(value, "#t") || !strcmp(value, "t")) {
+	expr = sexpr_new(T_BOOLEAN);
 	expr->v.b = true;
     }
 
@@ -214,6 +216,7 @@ sexpr_t *parse_as_symbol(string_t value) {
 	assert(expr != NULL);
     }
 
+
     return expr;
 }
 
@@ -223,8 +226,8 @@ sexpr_t *parse_as_symbol(string_t value) {
 void parser_testing(void) {
     string_t exprs[] = {
 	"(+ 11111 (* 22222 33333))",
-	"(\"this is a string\")	 ",
-	"    ; this is cool\n(bar baz)"
+	"    ; this is cool\n(bar baz)",
+	"(\"this is a string\")	 "
     };
 
     int i, size = sizeof(exprs) / sizeof(exprs[0]);
@@ -245,6 +248,8 @@ void parser_testing(void) {
 	sexpr_describe(expr);
 
 	vector_free(v);
+	puts(" ================== ================= ================= ");
+	/* gc_debug_memory(); */
     }
 
     /* memory should be freed using GC

@@ -240,12 +240,15 @@ void vector_print(vector_t * v) {
     }
 
     for (i = 0; i < v->size; ++i) {
+	puts("//////////////////////////////");
 	if (v->print_obj) {
 	    v->print_obj(v->objs[i]);
 	} else {
 	    printf("%p -- %d", v->objs[i], i);
 	}
     }
+    puts("//////////////////////////////");
+
 }
 
 void vector_debug(FILE * stream, vector_t * v) {

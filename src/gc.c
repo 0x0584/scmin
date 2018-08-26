@@ -165,28 +165,8 @@ void gc_free_sexpr(object_t o) {
 
 #if GC_DEBUG == DBG_ON
 void gc_debug_memory(void) {
-    sexpr_t *s = sexpr_new(T_ATOM);
-    s->v.s = strdup("foo");
-    sexpr_t *ss = sexpr_new(T_NUMBER);
-    ss->v.n = 502;
-    sexpr_t *sss = sexpr_new(T_STRING);
-    sss->v.s = strdup("this is a string");
-
-    sexpr_t *ssss = sexpr_new(T_STRING);
-    ssss->v.s = strdup("this would not be marked!");
-
-    sexpr_describe(ssss);
-    puts("");
-
-    sexpr_t *expected = cons(s,
-			     cons(ss,
-				  cons(sss,
-				       sexpr_new(T_NIL))));
-
-    sexpr_describe(expected);
-    puts("");
-    gc_mark_sexpr(expected);
-
-    gc_collect(true);
+    puts("============= allocated sexprs =================");
+    vector_print(gc_allocated_sexprs);
+    puts("================================================");
 }
 #endif
