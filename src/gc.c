@@ -6,12 +6,18 @@
 
 #include "../include/vector.h"
 #include "../include/sexpr.h"
+#include "../include/scope.h"
+
+#include "../include/context.h"
 #include "../include/pair.h"
 
-static vector_t *gc_allocated_sexprs;
+static vector_t *gc_allocated_sexprs, *gc_allocated_scopes,
+    *gc_allocated_contexts;
 
 void gc_init(void) {
-    gc_allocated_sexprs = vector_new(gc_free_sexpr, sexpr_describe);
+    gc_allocated_sexprs = vector_new(gc_free_sexpr, sexpr_describe, NULL);
+    gc_allocated_scopes = vector_new(gc_free_scope, scope_describe, NULL);
+    gc_allocated_contexts = vector_new(gc_free_context, context_describe, NULL);
 }
 
 void gc_clean(void) {
@@ -27,10 +33,6 @@ bool_t gc_has_space_left() {
     return gc_allocated_size() < GC_RATIO;
 }
 
-/* ===================================================================
-** FIXME: NOW
-** this was the worst idea ever!
- */
 void gc_collect(bool_t iscleanup) {
 #if GC_DEBUG == DBG_ON
     if (iscleanup)
@@ -53,11 +55,27 @@ void gc_collect(bool_t iscleanup) {
 
 }
 
+void gc_mark_stack_sexprs(vector_t * v) {
+    int i;
+
+    /* marking all that stacka as reachable */
+    for (i = 0; i < v->size; ++i) {
+	if (i % 2 == 0)		/* testing */
+	    gc_mark_sexpr(vector_get(v, i));
+    }
+}
+
+/* ==========================================================================
+ *			 s-expressions memory management
+ * ==========================================================================
+ */
+
 void gc_mark_sexpr(sexpr_t * expr) {
     assert(expr != NULL);
 
+    /* already marked as reachable */
     if (expr->gci.ismarked) {
-	return;			/* already marked as reachable */
+	return;
     }
 
     expr->gci.ismarked = true;
@@ -74,15 +92,6 @@ void gc_mark_sexpr(sexpr_t * expr) {
     }
 }
 
-void gc_mark_stack_sexprs(vector_t * v) {
-    int i;
-
-    /* marking all that stacka as reachable */
-    for (i = 0; i < v->size; ++i) {
-	if (i % 2 == 0)		/* testing */
-	    gc_mark_sexpr(vector_get(v, i));
-    }
-}
 
 void gc_sweep_sexprs(vector_t * v) {
     int i;
@@ -130,7 +139,6 @@ void gc_sweep_sexprs(vector_t * v) {
 }
 
 sexpr_t *gc_alloc_sexpr(void) {
-    /* FIXME: check this line along while making teh evaluation */
 
     if (!gc_has_space_left()) {
 	gc_collect(true);
@@ -152,15 +160,71 @@ void gc_free_sexpr(object_t o) {
     sexpr_t *expr = o;
 
     /* because they got an allocated string */
-    if (expr->type == T_STRING || expr->type == T_ATOM) {
-	free(expr->v.s);
+    if (expr->type == T_STRING || expr->type == T_SYMBOL) {
+	free(expr->s);
     } else if (expr->type == T_PAIR) {
 	gc_free_sexpr(car(expr));
 	gc_free_sexpr(cdr(expr));
-	free(expr->v.c);
+	free(expr->c);
     }
 
     free(expr);
+}
+
+/* ==========================================================================
+ *			    scope memory management
+ * ==========================================================================
+ */
+scope_t *gc_alloc_scope(void) {
+    if (!gc_has_space_left())
+	gc_collect(true);
+
+    scope_t *s = malloc(sizeof *s);
+    s->bonds = vector_new(bond_free, bond_describe, NULL);
+
+    vector_push(gc_allocated_scopes, s);
+
+    return s;
+}
+
+void gc_free_scope(object_t o) {
+    if(o == NULL)
+	return;
+
+    scope_t *s = o;
+
+    vector_free(s->bonds);
+
+    if (s->parent) {
+	gc_free_scope(s->parent);
+	s->parent = NULL;
+    }
+}
+
+/* ==========================================================================
+ *			  context memory management
+ * ==========================================================================
+ */
+context_t *gc_alloc_context() {
+    if (!gc_has_space_left())
+	gc_collect(true);
+
+    context_t *ctx = malloc(sizeof *ctx);
+
+    vector_push(gc_allocated_contexts, ctx);
+
+    return ctx;
+}
+
+void gc_free_context(object_t o) {
+    if(o == NULL) return;
+
+    context_t *c = o;
+
+    gc_free_scope(c->scope);
+    gc_free_sexpr(c->sexpr);
+    gc_free_sexpr(c->childresult);
+    vector_free(c->reg);
 }
 
 #if GC_DEBUG == DBG_ON

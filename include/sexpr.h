@@ -1,18 +1,35 @@
 #ifndef _SCMIN_SEXPR_H
 #  define _SCMIN_SEXPR_H
+
 #  include "main.h"
 #  include "gc.h"
 
 /**
  * Possible types for an expression to be
  */
-enum TYPE {
-    T_NUMBER,		/** 0 -100 0.25 */
-    T_BOOLEAN,		/** #t #f t nil */
-    T_STRING,		/** "anything in between" */
-    T_ATOM,		/** foo foo-bar */
-    T_PAIR,
+enum S_EXPR_TYPE {
+    T_PAIR,			/** car, cdr */
+    T_NUMBER,			/** 0 -100 0.25 */
+    T_STRING,			/** "string" */
+    T_SYMBOL,			/** foo foo-bar */
     T_NIL, T_ERR
+};
+
+
+/**
+ * the lambda expression is an expression that takes
+ * expressions as arguments, i.e. a function
+ *
+ * (lambda (args) s-exprs)
+ */
+struct LAMBDA {
+    sexpr_t *args;		/* cadr */
+    bool_t isnative;
+
+    union {
+	Nlambda_t *l;		/* native lambda */
+	sexpr_t *body;		/* cddr */
+    };
 };
 
 /**
@@ -26,19 +43,18 @@ struct S_EXPR {
     /* possible sexprs */
     union {
 	string_t s;		/** STRING - ATOM */
-	bool_t b;		/** BOOLEAN */
 	number_t n;		/** NUMBER */
 	pair_t *c;		/** car - cdr */
-    } v;
+	lambda_t *l;		/* lambda expression */
+    };
 };
 
-
-bool_t isnil(sexpr_t *expr);
-bool_t isatom(sexpr_t *expr);
-bool_t isnumber(sexpr_t *expr);
-bool_t isstring(sexpr_t *expr);
-bool_t isboolean(sexpr_t *expr);
-bool_t ispair(sexpr_t *expr);
+bool_t isnil(sexpr_t * expr);
+bool_t isatom(sexpr_t * expr);
+bool_t isnumber(sexpr_t * expr);
+bool_t isstring(sexpr_t * expr);
+bool_t isboolean(sexpr_t * expr);
+bool_t ispair(sexpr_t * expr);
 
 sexpr_t *sexpr_new(type_t type);
 void sexpr_describe(object_t expr);

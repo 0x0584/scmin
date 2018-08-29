@@ -36,6 +36,7 @@ static bool_t isfinished = false;
 sexpr_t *parse_sexpr(vector_t * tokens) {
     sexpr_t *expr = NULL, *value = NULL;
     sexpr_t *head = NULL, *tail = NULL;
+    sexpr_t *sexpr_nil = sexpr_new(T_NIL);
     token_t *token = NULL;
 
     while ((token = vector_peek(tokens))) {
@@ -74,7 +75,7 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 	}
 
 	/* ====================== testing this ====================== */
-	expr = cons(value, sexpr_new(T_NIL));
+	expr = cons(value, sexpr_nil);
 
 	if (!head) {
 	    head = expr;
@@ -102,8 +103,9 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 ** FIXME: improve the code
 */
 sexpr_t *parse_as_list(vector_t * tokens) {
-    sexpr_t *expr = NULL;
-    sexpr_t *head = NULL, *tail = NULL, *value = NULL;
+    sexpr_t *expr = NULL, *value = NULL;
+    sexpr_t *head = NULL, *tail = NULL;
+    sexpr_t *sexpr_nil = sexpr_new(T_NIL);
 
     token_t *token = NULL;
     bool_t isfirstloop = true;
@@ -117,11 +119,11 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	     * if it's the right paren and first loop
 	     * we return nil
 	     */
-	    if(token->depth == 0)
-		isfinished =true;
+	    if (token->depth == 0)
+		isfinished = true;
 
 	    if (isfirstloop)
-		return sexpr_new(T_NIL);	/* '() */
+		return sexpr_nil;	/* '() */
 	    else
 		break;
 	}
@@ -142,11 +144,12 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	    break;
 
 	default:
-	    value = sexpr_new(T_NIL);
+	    value = sexpr_nil;	/* this would cause problems */
+	    puts("UNKNOWN SYMBOL");
 	    break;
 	}
 
-	expr = cons(value, sexpr_new(T_NIL));
+	expr = cons(value, sexpr_nil);
 
 	if (!head) {
 	    head = expr;
@@ -172,7 +175,7 @@ sexpr_t *parse_as_number(string_t value) {
 
     sexpr_t *expr = sexpr_new(T_NUMBER);
 
-    expr->v.n = strtod(value, NULL);
+    expr->n = strtod(value, NULL);
 
     return expr;
 }
@@ -180,41 +183,24 @@ sexpr_t *parse_as_number(string_t value) {
 sexpr_t *parse_as_string(string_t value) {
     sexpr_t *expr = sexpr_new(T_STRING);
 
-    expr->v.s = strdup(value);
+    expr->s = strdup(value);
 
     return expr;
-}
-
-sexpr_t *parse_as_boolean(string_t value) {
-    sexpr_t *expr;
-
-    if (!strcmp(value, "nil") || !strcmp(value, "#f")) {
-	expr = sexpr_new(T_BOOLEAN);
-	expr->v.b = false;
-    } else if (!strcmp(value, "#t") || !strcmp(value, "t")) {
-	expr = sexpr_new(T_BOOLEAN);
-	expr->v.b = true;
-    }
-
-    return NULL;
 }
 
 /*
 expr: 0x557dfac88740, type:4 (CONS-PAIR)
     content:
-    expr: 0x557dfac886e0, type:3 (ATOM)
+    expr: 0x557dfac886e0, type:3 (SYMBOL)
 	content: +
 
  */
 sexpr_t *parse_as_symbol(string_t value) {
     sexpr_t *expr;
 
-    if (!(expr = parse_as_boolean(value))) {
 	expr = parse_as_string(value);
-	expr->type = T_ATOM;
+	expr->type = T_SYMBOL;
 	assert(expr != NULL);
-    }
-
 
     return expr;
 }

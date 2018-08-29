@@ -1,24 +1,20 @@
-#include "sexpr.h"
+#ifndef _SCMIN_CONTEXT_H
+#  define _SCMIN_CONTEXT_H
 
-struct DATA {
-    char *key;
-    sexpr_t *sexpr;
-};
+#  include "sexpr.h"
 
-struct SCOPE {
-    gc_info gci;
-    int limit, nargs;
-    data_t *args;
-    scope_t *parent;
-};
+void global_scope_init(void);
 
 struct CONTEXT {
+    gc_info gci;
     scope_t *scope;
-    sexpr_t *expr, *childresult;
-    vector_t *locals;
+    sexpr_t *sexpr, *childresult;
+    vector_t *reg;
 };
 
-context_t *context_init(scope_t *s, sexpr_t *expr);
-void context_reset(context_t c, scope_t *s, sexpr_t*expr);
+context_t *context_init(scope_t * s, sexpr_t * expr);
+void context_reset(context_t c, scope_t * s, sexpr_t * expr);
 context_t *context_current(void);
-void context_add_local(context_t *c, sexpr_t *expr);
+void context_add_local(context_t * c, sexpr_t * expr);
+void context_describe(object_t o);
+#endif				/*  _SCMIN_CONTEXT_H */

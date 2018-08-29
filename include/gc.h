@@ -5,22 +5,25 @@
  * @file gc.h
  *
  *
- * this file contains definitions of functionalities to handle memory with
- * a minimal garbage colelctor using mark and sweep algorithm.
+ * this file contains definitions of functionalities to handle memory
+ * with a minimal garbage colelctor using mark and sweep algorithm.
  *
- * the algorithm is about marking the created object to false at first, then after sweeping the memory, we clean the false-marked ones and setting the true-marked ones to true
+ * the algorithm is about marking the created object to false at
+ * first, then after sweeping the memory, we clean the false-marked
+ * ones and setting the true-marked ones to true
  */
-#  include "main.h"
 
-struct GC_INFO {
-    bool_t ismarked;		/** is marked as reachable! */
-};
+#  include "main.h"
 
 #  define GC_STACK_LIMIT_SIZE	(2 << 15)
 
 #  define GC_FREQUENCY		 4
 
 #  define GC_RATIO		(GC_STACK_LIMIT_SIZE / GC_FREQUENCY)
+
+struct GC_INFO {
+    bool_t ismarked;		/** is marked as reachable! */
+};
 
 /**
  * initialize the GC
@@ -44,6 +47,15 @@ void gc_free_sexpr(object_t o);
 void gc_mark_sexpr(sexpr_t * expr);
 void gc_sweep_sexprs(vector_t * v);
 
+scope_t *gc_alloc_scope(void);
+void gc_free_scope(object_t o);
+void gc_mark_scope(scope_t * scope);
+void gc_sweep_scope(vector_t * v);
+
+context_t *gc_alloc_context();
+void gc_free_context(object_t o);
+void gc_mark_context(context_t * scope);
+void gc_sweep_context(vector_t * v);
 
 void gc_mark_stack_sexprs(vector_t * v);
 

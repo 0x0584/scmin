@@ -1,0 +1,105 @@
+Lambda Calculus and Combinatory Calculus
+========================================
+
+In case you're interested in how to work with lambda calculus
+without predefined constants.  Here's part of the encoding.
+
+First a bit notation.  I'll use the backslash symbol instead of lambda
+since there's no lambda character in ASCII.  In class I used the syntax
+\(x)x for function definitions and f(x) for the function call.  This was
+to make it more readable.  In the lambda calculus literature, the syntax
+is \x.x and f x, respectively.  I'll use that syntax below.
+
+First we need booleans:
+
+	constant		representation
+
+	true		      = \x.\y.x
+	false		      = \x.\y.y
+
+I.e., we can think of `true' as a function that takes two arguments x and y
+and returns the first argument (really it's a function that takes x as
+argument and returns another function that takes y as argument and then
+returns x).  Similarly, `false' is a function that returns its second
+argument.
+
+Then we can define an if-then-else expression:
+
+	if A then B else C    = A B C
+
+E.g., if A is true, then the if-then-else expression returns B:
+
+	if true then B else C = true B C
+			      = (\x.\y.x) B C
+			      = (\y.B) C
+			      = B
+
+I.e., B gets passed to x, C gets passed to y, and B gets returned.
+
+Similarly, `if false then B else C' evaluates to C.
+
+Before we can define numbers, we need pairs:
+
+	pair[A,B]	      = \x.(if x then A else B) = \x.x A B
+	first[A]	      = A true
+	rest[A]		      = A false
+
+This is defined so that first[pair[A,B]] = A and rest[pair[A,B]] = B.
+
+Now we can define numbers:
+
+	0		      = \x.x
+	succ[X]		      = pair[false,X]
+
+If we expand these definitions, we get:
+
+	0	\x.x
+	1	\x.x (\x.\y.y) (\x.x)
+	2	\x.x (\x.\y.y) (\x.x (\x.\y.y) (\x.x))
+	3	\x.x (\x.\y.y) (\x.x (\x.\y.y) (\x.x (\x.\y.y) (\x.x)))
+	4	etc.
+
+Now similarly as we defined if-then-else to return the right thing for
+true and false booleans, we can now define functions to operate on this
+number representation.  E.g., we can define a function isZero[X] to return
+true if its argument is 0 and false otherwise.  All we need is to define it
+as first[X]:
+
+	isZero[X]	      = first[X]
+
+And it works:
+
+	isZero[0]	      = first[0]
+			      = 0 true
+			      = (\x.x) true
+			      = true
+
+	isZero[succ[X]]	      = first[pair[false,X]]
+			      = false
+
+Then we could go on and define addition and multiplication.
+
+Or, to make life easier, we could first define something like recursion
+using a fixed-point operator (\h.(\x.h(x x))(\x.h(x x))), and then we
+define addition and multiplication using the fixed-point operator.  And
+it goes downhill from there.
+
+
+As if a `programming language' without predefined constants wasn't
+perverse enough, we can even get rid of the variables.  In combinatory
+calculus, we only have the two combinators S and K defined as the
+lambda expressions
+
+	S		      = \x.\y.\z.x z (y z)
+	K		      = \x.\y.x
+
+It can be shown that every lambda expression can be expressed as a
+combination of S and K.  How's that for a minimalist programming
+language?
+
+Since lambda caclulus is a Turing-complete language, so is combinatory
+calculus.  I.e., every computation that can be expressed as a Turing
+machine can be expressed as lambda calculus (or combinatory calculus)
+and vice versa.  Modern programming languages are Turing-complete, too.
+So every program that could be written in C (such as a compiler) could
+also be written in combinatory calculus.

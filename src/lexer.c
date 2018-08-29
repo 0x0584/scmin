@@ -43,7 +43,7 @@ vector_t *read_tokens(const string_t code) {
     assert(code != NULL);
 #endif
 
-    vector_t *tokens = vector_new(token_free, token_print);
+    vector_t *tokens = vector_new(token_free, token_print, NULL);
     token_t *token = NULL;
 
     int depth = 0, noerror = -1;
@@ -332,8 +332,8 @@ string_t read_as_symbol(const string_t code) {
     string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
     string_t not_allowed = "()#\'\"";
     string_t error[] = {
-	"ATOM IS TOO LONG OR HAS NO END",
-	"ATOM CONTAINS CHARACTERS THAT ARE NOT ALLOWED"
+	"SYMBOL IS TOO LONG OR HAS NO END",
+	"SYMBOL CONTAINS CHARACTERS THAT ARE NOT ALLOWED"
     };
     char c;
     int i = 0, noerror = 0;

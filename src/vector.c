@@ -23,7 +23,8 @@
  *
  * @return a new Vector
  */
-vector_t *vector_new(operation_t free_obj, operation_t print_obj) {
+vector_t *vector_new(operation_t free_obj, operation_t print_obj,
+		     operation_t cmp_obj) {
     vector_t *v = malloc(sizeof *v);
 
     v->capacity = 0;
@@ -31,6 +32,7 @@ vector_t *vector_new(operation_t free_obj, operation_t print_obj) {
     v->objs = malloc(sizeof(object_t));
     v->free_obj = free_obj;
     v->print_obj = print_obj;
+    v->cmp_obj = cmp_obj;
 
     return v;
 }
@@ -66,9 +68,9 @@ void vector_free(vector_t * v) {
  * @param o Object
  * @param i index where to put `o`
  */
-void vector_add(vector_t * v, object_t o, int i) {
+object_t vector_add(vector_t * v, object_t o, int i) {
     if (i < 0 || i > v->capacity) {
-	return;
+	return NULL;
     }
 
     if (v->size == v->capacity) {
@@ -81,8 +83,8 @@ void vector_add(vector_t * v, object_t o, int i) {
 	v->capacity = oc + dc;
     }
 
-    v->objs[i] = o;
     v->size++;
+    return (v->objs[i] = o);
 }
 
 void vector_del(vector_t * v, int i) {
@@ -100,8 +102,8 @@ void vector_del(vector_t * v, int i) {
  * @param v Vector
  * @param o Object
  */
-void vector_push(vector_t * v, object_t o) {
-    vector_add(v, o, v->size);
+object_t vector_push(vector_t * v, object_t o) {
+    return vector_add(v, o, v->size);
 }
 
 /**
@@ -265,6 +267,24 @@ void vector_debug(FILE * stream, vector_t * v) {
 	puts("");
     }
     puts("--------------");
+}
+
+object_t vector_find(vector_t * v, object_t o) {
+    if (!v->cmp_obj) {
+	return NULL;
+    }
+
+    int i;
+
+    for (i = 0; i < v->size; ++i) {
+	object_t tmp = v->objs[i];
+
+	if (v->cmp_obj(tmp, o)) {
+	    return tmp;
+	}
+    }
+
+    return NULL;
 }
 
 #if VECTOR_DEBUG == DBG_ON

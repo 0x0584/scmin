@@ -45,3 +45,13 @@
 	(fibonacci (* 2 5))				; >> 55
   #+END_SRC
   #+END_QUOTE
+* A basic Lisp Interpreter
+  a basic lisp interpreter would pass through a finite setp of steps thgat could be declared as following:
+
+  + Lexer :: takes /source code/ and returns a /vector of tokens/
+  + Parser :: take a /vector of tokens/ and returns a /parsed s-expression/
+  + Evaluator :: take a /s-expression/, /expand it/ and then /evaluate it/
+
+** Lexer -- =lexer.{c,h}=
+** Parser -- =parser.{c,h}=
+** Evaluator -- =eval.{c,h}=

@@ -30,6 +30,7 @@
  * this is the typical function for vector operation
  */
 typedef void (*operation_t) (object_t);
+typedef bool_t (*compare_t) (object_t, object_t);
 
 /**
  * @brief implementation of Vector data structure using an Objects[]
@@ -44,6 +45,7 @@ struct VECTOR {
     int size;		       /** current size */
     object_t *objs;	       /** array of Objects */
     operation_t free_obj, print_obj;
+    compare_t cmp_obj;
 };
 
 /**
@@ -56,7 +58,7 @@ struct VECTOR {
  *
  * @return a new Vector
  */
-vector_t *vector_new(operation_t free_obj, operation_t print_obj);
+vector_t *vector_new(operation_t free_obj, operation_t print_obj, operation_t cmp_obj);
 
 /**
  * free @p v and its Object by using free_obj() to free each one
@@ -109,8 +111,10 @@ object_t vector_get(vector_t * v, int i);
  * @param v Vector
  * @param o Object
  * @param i index where to put `o`
+ *
+ * @return the added Object @p o
  */
-void vector_add(vector_t * v, object_t o, int i);
+object_t vector_add(vector_t * v, object_t o, int i);
 
 /**
  * removes the Object `o` of the @p i th index from the @p v Object[]
@@ -128,8 +132,10 @@ void vector_del(vector_t * v, int i);
  *
  * @param v Vector
  * @param o Object
+ *
+ * @return the pushed Object @p o
  */
-void vector_push(vector_t * v, object_t o);
+object_t vector_push(vector_t * v, object_t o);
 
 /**
  * get the Object as a stack pop -- calling get() with index 0
@@ -151,6 +157,8 @@ object_t vector_pop(vector_t * v);
  * @return the popped object
  */
 object_t vector_peek(vector_t * v);
+
+object_t vector_find(vector_t *v, object_t o);
 
 void vector_debug(FILE * stream, vector_t * v);
 

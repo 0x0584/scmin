@@ -39,7 +39,7 @@ token_type predict_token_type(string_t code) {
 	}
 	ungetnc();
     } else {
-	type = TOK_SYMBOL;	/* atom */
+	type = TOK_SYMBOL;	/* symbol */
     }
 
     ungetnc();
