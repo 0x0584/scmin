@@ -3,12 +3,12 @@
   This is a basic Lisp (technically Scheme) interpreter that was written in C with the following features:
 
   + [X] read and split text contaning lisp syntax into tokens
-  + [ ] parse the tokens into a s-expression object
-  + [ ] evaluate the parsed s-expression object
-  + [ ] memory is handled via a garbage collector
-  + [ ] support basic syntax like =define=, =set!=, =eq?=, =if=, =cond=, ...
-  + [ ] support recursion
-  + [ ] support simple objects
+  + [X] parse the tokens into a s-expression object
+  + [-] evaluate the parsed s-expression object
+  + [-] memory is handled via a garbage collector
+  + [ ] support basic syntax like =define=, =eq?=, =if=, =cond=, ...
+  + [ ] +support recursion+
+  + [ ] +support simple objects+
 
 * Lisp as a programming language
 

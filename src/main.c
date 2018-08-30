@@ -10,12 +10,13 @@
  */
 #include "../include/main.h"
 #include "../include/gc.h"
-
 #include "../include/vector.h"
-#include "../include/lexer.h"
-#include "../include/parser.h"
 
 #include "../include/sexpr.h"
+
+#include "../include/lexer.h"
+#include "../include/parser.h"
+#include "../include/eval.h"
 
 int main(int argc, char **argv) {
     if (argc == 1 && argv[0]) {
@@ -34,6 +35,10 @@ int main(int argc, char **argv) {
 
 #if PARSER_DEBUG == DBG_ON
     parser_testing();
+#endif
+
+#if EVALUATOR_DEBUG == DBG_ON
+    eval_testing();
 #endif
 
 #if GC_DEBUG == DBG_ON

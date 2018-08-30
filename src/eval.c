@@ -7,65 +7,90 @@
 #include "../include/vector.h"
 #include "../include/characters.h"
 
-bool_t iskeyword();
-void eval_keyword();
+typedef enum KEYWORD {
+    K_NOT_KEYWORD = 0,
 
-/* TODO: handle erros i a more sofisticated way */
+    K_DEFINE,
+    K_IF,
+    K_AND,
+    K_OR,
+    K_NOT
+} keyword_t;
+
+keyword_t iskeyword(sexpr_t * expr) {
+    static string_t keyword[] = {
+	"define",
+	"if",
+	"and",
+	"or",
+	"not"
+    };
+    static int i = 0, size = sizeof(keyword) / sizeof(keyword[0]);
+
+    if (!issymbol(expr))
+	return K_NOT_KEYWORD;
+
+    for (i = 0; i < size; ++i) {
+	if (!strcmp(expr->s, keyword[i]))
+	    return (keyword_t) i + 1;
+    }
+
+    return K_NOT_KEYWORD;
+}
+
+sexpr_t *eval_keyword(keyword_t k, sexpr_t *expr);
+
+/* TODO: handle erros in a more sofisticated way */
 sexpr_t *eval(scope_t * s, sexpr_t * expr) {
-    sexpr_t *operator, *tail = NULL, *args, *tmp = expr;
+    sexpr_t *operator, *tail = NULL, *args, *tmp = NULL;
     sexpr_t *sexpr_nil = sexpr_new(T_NIL);
+    keyword_t key;
 
-    /* ======================================================  
-     *         handling operator in (operator sexps)
-     * ======================================================  
-     * IF iskeyword(expr) THEN
-     *     eval keyword passing the cdr to the propere method
-     *     
-     * ELSE IF issymbol(expr) THEN
-     *     resolve (somwhow) the bond whitin the scope
-     *     IF bond not resolved THEN
-     *         raise_error()
-     *         
-     * ELSE IF !ispair(expr) THEN
-     *     return expr
-     * ======================================================  
-     */
+    tmp = car(expr);
 
+    if ((key = iskeyword(tmp)))	/* evaluate the keyword */
+	return eval_keyword(key, cdr(expr));
+    else if (isbonded(s, tmp))	/* resolve symbol  */
+	return resolve_bond(s, expr);
+    else if (!ispair(tmp))	/* just an atom/nil */
+	return expr;
+
+
+    /* take the operator of the s-expression */
     if (!(operator = eval(s, car(expr))))
 	return car(expr);
 
-    /* ======================================================  
-     *                   getting arguments
-     * ======================================================  
-     * WHILE we still have pairs DO
-     *     evaluate each argument's value
-     *     make a list of values
-     * ======================================================  
-     */
-
-    while (ispair(tmp = cdr(tmp))) {
-	if (!tail)
-	    tail = cons(eval(s, car(tmp)), sexpr_nil);
-	else
+    /* make a list of evaluated arguments */
+    for (tmp = expr; ispair(tmp = cdr(tmp)); tail = args) {
+	if (!args)
 	    args = cons(eval(s, car(tmp)), sexpr_nil);
-
-	tail = args;
+	else
+	    set_cdr(tail, cons(eval(s, car(tmp)), sexpr_nil));
     }
 
-    /* ======================================================  
-     *                 applying the operator
-     * ======================================================  
-     * IF isnative(operator) THEN
-     *     return operator->func(args)
-     * ELSE
-     *     create a new child-scope
-     *     bind lambda's args to the child-scope
-     *     WHILE body not nil DO
-     *         evaluate each s-expr using child-scope
-     *         return last expression's value
-     * ======================================================  
-     */
+    if (operator-> l->isnative)	/* call the native function */
+	return operator-> l->native->func(args);
+    else {			/* interprete the lambda */
+	scope_t *child = scope_init(s);
+	sexpr_t *result = NULL;
 
+	/* find a way to bind lambda args to evaluated args */
+	if (!bind_lambda_args(child, operator-> l, args)) {
+	    raise_error(stdout, "cannot bind lambda args");
+	    goto FAILED;
+	}
+
+	tmp = operator-> l->body;
+
+	while (!isnil(tmp)) {
+	    result = eval(child, car(tmp));
+	    tmp = cdr(tmp);
+	}
+
+	return result;
+    }
+
+  FAILED:
     return NULL;
 }
 
@@ -95,9 +120,9 @@ void eval_testing() {
 
     int i, size = sizeof(exprs) / sizeof(exprs[0]);
     vector_t *v = NULL;
-    sexpr_t *expr = NULL;
+    sexpr_t *expr = NULL, *eval_expr = NULL;
     scope_t *gs = scope_init(NULL);
-    
+
     for (i = 0; i < size; ++i) {
 	printf("\n + parsing %s\n", exprs[i]);
 
@@ -111,10 +136,10 @@ void eval_testing() {
 	puts("\n + parsed expression");
 	sexpr_describe(expr);
 
-	eval(gs, expr);
+	eval_expr = eval(gs, expr);
 
 	vector_free(v);
-	puts(" ================== ================= ================= ");
+	puts("========= =========");
 	/* gc_debug_memory(); */
     }
 

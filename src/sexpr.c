@@ -2,20 +2,25 @@
 #include "../include/pair.h"
 
 bool_t isnil(sexpr_t * expr) {
+    assert(expr != NULL);
     return expr->type == T_NIL;
 }
 
 bool_t isatom(sexpr_t * expr) {
-    return expr->type == T_SYMBOL || expr->type == T_STRING
-	|| expr->type == T_NUMBER;
+    return expr && (issymbol(expr) || isstring(expr)
+		    || isnumber(expr));
+}
+
+bool_t issymbol(sexpr_t * expr) {
+    return expr && expr->type == T_SYMBOL;
 }
 
 bool_t isnumber(sexpr_t * expr) {
-    return expr->type == T_NUMBER;
+    return expr && expr->type == T_NUMBER;
 }
 
 bool_t isstring(sexpr_t * expr) {
-    return expr->type == T_STRING;
+    return expr && expr->type == T_STRING;
 }
 
 bool_t ispair(sexpr_t * expr) {

@@ -27,7 +27,7 @@ struct LAMBDA {
     bool_t isnative;
 
     union {
-	Nlambda_t *l;		/* native lambda */
+	Nlambda_t *native;	/* native lambda */
 	sexpr_t *body;		/* cddr */
     };
 };
@@ -53,7 +53,7 @@ bool_t isnil(sexpr_t * expr);
 bool_t isatom(sexpr_t * expr);
 bool_t isnumber(sexpr_t * expr);
 bool_t isstring(sexpr_t * expr);
-bool_t isboolean(sexpr_t * expr);
+bool_t issymbol(sexpr_t * expr);
 bool_t ispair(sexpr_t * expr);
 
 sexpr_t *sexpr_new(type_t type);
