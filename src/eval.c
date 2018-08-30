@@ -38,12 +38,12 @@ keyword_t iskeyword(sexpr_t * expr) {
     return K_NOT_KEYWORD;
 }
 
-sexpr_t *eval_keyword(keyword_t k, sexpr_t *expr);
+sexpr_t *eval_keyword(keyword_t k, sexpr_t * expr);
 
-/* TODO: handle erros in a more sofisticated way */
+/* FIXME: handle erros in a more sofisticated way */
 sexpr_t *eval(scope_t * s, sexpr_t * expr) {
     sexpr_t *operator, *tail = NULL, *args, *tmp = NULL;
-    sexpr_t *sexpr_nil = sexpr_new(T_NIL);
+    sexpr_t *nil = sexpr_new(T_NIL);
     keyword_t key;
 
     tmp = car(expr);
@@ -63,9 +63,9 @@ sexpr_t *eval(scope_t * s, sexpr_t * expr) {
     /* make a list of evaluated arguments */
     for (tmp = expr; ispair(tmp = cdr(tmp)); tail = args) {
 	if (!args)
-	    args = cons(eval(s, car(tmp)), sexpr_nil);
+	    args = cons(eval(s, car(tmp)), nil);
 	else
-	    set_cdr(tail, cons(eval(s, car(tmp)), sexpr_nil));
+	    set_cdr(tail, cons(eval(s, car(tmp)), nil));
     }
 
     if (operator-> l->isnative)	/* call the native function */
@@ -74,7 +74,7 @@ sexpr_t *eval(scope_t * s, sexpr_t * expr) {
 	scope_t *child = scope_init(s);
 	sexpr_t *result = NULL;
 
-	/* find a way to bind lambda args to evaluated args */
+	/* TODO: bind lambda args to evaluated args */
 	if (!bind_lambda_args(child, operator-> l, args)) {
 	    raise_error(stdout, "cannot bind lambda args");
 	    goto FAILED;

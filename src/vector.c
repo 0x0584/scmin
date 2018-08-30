@@ -24,7 +24,7 @@
  * @return a new Vector
  */
 vector_t *vector_new(operation_t free_obj, operation_t print_obj,
-		     operation_t cmp_obj) {
+		     compare_t cmp_obj) {
     vector_t *v = malloc(sizeof *v);
 
     v->capacity = 0;

@@ -234,7 +234,7 @@ bool_t clean_comments(string_t code) {
 /*
  * ==================================================================
  * the following read functions return NULL if an error occurs
- * TODO: stop the whole process.
+ * FIXME: stop the whole process.
  * this might need to implement an error system
  * ==================================================================
  */

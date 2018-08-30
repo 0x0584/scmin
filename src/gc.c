@@ -17,7 +17,8 @@ static vector_t *gc_allocated_sexprs, *gc_allocated_scopes,
 void gc_init(void) {
     gc_allocated_sexprs = vector_new(gc_free_sexpr, sexpr_describe, NULL);
     gc_allocated_scopes = vector_new(gc_free_scope, scope_describe, NULL);
-    gc_allocated_contexts = vector_new(gc_free_context, context_describe, NULL);
+    gc_allocated_contexts = vector_new(gc_free_context,
+				       context_describe, NULL);
 }
 
 void gc_clean(void) {
@@ -65,9 +66,9 @@ void gc_mark_stack_sexprs(vector_t * v) {
     }
 }
 
-/* ==========================================================================
- *			 s-expressions memory management
- * ==========================================================================
+/* ==============================================================
+ *		   s-expressions memory management
+ * ==============================================================
  */
 
 void gc_mark_sexpr(sexpr_t * expr) {
@@ -171,16 +172,16 @@ void gc_free_sexpr(object_t o) {
     free(expr);
 }
 
-/* ==========================================================================
- *			    scope memory management
- * ==========================================================================
+/* ==============================================================
+ *		       scope memory management
+ * ==============================================================
  */
 scope_t *gc_alloc_scope(void) {
     if (!gc_has_space_left())
 	gc_collect(true);
 
     scope_t *s = malloc(sizeof *s);
-    s->bonds = vector_new(bond_free, bond_describe, NULL);
+    s->bonds = vector_new(bond_free, bond_describe, bond_cmp);
 
     vector_push(gc_allocated_scopes, s);
 
@@ -188,7 +189,7 @@ scope_t *gc_alloc_scope(void) {
 }
 
 void gc_free_scope(object_t o) {
-    if(o == NULL)
+    if (o == NULL)
 	return;
 
     scope_t *s = o;
@@ -201,9 +202,9 @@ void gc_free_scope(object_t o) {
     }
 }
 
-/* ==========================================================================
- *			  context memory management
- * ==========================================================================
+/* ==============================================================
+ *		      context memory management
+ * ==============================================================
  */
 context_t *gc_alloc_context() {
     if (!gc_has_space_left())
@@ -217,7 +218,8 @@ context_t *gc_alloc_context() {
 }
 
 void gc_free_context(object_t o) {
-    if(o == NULL) return;
+    if (o == NULL)
+	return;
 
     context_t *c = o;
 

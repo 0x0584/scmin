@@ -58,7 +58,7 @@ struct VECTOR {
  *
  * @return a new Vector
  */
-vector_t *vector_new(operation_t free_obj, operation_t print_obj, operation_t cmp_obj);
+vector_t *vector_new(operation_t free_obj, operation_t print_obj, compare_t cmp_obj);
 
 /**
  * free @p v and its Object by using free_obj() to free each one

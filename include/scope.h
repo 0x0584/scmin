@@ -17,15 +17,15 @@ struct SCOPE {
     scope_t *parent;
 };
 
-bond_t *bond_init(string_t key, sexpr_t * expr);
+bond_t *bond_new(string_t key, sexpr_t * expr);
 void bond_free(object_t b);
 void bond_describe(object_t b);
+bool_t bond_cmp(object_t o1, object_t o2);
 sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr);
 bool_t isbonded(scope_t *s,sexpr_t *);
 bool_t bind_lambda_args(scope_t *s,lambda_t *l, sexpr_t *args);
 
 scope_t *scope_init(scope_t * parent);
-
 void scope_push_bond(scope_t * s, bond_t * b);
 void scope_describe(object_t s);
 
