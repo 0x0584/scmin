@@ -2,13 +2,6 @@
 #include "../include/scope.h"
 #include "../include/vector.h"
 
-static scope_t *g_scope;
-static vector_t *eval_stack;
-
-void global_scope_init(void) {
-    g_scope = scope_init(NULL);
-}
-
 context_t *context_init(scope_t *scope, sexpr_t *expr) {
     context_t *ctx = gc_alloc_context();
 

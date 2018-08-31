@@ -209,6 +209,13 @@ vector_t *vector_compact(vector_t * v) {
 	    }
 	    --size;
 	}
+
+    }
+
+    /* in case the vecy first object was NULL
+     * but not on the first run */
+    if (!v->objs[0] && size == 1 && i != 0) {
+	size = 0;
     }
 
     assert(size >= 0);		/* not sure! */
@@ -217,7 +224,7 @@ vector_t *vector_compact(vector_t * v) {
     v->capacity = size;
 
     if (size == 0) {
-	++size;
+	++size;			/* keep the pointer alive */
     }
 
     v->objs = realloc(v->objs, size * sizeof(object_t));

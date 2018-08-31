@@ -47,10 +47,15 @@ void gc_free_sexpr(object_t o);
 void gc_mark_sexpr(sexpr_t * expr);
 void gc_sweep_sexprs(vector_t * v);
 
+lambda_t *gc_alloc_lambda(void);
+void gc_free_lambda(object_t o);
+void gc_mark_lambda(lambda_t * lambda);
+void gc_sweep_lambdas(vector_t * v);
+
 scope_t *gc_alloc_scope(void);
 void gc_free_scope(object_t o);
 void gc_mark_scope(scope_t * scope);
-void gc_sweep_scope(vector_t * v);
+void gc_sweep_scopes(vector_t * v);
 
 context_t *gc_alloc_context();
 void gc_free_context(object_t o);
