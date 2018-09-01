@@ -1,0 +1,420 @@
+commit 277a364d8e90a55d19e636cef289983dfdf56b9a
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Thu Aug 30 19:00:39 2018 +0100
+
+    implement some bond functions
+    
+        I need to handle scopes, so I should switch to GC branch after
+        this commit.
+    
+    CHANGE LOG:
+    ===========
+    
+      + add: bond_cmp() to compare a bond with a key i.e. string key
+      + add: implementation of bond-related functions in scope.c
+      + fix: vector_new() signature
+      + fix: how list of args is constructed in eval()
+    
+    MINOR CHANGES:
+    ==============
+    
+      + change TODOs to FIXMEs, you can't have bazillion TODOs, could you?
+
+commit 226f638a7632d3842b1d2926bfb518aa6adb4800
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Thu Aug 30 02:50:38 2018 +0100
+
+    eval() is not complete, yet
+    
+    CHANGE LOG:
+    ===========
+    
+      + add: keyword functionalities for predefined language keywords
+      + add: function signatures to scope.h
+      + update: expression type functions, e.g. isatom, in sexpr.c
+      + implementing the previous evaluation algorithm pseudo-code
+
+commit d8711d1a85f0b5afb9495328463e8cb1230c5d63
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Wed Aug 29 18:50:30 2018 +0100
+
+    the main algorithm of evaluating a s-expr
+    
+      for the moment, nothing works but the most important is that the
+      main evaluation algorithm has been found! which is the following:
+    
+            IF iskeyword(expr) THEN
+                eval keyword passing the cdr to the proper method;
+            ELSE IF issymbol(expr) THEN
+                resolve (somehow) the bond within the scope;
+                IF bond not resolved THEN
+                    raise_error();
+            ELSE IF !ispair(expr) THEN
+                return expr;
+            END IF
+    
+            WHILE ispair(expr := cdr(expr)) DO
+                evaluate each argument's value;
+                make a list of values;
+            END WHILE
+    
+            IF isnative(car(expr)) THEN
+                return operator->func(args);
+            ELSE
+                create a new child-scope;
+                bind lambda's args to the child-scope;
+                WHILE !isnil(expr->l->body) DO
+                    evaluate each s-expr using child-scope;
+                    return last expression's value;
+    
+    CHANGE LOG:
+    ===========
+    
+       + add: new files scope.{c,h} because of splitting it from the context
+       + add: lambda type to sexpr.h
+       + add: comparison function to vector signature, vector_add() return
+         the added object (so is vector_push())
+       + add: vector_find() to return the first occurrence of an object in
+         the vector
+       + add: basic skeleton for evaluating in eval.c
+       + handling scopes and contexts using GC
+    
+    MINOR CHANGES:
+    ==============
+    
+       + implement native functionalities such as arithmetic operations
+       + fix: renaming T_ATOM as T_SYMBOL i.e. using the correct term
+       + remove the T_BOOLEAN for counting `nil` as `false` and everything
+         else as `true` i.e. the C Boolean type approach
+       + fix: allocating only one `nil` per expression, and not using
+         sexpr_new() multiple times
+
+commit b4f5e4540401981a4017933b647ba02bd5a85bc3
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Sun Aug 26 04:12:54 2018 +0100
+
+    fix: freeing tokens in multiple places is a bad idea!
+    
+      This is a moment for the bad programming philosophy that I have right
+      now, but I would really push to the limit so that I could made it!
+
+commit e330bf164821d12f11c93935a3735546b5f27ba4
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Sun Aug 26 04:03:46 2018 +0100
+
+    fix: for some magical reason, this works times and not others
+    
+      I am trying to parse a set of tokens into a sexpr_t object, which is
+      for some reason working well! I have to find why, and I've kept
+      the correct log.
+    
+    CHANGE LOG:
+    ===========
+    
+      + fix bug in Boolean handling by allocating memory it the symbol
+      was a Boolean specific
+      + adding a magical log!
+    
+    MINOR CHANGES:
+    ==============
+    
+      + GC_DEBUG flag is DBG_ON
+
+commit 5793ee7584db6f4d1bf5424864e930449a9af2cd
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Sat Aug 25 20:55:58 2018 +0100
+
+    fix: parse now works only on numbers and strings
+
+commit 83a87255ff6ba5dcfa117685580e12e1bff48a31
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Fri Aug 24 21:06:37 2018 +0100
+
+    bug: parser is not working as expected
+    
+    after detecting a duplication in the parsing phase, i changed the code
+    but it seems like it get conflicts with something else, this was a
+    backup commit.
+
+commit 4b6699ba594d20d7b4ba13efc62b2d0d910c109b
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Thu Aug 23 22:21:03 2018 +0100
+
+    fix: README.org formating
+
+commit 4318cf2726680e8335e8852326006a204007e3a3
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Thu Aug 23 22:15:01 2018 +0100
+
+    Update README.org
+
+commit 297e23a2d595b016df3c7d57af6ca6acaed96b90
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Thu Aug 23 19:38:00 2018 +0100
+
+    fix: free the pair_t object
+    
+        This is a memory leak, the pair pointer remain allocated, thus we
+        have to free the pair pointer itself.
+    
+    CHANGE LOG:
+    ===========
+    
+      + free() the pair_t pointer within gc_free_expr() in case the s-expr
+      was T_PAIR
+    
+    MINOR CHANGES:
+    ==============
+    
+      + removing unused variables (to suppress compilation warnings)
+
+commit c3e96e408996ee75ead6df29a79b51dad6968a11
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Thu Aug 23 18:21:00 2018 +0100
+
+    fix: last NULL element bug in vector_compact()
+    
+        The bug was that we do not check if the last element is NULL.
+        Therefor; we may get trapped by always finding a NULL which
+        would cause issues while collecting the garbage. As well as
+        trying to compact an empty vector.
+    
+    CHANGE LOG:
+    ===========
+    
+      + simply return the vector if it has no elements, `size == 0`
+      + decrement `size` if the last element while compacting was NULL
+
+commit 004f9b9e6ede698b481b2aa162d36c489d80eb65
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Thu Aug 23 14:14:19 2018 +0100
+
+    bug: all memory is free'd but vector_compact() has issues
+    
+    CHANGE LOG:
+    ===========
+    
+      + calling the GC when needed while allocating the sexprs
+      + handling T_PAIR in the gc_free_sexprs() buy freeing its car and
+        cdr until the cdr is NULL
+    
+    MINOR CHANGES:
+    ==============
+    
+      + unifiying vector func_objects as operation_t
+      + adding comments to vector.c
+
+commit 7af2b81b8c484225845bb26c7ff92e147f0eb804
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Thu Aug 23 03:02:05 2018 +0100
+
+    testing a prototype garbage collector on sexpr_t
+    
+    CHANGE LOG:
+    ===========
+    
+      + the main idea is to mark reachable objects and then when you want
+        to sweep, you free the unmarked ones wihle setting the already
+        marked ones as unmarked (by setting ismarked to false)
+    
+      + gc_collect(true) do an immediate garbage collection rather of the
+        space left. while gc_collect(false) wait until GC_RATIO
+    
+      + the pair gc_init() and gc_clean() is the on/off mechanisms of the
+        garbage collector. they are esseintial!
+    
+    MINOR CHANGES:
+    ==============
+    
+      + switch some TODO satements to FIXME, because it would just distract
+        me from getting something done. those are just changes to make it
+        run better. but first, it has to be running!
+
+commit 7ed6de50beefd6cf93f042da1a6ef72dc9d1c026
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Wed Aug 22 11:03:46 2018 +0100
+
+    fix: duplicating content string from the token->vbuffer
+    
+       while parsing as string, it's essential that we duplicate the
+       string because, as soon as we free the token, the string is gone
+       away!
+    
+       also in vector.c we free the objects if only they != NULL
+
+commit 79802e7ca1856ff0c1b84ababeb5a50ead6a3173
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Tue Aug 21 22:08:17 2018 +0100
+
+    the process of parsing is done, or almost
+    
+      but the construction lists has some issues the way i construct a
+      cons-pair has no issues, however it does not give the desired
+      result when applying it each rather than manual way:
+    
+      the s-expr (a b c) is equivalent to (cons a (cons b (cons c)))
+      but when i try to add atoms successively, it doesn't work well
+
+commit 443ad64c0bffe17b9d99541f67f960c28cfa73c1
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Tue Aug 21 15:11:27 2018 +0100
+
+    testing car/cdr and others like cadr
+
+commit edbe80bd7f02a518bcaa734a841b7a2223c3d5ca
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Tue Aug 21 15:04:18 2018 +0100
+
+    creating a list using cons-pairs
+
+commit ddd27b4b34ac6bc3327e12ad334e71463459e856
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Tue Aug 21 04:21:08 2018 +0100
+
+    creating pair.{c,h} to handle cons values
+    
+      cons basically creates a pair_t car points on the head of the list
+      and cdr point on the rest of the list. (car (cdr '(a b c))) would
+      give b which means that the value of the second is b
+
+commit e874668d9a66bb296ef6bc65c04c20a739104c7b
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Tue Aug 21 00:18:48 2018 +0100
+
+    fix: bug while parsing some TOK_ATOM as TOK_NUMBER
+    
+      the signes '+' '-' and the period '.' could result something like
+      `.this` or `+foo` or even literal '+' be lexed as TOK_NUMBER while
+      theya have type TOK_ATOM
+
+commit 20197b95e9b781b001386b967376a8b2125a69a8
+Merge: 3f7d505 daaee66
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Mon Aug 20 19:35:19 2018 +0100
+
+    On master: parsing
+
+commit daaee66e2ec98516cb816df1da09a0f26a7df638
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Mon Aug 20 19:35:19 2018 +0100
+
+    index on master: 3f7d505 preparing expressions to be parsed, create a GC prototype
+
+commit 3f7d505d38705ca5e6ed6488f64702189aaf458b
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Mon Aug 20 18:41:42 2018 +0100
+
+    preparing expressions to be parsed, create a GC prototype
+    
+      + handling expression by adding dynamic allocation, and description
+      of a sexpr.
+      + basic parsing structure
+      + creating a scheme for the garbage collector
+
+commit 19ad8fb2e48bc5320e56d76894cb7d6e417c4d40
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Sat Aug 18 16:23:20 2018 +0100
+
+    clean the code to start creating the parser
+
+commit 5f6e6cbb8848c44c3e7224b060e95d93828a8b7a
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Sat Aug 18 04:18:22 2018 +0100
+
+    fix: a condition error in vector_push()
+    
+         instead of doing `i > (v->capacity - 1)`, i used `i <
+         v->capacity` which was always true, so beside the first element,
+         nothing was added to the array
+
+commit d95b1a2e160562e379abad218502d31377e05da1
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Sat Aug 18 03:56:47 2018 +0100
+
+    bug: the lexer is somehow working
+    
+    but for someother reason, it is not!
+
+commit fb2bc7e31d52fc248b6060aadf0f276dd8bf2456
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Wed Aug 15 15:44:21 2018 +0100
+
+    document the code
+
+commit 35a254f4e93f1e1cf2923d38ea3b959e87036668
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Wed Aug 15 01:47:41 2018 +0100
+
+    commenting the code
+
+commit 93d24ddfe961b9608914ca664713ffede4e9256d
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Tue Aug 14 13:31:34 2018 +0100
+
+    fix: break on TOK_EOF
+    
+    but there still a mysterious bug out there
+
+commit eb5613f8845c3d633580da4f9aed7ccd7deed829
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Mon Aug 13 03:07:25 2018 +0100
+
+    lexer should work by now but a character is missing somewhere
+    
+    working with static variables is really tricky! i should smoke and back to work
+
+commit 3ced69cd049e5f6027a244edc40876c4541c13f5
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Sun Aug 12 06:18:11 2018 +0100
+
+    still working on lexer
+    
+      + the lexer now can differentiate between few tokens
+      + update vector_free() to support a custumized free function based on
+    the sent object_t
+
+commit 8cb99e0586d152c69993fbf64f82e85ebc2e448b
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Sat Aug 11 23:00:27 2018 +0100
+
+    trying to create a lexer
+    
+    it's harder than i thought! i guess i need to *think outside the box*
+
+commit 808c442507ad4e625aae91588f407c33df2ffb45
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Sat Aug 11 05:47:54 2018 +0100
+
+    setup lexer and parser jobs
+
+commit 7c0dc35025e8fcf67d8ea5a2daf9275f2ce10ffa
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Sat Aug 11 03:27:52 2018 +0100
+
+    fix bugs in vector
+    
+    it was calling memset() after calling free() on a void ** object, the
+    solution was just calling free() because it's a 1d array even that
+    it's void **
+
+commit ff533d9629cd465defe66e52a1ebbb85c5356057
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Sat Aug 11 02:41:27 2018 +0100
+
+    implementing vector
+    
+    some bugs still occurs, like `invalide write size 8` or something like
+    this which is an error create by memset() and free() which i have no
+    idea why!
+
+commit b95515e73eb992d06261899f5ad96a3b56c29eb8
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Fri Aug 10 21:23:45 2018 +0100
+
+    build the initial structure
+
+commit 28ff1fd8cefc908a3428f1db83eb7d454226bab3
+Author: Anas Rchid <rchid.anas@gmail.com>
+Date:   Fri Aug 10 18:14:25 2018 +0100
+
+    Initial Commit
