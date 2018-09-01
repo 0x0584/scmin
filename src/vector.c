@@ -192,7 +192,7 @@ vector_t *vector_compact(vector_t * v) {
 	return v;
     }
 
-    int i, j, size = v->size;
+    int i = 0, j, size = v->size;
 
     /* this would literaly shift elements in the array
      * and there'is a case where the first element
@@ -214,7 +214,7 @@ vector_t *vector_compact(vector_t * v) {
 
     /* in case the vecy first object was NULL
      * but not on the first run */
-    if (!v->objs[0] && size == 1 && i != 0) {
+    if (v->objs[0] == NULL && i != 0 && size == 1) {
 	size = 0;
     }
 
@@ -249,6 +249,9 @@ void vector_print(vector_t * v) {
     }
 
     for (i = 0; i < v->size; ++i) {
+	if (v->objs[i] == NULL)
+	    continue;
+
 	puts("//////////////////////////////");
 	if (v->print_obj) {
 	    v->print_obj(v->objs[i]);
