@@ -7,6 +7,15 @@
 #include "../include/vector.h"
 #include "../include/characters.h"
 
+static string_t keyword[] = {
+    "quote",
+    "define",
+    "if",
+    "and",
+    "or",
+    "not"
+};
+
 /* FIXME: handle erros in a more sofisticated way */
 sexpr_t *eval(scope_t * s, sexpr_t * expr) {
     sexpr_t *operator = NULL, *tail = NULL, *args = NULL, *tmp = NULL;
@@ -63,13 +72,7 @@ sexpr_t *eval(scope_t * s, sexpr_t * expr) {
 
 
 keyword_t iskeyword(sexpr_t * expr) {
-    static string_t keyword[] = {
-	"define",
-	"if",
-	"and",
-	"or",
-	"not"
-    };
+
     static int i = 0, size = sizeof(keyword) / sizeof(keyword[0]);
 
     if (!issymbol(expr))

@@ -29,7 +29,7 @@ void gc_init(void) {
 }
 
 void gc_clean(void) {
-    gc_collect(true);
+    /* gc_collect(true); */
 
     vector_free(gc_allocd_sexprs);
     vector_free(gc_allocd_lambdas);
@@ -69,7 +69,6 @@ void gc_collect(bool_t iscleanup) {
     puts("\n================ sweep lambdas ==================\n");
     gc_sweep_lambdas(gc_allocd_lambdas);
 
-    /* gc_mark_stack_sexprs(gc_allocd_sexprs); */
     puts("\n================ sweep sexprs ==================\n");
     gc_sweep_sexprs(gc_allocd_sexprs);
 
@@ -128,10 +127,11 @@ void gc_sweep_sexprs(vector_t * v) {
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
-	/* lambdas are handled separately */
+	/* lambdas are handled separately -- that was a bad idea */
+	/*
 	if (islambda(tmp))
 	    continue;
-
+	*/
 	if (!tmp->gci.ismarked) {
 	    gc_free_sexpr(tmp);
 	    vector_set(v, i, NULL);
@@ -189,6 +189,8 @@ void gc_free_sexpr(object_t o) {
 	free(expr->c);
     }
 
+    /* lambdas are handled alone using gc_free_lambda */
+
     free(expr);
 
     expr = NULL;
@@ -218,12 +220,17 @@ lambda_t *gc_alloc_lambda(void) {
 void gc_free_lambda(object_t o) {
     if (o == NULL)
 	return;
+
     lambda_t *l = o;
 
-    gc_free_sexpr(l->args);
+    /* gc_free_sexpr(l->args); */
+    gc_free_scope(l->parent);
 
     if (!l->isnative) {
 	gc_free_sexpr(l->body);
+    } else {
+	free(l->native->symbol);
+	free(l->native);
     }
 
     free(l);
@@ -448,11 +455,15 @@ void gc_debug_memory(void) {
 
     sexpr_t *args = cons(x, cons(y, sexpr_new(T_NIL)));
 
+    Nlambda_t *n_add = malloc(sizeof *n_add);
+    n_add->symbol = strdup("+");
+    n_add->func = native_add;
+
     lambda_t *l = gc_alloc_lambda();
     l->args = args;
     l->isnative = true;
-    l->native = &(Nlambda_t) {
-    "+", native_add};
+    l->native = n_add;
+
 
     sexpr_t *lam = gc_alloc_sexpr();
     lam->type = T_LAMBDA;
@@ -463,6 +474,8 @@ void gc_debug_memory(void) {
     sexpr_t *result = native_add(args);
 
     sexpr_describe(result);
+
+    /* gc_free_sexpr(lam); */
 
     gc_collect(true);
 }

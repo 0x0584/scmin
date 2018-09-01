@@ -103,11 +103,6 @@ vector_t *read_tokens(const string_t code) {
   FAILED:
 
     raise_error(stderr, error[noerror]);
-
-#if LEXER_DEBUG == DBG_ON
-    assert(noerror != -1);
-#endif
-
     vector_free(tokens);
 
     return NULL;
