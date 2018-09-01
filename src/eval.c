@@ -7,42 +7,9 @@
 #include "../include/vector.h"
 #include "../include/characters.h"
 
-typedef enum KEYWORD {
-    K_NOT_KEYWORD = 0,
-
-    K_DEFINE,
-    K_IF,
-    K_AND,
-    K_OR,
-    K_NOT
-} keyword_t;
-
-keyword_t iskeyword(sexpr_t * expr) {
-    static string_t keyword[] = {
-	"define",
-	"if",
-	"and",
-	"or",
-	"not"
-    };
-    static int i = 0, size = sizeof(keyword) / sizeof(keyword[0]);
-
-    if (!issymbol(expr))
-	return K_NOT_KEYWORD;
-
-    for (i = 0; i < size; ++i) {
-	if (!strcmp(expr->s, keyword[i]))
-	    return (keyword_t) i + 1;
-    }
-
-    return K_NOT_KEYWORD;
-}
-
-sexpr_t *eval_keyword(keyword_t k, sexpr_t * expr);
-
 /* FIXME: handle erros in a more sofisticated way */
 sexpr_t *eval(scope_t * s, sexpr_t * expr) {
-    sexpr_t *operator, *tail = NULL, *args, *tmp = NULL;
+    sexpr_t *operator = NULL, *tail = NULL, *args = NULL, *tmp = NULL;
     sexpr_t *nil = sexpr_new(T_NIL);
     keyword_t key;
 
@@ -94,17 +61,34 @@ sexpr_t *eval(scope_t * s, sexpr_t * expr) {
     return NULL;
 }
 
-/* (define symbol 's-expr) */
-sexpr_t *eval_define(scope_t *, sexpr_t *);
-/* (if (condition) (true) (false)) */
-sexpr_t *eval_if(scope_t *, sexpr_t *);
-/* (or s-exprs) */
-sexpr_t *eval_or(scope_t *, sexpr_t *);
-/* (not s-expr) */
-sexpr_t *eval_not(scope_t *, sexpr_t *);
-/* (and s-exprs) */
-sexpr_t *eval_and(scope_t *, sexpr_t *);
 
+keyword_t iskeyword(sexpr_t * expr) {
+    static string_t keyword[] = {
+	"define",
+	"if",
+	"and",
+	"or",
+	"not"
+    };
+    static int i = 0, size = sizeof(keyword) / sizeof(keyword[0]);
+
+    if (!issymbol(expr))
+	return K_NOT_KEYWORD;
+
+    for (i = 0; i < size; ++i) {
+	if (!strcmp(expr->s, keyword[i]))
+	    return (keyword_t) i + 1;
+    }
+
+    return K_NOT_KEYWORD;
+}
+
+sexpr_t *eval_keyword(keyword_t k, sexpr_t * expr) {
+    if (k) {
+
+    }
+    return expr;
+}
 
 #if EVALUATOR_DEBUG == DBG_ON
 

@@ -6,24 +6,22 @@
 #include "../include/sexpr.h"
 #include "../include/pair.h"
 
-bool_t isnative(sexpr_t *operator) {
-    return operator != NULL;
+bool_t isnative(sexpr_t * expr) {
+    assert(expr != NULL);
+    return expr->l->isnative;
 }
 
 sexpr_t *native_add(sexpr_t * expr) {
+    sexpr_t *result = NULL, *tmp = expr;
     number_t n = 0;
-    sexpr_t *tmp;
 
-    sexpr_t *result = sexpr_new(T_NUMBER);
-
-
-    while (ispair(expr)) {
-	tmp = car(expr);
-
-	n += tmp->n;
+    while (!isnil(tmp)) {
+	sexpr_t *value = car(tmp);
+	n += value->n;
 	tmp = cdr(tmp);
     }
 
+    result = sexpr_new(T_NUMBER);
     result->n = n;
 
     return result;

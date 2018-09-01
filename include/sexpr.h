@@ -8,13 +8,15 @@
  * Possible types for an expression to be
  */
 enum S_EXPR_TYPE {
-    T_PAIR,			/** car, cdr */
-    T_NUMBER,			/** 0 -100 0.25 */
-    T_STRING,			/** "string" */
-    T_SYMBOL,			/** foo foo-bar */
-    T_NIL, T_ERR
-};
+    T_PAIR,			/* car, cdr */
+    T_NUMBER,			/* 0 -100 0.25 */
+    T_STRING,			/* "string" */
+    T_SYMBOL,			/* foo foo-bar */
+    T_LAMBDA,			/* (lambda (args) ...) */
 
+    T_NIL,			/* like NULL */
+    T_ERR			/* ERROR */
+};
 
 /**
  * the lambda expression is an expression that takes
@@ -23,6 +25,8 @@ enum S_EXPR_TYPE {
  * (lambda (args) s-exprs)
  */
 struct LAMBDA {
+    gc_info gci;
+    scope_t *parent;
     sexpr_t *args;		/* cadr */
     bool_t isnative;
 
@@ -54,9 +58,11 @@ bool_t isatom(sexpr_t * expr);
 bool_t isnumber(sexpr_t * expr);
 bool_t isstring(sexpr_t * expr);
 bool_t issymbol(sexpr_t * expr);
+bool_t islambda(sexpr_t * expr);
 bool_t ispair(sexpr_t * expr);
 
 sexpr_t *sexpr_new(type_t type);
 void sexpr_describe(object_t expr);
+void lambda_describe(object_t expr);
 
 #endif				/* _SCMIN_SEXPR_H */
