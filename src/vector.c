@@ -214,7 +214,7 @@ vector_t *vector_compact(vector_t * v) {
 
     /* in case the vecy first object was NULL
      * but not on the first run */
-    if (v->objs[0] == NULL && i != 0 && size == 1) {
+    if (v->objs[0] == NULL && i != 0 && size > 0) {
 	size = 0;
     }
 

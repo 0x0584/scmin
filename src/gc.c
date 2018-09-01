@@ -29,7 +29,7 @@ void gc_init(void) {
 }
 
 void gc_clean(void) {
-    gc_collect(true);
+    /* gc_collect(true); */
 
     vector_free(gc_allocd_sexprs);
     vector_free(gc_allocd_lambdas);

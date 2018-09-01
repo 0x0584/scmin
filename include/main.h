@@ -24,7 +24,7 @@
 
 #  define VECTOR_DEBUG		DBG_OFF
 #  define LEXER_DEBUG		DBG_OFF
-#  define PARSER_DEBUG		DBG_OFF
+#  define PARSER_DEBUG		DBG_ON
 #  define EVALUATOR_DEBUG	DBG_OFF
 
 /**

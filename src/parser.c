@@ -10,6 +10,9 @@
  * is a software that reads text and generate desired output based on
  * a well specified syntax which i'm trying to parse right now.
  * this is really fun yet very hard, or kinda
+ *
+ * the code has a lot of redundancy, i need to clean it but later, after
+ * figuring out the first evaluation i.e. the code works
  */
 
 #include "../include/parser.h"
@@ -44,11 +47,20 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 
 	switch (token->type) {
 	case TOK_ERR:
+	    token_free(token);
 	    vector_free(tokens);
 	    goto FAILED;
 
 	case TOK_L_PAREN:
 	    expr = parse_as_list(tokens);
+	    break;
+
+	case TOK_QUOTE:{
+		sexpr_t *quote = sexpr_new(T_SYMBOL);
+		quote->s = strdup("quote");
+
+		expr = cons(quote, parse_as_quote(tokens));
+	    }
 	    break;
 
 	case TOK_NUMBER:
@@ -65,14 +77,13 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 	    break;
 	}
 
-	puts("===============================================");
-	puts(isfinished ? "  finished" : "  not finished");
-	puts("===============================================");
-
 	if (isfinished) {
 	    isfinished = false;
+	    token_free(token);
 	    break;
 	}
+
+	assert(expr != NULL);
 
 	/* ====================== testing this ====================== */
 	expr = cons(value, sexpr_nil);
@@ -85,11 +96,9 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 
 	tail = expr;
 	/* ========================================================== */
+
+	token_free(token);
     }
-
-    sexpr_describe(expr);
-
-    isfinished = false;
 
     return expr;
 
@@ -115,22 +124,29 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	token_print(token);
 
 	if (token->type == TOK_R_PAREN) {
-	    /*
-	     * if it's the right paren and first loop
-	     * we return nil
-	     */
+	    /* this indicats that the parsing process has finished */
 	    if (token->depth == 0)
 		isfinished = true;
 
-	    if (isfirstloop)
-		return sexpr_nil;	/* '() */
-	    else
+	    token_free(token);
+
+	    if (isfirstloop)	/* '() empty list is like a nil */
+		return sexpr_nil;
+	    else		/* reached the end of the list */
 		break;
 	}
 
 	switch (token->type) {
 	case TOK_L_PAREN:
 	    value = parse_as_list(tokens);
+	    break;
+
+	case TOK_QUOTE:{
+		sexpr_t *quote = sexpr_new(T_SYMBOL);
+		quote->s = strdup("quote");
+
+		expr = cons(quote, parse_as_quote(tokens));
+	    }
 	    break;
 
 	case TOK_NUMBER:
@@ -144,9 +160,8 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	    break;
 
 	default:
-	    value = sexpr_nil;	/* this would cause problems */
 	    puts("UNKNOWN SYMBOL");
-	    break;
+	    return NULL;	/* this would cause problems */
 	}
 
 	expr = cons(value, sexpr_nil);
@@ -161,13 +176,47 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 
 	token_free(token);
 	isfirstloop = false;
-
     }
 
     sexpr_describe(head);
     puts("list ending\n--------------\n");
 
     return head;
+}
+
+sexpr_t *parse_as_quote(vector_t * tokens) {
+    token_t *token;
+    sexpr_t *value = NULL;
+
+
+    token = vector_peek(tokens);
+
+    switch (token->type) {
+    case TOK_L_PAREN:
+	value = parse_as_list(tokens);
+	break;
+
+    case TOK_NUMBER:
+	value = parse_as_number(token->vbuffer);
+	break;
+    case TOK_STRING:
+	value = parse_as_string(token->vbuffer);
+	break;
+    case TOK_SYMBOL:
+	value = parse_as_symbol(token->vbuffer);
+	break;
+
+    default:
+	puts("UNKNOWN SYMBOL");
+	return NULL;		/* this would cause problems */
+    }
+
+    if (token->type != TOK_L_PAREN)
+	value = cons(value, sexpr_new(T_NIL));
+
+    token_free(token);
+
+    return value;
 }
 
 sexpr_t *parse_as_number(string_t value) {
@@ -198,9 +247,9 @@ expr: 0x557dfac88740, type:4 (CONS-PAIR)
 sexpr_t *parse_as_symbol(string_t value) {
     sexpr_t *expr;
 
-	expr = parse_as_string(value);
-	expr->type = T_SYMBOL;
-	assert(expr != NULL);
+    expr = parse_as_string(value);
+    expr->type = T_SYMBOL;
+    assert(expr != NULL);
 
     return expr;
 }
