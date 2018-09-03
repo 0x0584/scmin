@@ -124,9 +124,6 @@ void sexpr_describe(object_t o) {
 	putchar('\n');
 	print_tabs(ntabs);
 	sexpr_describe(expr->c->cdr);
-    } else if (islambda(expr)) {
-	printf("content: ----------------- \n");
-	lambda_describe(expr->l);
     }
 
     --ntabs;

@@ -20,7 +20,7 @@
 /**
  * debug information
  */
-#  define GC_DEBUG	DBG_ON
+#  define GC_DEBUG		DBG_OFF
 
 #  define VECTOR_DEBUG		DBG_OFF
 #  define LEXER_DEBUG		DBG_OFF
