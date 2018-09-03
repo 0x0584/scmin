@@ -25,7 +25,7 @@
  *
  * FIXME: try to keep track of multiple string at once
  */
-char stream_string(const string_t str, bool_t isget) {
+char stream_string(const string_t str, bool isget) {
     static int index = 0;
     static char *oldstr = NULL;
 

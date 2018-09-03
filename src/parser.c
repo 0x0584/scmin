@@ -23,7 +23,7 @@
 #include "../include/pair.h"
 #include "../include/sexpr.h"
 
-static bool_t isfinished = false;
+static bool isfinished = false;
 
 /**
  * @brief this function is resposible of turning a set of tokens into a
@@ -43,7 +43,7 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
     token_t *token = NULL;
 
     while ((token = vector_peek(tokens))) {
-	token_print(token);
+	/* token_print(token); */
 
 	switch (token->type) {
 	case TOK_ERR:
@@ -52,25 +52,25 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 	    goto FAILED;
 
 	case TOK_L_PAREN:
-	    expr = parse_as_list(tokens);
+	    value = parse_as_list(tokens);
 	    break;
 
 	case TOK_QUOTE:{
 		sexpr_t *quote = sexpr_new(T_SYMBOL);
 		quote->s = strdup("quote");
 
-		expr = cons(quote, parse_as_quote(tokens));
+		value = cons(quote, parse_as_quote(tokens));
 	    }
 	    break;
 
 	case TOK_NUMBER:
-	    expr = parse_as_number(token->vbuffer);
+	    value = parse_as_number(token->vbuffer);
 	    break;
 	case TOK_SYMBOL:
-	    expr = parse_as_symbol(token->vbuffer);
+	    value = parse_as_symbol(token->vbuffer);
 	    break;
 	case TOK_STRING:
-	    expr = parse_as_string(token->vbuffer);
+	    value = parse_as_string(token->vbuffer);
 	    break;
 
 	default:
@@ -78,8 +78,12 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 	}
 
 	if (isfinished) {
+	    if (expr == NULL)
+		expr = value;
+
 	    isfinished = false;
 	    token_free(token);
+
 	    break;
 	}
 
@@ -88,11 +92,10 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 	/* ====================== testing this ====================== */
 	expr = cons(value, sexpr_nil);
 
-	if (!head) {
+	if (!head)
 	    head = expr;
-	} else {
+	else
 	    set_cdr(tail, expr);
-	}
 
 	tail = expr;
 	/* ========================================================== */
@@ -117,11 +120,11 @@ sexpr_t *parse_as_list(vector_t * tokens) {
     sexpr_t *sexpr_nil = sexpr_new(T_NIL);
 
     token_t *token = NULL;
-    bool_t isfirstloop = true;
+    bool isfirstloop = true;
 
-    puts("list starting");
+    /* puts("list starting"); */
     while ((token = vector_peek(tokens))) {
-	token_print(token);
+	/* token_print(token); */
 
 	if (token->type == TOK_R_PAREN) {
 	    /* this indicats that the parsing process has finished */
@@ -141,12 +144,8 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	    value = parse_as_list(tokens);
 	    break;
 
-	case TOK_QUOTE:{
-		sexpr_t *quote = sexpr_new(T_SYMBOL);
-		quote->s = strdup("quote");
-
-		expr = cons(quote, parse_as_quote(tokens));
-	    }
+	case TOK_QUOTE:
+	    value = parse_as_quote(tokens);
 	    break;
 
 	case TOK_NUMBER:
@@ -166,11 +165,10 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 
 	expr = cons(value, sexpr_nil);
 
-	if (!head) {
+	if (!head)
 	    head = expr;
-	} else {
+	else
 	    set_cdr(tail, expr);
-	}
 
 	tail = expr;
 
@@ -178,16 +176,15 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	isfirstloop = false;
     }
 
-    sexpr_describe(head);
-    puts("list ending\n--------------\n");
+    /* sexpr_describe(head); */
+    /* puts("list ending\n--------------\n"); */
 
     return head;
 }
 
 sexpr_t *parse_as_quote(vector_t * tokens) {
     token_t *token;
-    sexpr_t *value = NULL;
-
+    sexpr_t *quote = NULL, *value = NULL;
 
     token = vector_peek(tokens);
 
@@ -211,8 +208,12 @@ sexpr_t *parse_as_quote(vector_t * tokens) {
 	return NULL;		/* this would cause problems */
     }
 
-    if (token->type != TOK_L_PAREN)
-	value = cons(value, sexpr_new(T_NIL));
+    sexpr_describe(value);
+
+    quote = sexpr_new(T_SYMBOL);
+    quote->s = strdup("quote");
+
+    value = cons(quote, cons(value, sexpr_new(T_NIL)));
 
     token_free(token);
 
@@ -221,36 +222,22 @@ sexpr_t *parse_as_quote(vector_t * tokens) {
 
 sexpr_t *parse_as_number(string_t value) {
     assert(value != NULL);
-
     sexpr_t *expr = sexpr_new(T_NUMBER);
-
     expr->n = strtod(value, NULL);
-
     return expr;
 }
 
 sexpr_t *parse_as_string(string_t value) {
+    assert(value != NULL);
     sexpr_t *expr = sexpr_new(T_STRING);
-
     expr->s = strdup(value);
-
     return expr;
 }
 
-/*
-expr: 0x557dfac88740, type:4 (CONS-PAIR)
-    content:
-    expr: 0x557dfac886e0, type:3 (SYMBOL)
-	content: +
-
- */
 sexpr_t *parse_as_symbol(string_t value) {
-    sexpr_t *expr;
-
+    sexpr_t *expr = NULL;
     expr = parse_as_string(value);
     expr->type = T_SYMBOL;
-    assert(expr != NULL);
-
     return expr;
 }
 
@@ -259,11 +246,28 @@ sexpr_t *parse_as_symbol(string_t value) {
 
 void parser_testing(void) {
     string_t exprs[] = {
-	"(+ 11111 (* 22222 33333))",
-	"    ; this is cool\n(bar baz)",
-	"(\"this is a string\")	 "
+	/* "(+ 11111 (* 22222 33333))", */
+	"(define bar '(* 22222 33333))",
+	"(define bar 'b)",
+	"(quote (a b c))"
+	"(quote a)"
+	/* "	; this is cool\n(bar baz)", */
+	/* "(define square (lambda (n) (* n n)))", */
+	/* "(\"this is a string\")	 " */
     };
 
+    /* vector_t *tmp = read_tokens("(quote (a b c))"); */
+    /* sexpr_t *q = parse_sexpr(tmp); */
+
+    /* sexpr_describe(q); */
+    /* puts("----------"); */
+    /* sexpr_describe(car(q)); */
+    /* puts("----------"); */
+    /* sexpr_describe(car(cdr(q))); */
+    /* puts("----------"); */
+    /* vector_free(tmp); */
+
+    getchar();
     int i, size = sizeof(exprs) / sizeof(exprs[0]);
     vector_t *v = NULL;
     sexpr_t *expr = NULL;
@@ -283,10 +287,6 @@ void parser_testing(void) {
 
 	vector_free(v);
 	puts(" ================== ================= ================= ");
-	/* gc_debug_memory(); */
     }
-
-    /* memory should be freed using GC
-     * but for the moment it is not! */
 }
 #endif

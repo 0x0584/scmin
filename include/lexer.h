@@ -74,7 +74,7 @@ token_t *next_token(char *code);
  * @see getnc() in @file characters.c
  * @note this function modifies the static values in of getnc()
  */
-bool_t clean_comments(string_t code);
+bool clean_comments(string_t code);
 
 /**
  * takes any whitespaces away, it reads characters
@@ -87,7 +87,7 @@ bool_t clean_comments(string_t code);
  * @see getnc() in @file characters.c
  * @note this function modifies the static values in of getnc()
  */
-bool_t clean_whitespaces(string_t code);
+bool clean_whitespaces(string_t code);
 
 /**
  * reads the token value from @p code as string

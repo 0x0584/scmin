@@ -28,10 +28,10 @@ struct LAMBDA {
     gc_info gci;
     scope_t *parent;
     sexpr_t *args;		/* cadr */
-    bool_t isnative;
+    bool isnative;
 
     union {
-	Nlambda_t *native;	/* native lambda */
+	native_t *native;	/* native lambda */
 	sexpr_t *body;		/* cddr */
     };
 };
@@ -53,16 +53,20 @@ struct S_EXPR {
     };
 };
 
-bool_t isnil(sexpr_t * expr);
-bool_t isatom(sexpr_t * expr);
-bool_t isnumber(sexpr_t * expr);
-bool_t isstring(sexpr_t * expr);
-bool_t issymbol(sexpr_t * expr);
-bool_t islambda(sexpr_t * expr);
-bool_t ispair(sexpr_t * expr);
+bool isnil(sexpr_t * expr);
+bool isatom(sexpr_t * expr);
+bool isnumber(sexpr_t * expr);
+bool isstring(sexpr_t * expr);
+bool issymbol(sexpr_t * expr);
+bool islambda(sexpr_t * expr);
+bool ispair(sexpr_t * expr);
 
 sexpr_t *sexpr_new(type_t type);
 void sexpr_describe(object_t expr);
+
+sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
+			   native_t * func);
+sexpr_t *lambda_new(scope_t * parent, sexpr_t * args, sexpr_t * body);
 void lambda_describe(object_t expr);
 
 #endif				/* _SCMIN_SEXPR_H */

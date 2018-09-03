@@ -6,7 +6,7 @@
 #include "../include/sexpr.h"
 #include "../include/pair.h"
 
-bool_t isnative(sexpr_t * expr) {
+bool isnative(sexpr_t * expr) {
     assert(expr != NULL);
     return expr->l->isnative;
 }
@@ -86,4 +86,54 @@ sexpr_t *native_div(sexpr_t * expr) {
     result->n = n;
 
     return result;
+}
+
+/* 'expr i.e. (quote expr) */
+sexpr_t *native_quote(sexpr_t * expr) {
+    return NULL;
+}
+
+/* (or s-exprs) */
+sexpr_t *native_or(sexpr_t * expr) {
+    return NULL;
+}
+
+/* (not s-expr) */
+sexpr_t *native_not(sexpr_t * expr) {
+    return NULL;
+}
+
+/* (and s-exprs) */
+sexpr_t *native_and(sexpr_t * expr) {
+    return NULL;
+}
+
+/* (pair? sexpr) */
+sexpr_t *native_ispair(sexpr_t * expr) {
+    return NULL;
+}
+
+/* (eq? sexprs) */
+sexpr_t *native_iseq(sexpr_t * expr) {
+    return NULL;
+}
+
+/* (atom? sexpr) */
+sexpr_t *native_isatom(sexpr_t * expr) {
+    return NULL;
+}
+
+/* (cons sexpr0 sexpr1) */
+sexpr_t *native_cons(sexpr_t * expr) {
+    return NULL;
+}
+
+/* (car sexpr) */
+sexpr_t *native_car(sexpr_t * expr) {
+    return NULL;
+}
+
+/* (cdr sexpr) */
+sexpr_t *native_cdr(sexpr_t * expr) {
+    return NULL;
 }

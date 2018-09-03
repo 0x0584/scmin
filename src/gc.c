@@ -44,12 +44,12 @@ long gc_allocated_size(void) {
 	+ (gc_allocd_lambdas->size * sizeof(lambda_t));
 }
 
-bool_t gc_has_space_left() {
+bool gc_has_space_left() {
     assert(GC_FREQUENCY > 0);
     return gc_allocated_size() < GC_RATIO;
 }
 
-void gc_collect(bool_t iscleanup) {
+void gc_collect(bool iscleanup) {
 #if GC_DEBUG == DBG_ON
     puts("================================================");
     if (iscleanup)
@@ -455,7 +455,7 @@ void gc_debug_memory(void) {
 
     sexpr_t *args = cons(x, cons(y, sexpr_new(T_NIL)));
 
-    Nlambda_t *n_add = malloc(sizeof *n_add);
+    native_t *n_add = malloc(sizeof *n_add);
     n_add->symbol = strdup("+");
     n_add->func = native_add;
 

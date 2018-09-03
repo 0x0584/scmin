@@ -7,30 +7,30 @@
 #include "../include/vector.h"
 #include "../include/characters.h"
 
-static string_t keyword[] = {
-    "quote",
-    "define",
-    "if",
-    "and",
-    "or",
-    "not"
+k_func iskeyword(sexpr_t * expr);
+static struct {
+    string_t keyword;
+    k_func func;
+} kwd[] = {
+    {"define", eval_define},
+    {"if", eval_if},
+    {NULL, NULL}
 };
 
 /* FIXME: handle erros in a more sofisticated way */
 sexpr_t *eval(scope_t * s, sexpr_t * expr) {
     sexpr_t *operator = NULL, *tail = NULL, *args = NULL, *tmp = NULL;
     sexpr_t *nil = sexpr_new(T_NIL);
-    keyword_t key;
+    k_func kwd_func;
 
-    tmp = car(expr);
+    kwd_func = iskeyword(tmp = car(expr));
 
-    if ((key = iskeyword(tmp)))	/* evaluate the keyword */
-	return eval_keyword(key, cdr(expr));
+    if (kwd_func != NULL)	/* evaluate the keyword */
+	return kwd_func(s, cdr(expr));
     else if (isbonded(s, tmp))	/* resolve symbol  */
 	return resolve_bond(s, expr);
     else if (!ispair(tmp))	/* just an atom/nil */
 	return expr;
-
 
     /* take the operator of the s-expression */
     if (!(operator = eval(s, car(expr))))
@@ -70,27 +70,27 @@ sexpr_t *eval(scope_t * s, sexpr_t * expr) {
     return NULL;
 }
 
-
-keyword_t iskeyword(sexpr_t * expr) {
-
-    static int i = 0, size = sizeof(keyword) / sizeof(keyword[0]);
+k_func iskeyword(sexpr_t * expr) {
+    int i;
 
     if (!issymbol(expr))
-	return K_NOT_KEYWORD;
+	return NULL;
 
-    for (i = 0; i < size; ++i) {
-	if (!strcmp(expr->s, keyword[i]))
-	    return (keyword_t) i + 1;
-    }
+    for (i = 0; kwd[i].keyword; ++i)
+	if (!strcmp(expr->s, kwd[i].keyword))
+	    return kwd[i].func;
 
-    return K_NOT_KEYWORD;
+    return NULL;
 }
 
-sexpr_t *eval_keyword(keyword_t k, sexpr_t * expr) {
-    if (k) {
+/* (define symbol 's-expr) */
+sexpr_t *eval_define(scope_t * s, ...) {
+    return NULL;
+}
 
-    }
-    return expr;
+/* (if (condition) (true) (false)) */
+sexpr_t *eval_if(scope_t * s, ...) {
+    return NULL;
 }
 
 #if EVALUATOR_DEBUG == DBG_ON
@@ -101,14 +101,16 @@ sexpr_t *eval_keyword(keyword_t k, sexpr_t * expr) {
 void eval_testing() {
     string_t exprs[] = {
 	"(+ 11111 (* 22222 33333))",
-	"    ; this is cool\n(bar baz)",
-	"(\"this is a string\")	 "
+	/* "	; this is cool\n(bar baz)", */
+	/* "(\"this is a string\")	 " */
     };
 
     int i, size = sizeof(exprs) / sizeof(exprs[0]);
     vector_t *v = NULL;
     sexpr_t *expr = NULL, *eval_expr = NULL;
-    scope_t *gs = scope_init(NULL);
+    scope_t *gs = global_scope_init();
+
+    scope_describe(gs);
 
     for (i = 0; i < size; ++i) {
 	printf("\n + parsing %s\n", exprs[i]);
@@ -124,13 +126,10 @@ void eval_testing() {
 	sexpr_describe(expr);
 
 	eval_expr = eval(gs, expr);
+	sexpr_describe(eval_expr);
 
 	vector_free(v);
 	puts("========= =========");
-	/* gc_debug_memory(); */
     }
-
-    /* memory should be freed using GC
-     * but for the moment it is not! */
 }
 #endif

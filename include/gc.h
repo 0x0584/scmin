@@ -22,7 +22,7 @@
 #  define GC_RATIO		(GC_STACK_LIMIT_SIZE / GC_FREQUENCY)
 
 struct GC_INFO {
-    bool_t ismarked;		/** is marked as reachable! */
+    bool ismarked;		/** is marked as reachable! */
 };
 
 /**
@@ -35,7 +35,7 @@ void gc_clean(void);
 /**
  * collect the garbage
  */
-void gc_collect(bool_t final);
+void gc_collect(bool final);
 
 long gc_allocated_size(void);
 

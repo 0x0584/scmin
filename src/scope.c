@@ -1,9 +1,12 @@
 #include "../include/scope.h"
+#include "../include/native.h"
 #include "../include/vector.h"
 
 bond_t *bond_new(string_t key, sexpr_t * expr) {
-    assert(key != NULL);
-
+    if (key == NULL) {
+	puts("KEY IS NULL");
+	exit(0);
+    }
     bond_t *b = malloc(sizeof *b);
 
     b->key = key;
@@ -22,7 +25,8 @@ void bond_free(object_t o) {
     free(b);
     /* b->sexpr is handled by the garbage collector! */
 }
-bool_t bond_cmp(object_t o1, object_t key) {
+
+bool bond_cmp(object_t o1, object_t key) {
     assert(o1 != NULL);
     assert(key != NULL);
 
@@ -45,7 +49,7 @@ void bond_describe(object_t o) {
 }
 
 sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr) {
-    assert(issymbol(expr));
+    assert(issymbol(expr) || islambda(expr));
 
     bond_t *resolved = NULL;
 
@@ -56,11 +60,11 @@ sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr) {
     return resolved ? resolved->sexpr : NULL;
 }
 
-bool_t isbonded(scope_t * s, sexpr_t * expr) {
+bool isbonded(scope_t * s, sexpr_t * expr) {
     return resolve_bond(s, expr) != NULL;
 }
 
-bool_t bind_lambda_args(scope_t * s, lambda_t * l, sexpr_t * args) {
+bool bind_lambda_args(scope_t * s, lambda_t * l, sexpr_t * args) {
     return s && l && args;
 }
 
@@ -68,6 +72,44 @@ scope_t *scope_init(scope_t * parent) {
     scope_t *s = gc_alloc_scope();
     s->parent = parent;
     return s;
+}
+
+scope_t *global_scope_init(void) {
+    static native_t stdlib[] = {
+	{"+", native_add},
+	{"-", native_minus},
+	{"*", native_times},
+	{"/", native_div},
+
+	{"quote", native_quote},
+
+	{"cons", native_cons},
+	{"car", native_car},
+	{"cdr", native_cdr},
+
+	{"eq?", native_iseq},
+	{"atom?", native_isatom},
+	{"pair?", native_ispair},
+
+	{"and", native_and},
+	{"or", native_or},
+	{"not", native_not},
+
+	{NULL, NULL}
+    };
+
+    static int i;
+    scope_t *global = scope_init(NULL);
+
+    for (i = 0; stdlib[i].symbol; ++i) {
+	native_t *tmp = &stdlib[i];
+	sexpr_t *lambda = lambda_new_native(global, NULL, tmp);
+	vector_push(global->bonds, bond_new(tmp->symbol, lambda));
+    }
+
+    vector_compact(global->bonds);
+
+    return global;
 }
 
 void scope_describe(object_t o) {
