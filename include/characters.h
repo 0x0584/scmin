@@ -22,7 +22,7 @@
  *
  * @return the desired character
  */
-char stream_string(const string_t str, bool_t isget);
+char stream_string(const string_t str, bool isget);
 
 /**
  * this is literally a call to stream_string() by passing isget as false

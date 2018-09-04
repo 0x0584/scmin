@@ -3,8 +3,6 @@
 
 #  include "sexpr.h"
 
-void global_scope_init(void);
-
 struct CONTEXT {
     gc_info gci;
     scope_t *scope;

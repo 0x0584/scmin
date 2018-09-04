@@ -53,7 +53,7 @@ vector_t *read_tokens(const string_t code) {
 	"ERROR: TOKEN IS NOT CORRECT"
     };
 
-    bool_t islastloop = false;
+    bool islastloop = false;
 
     while ((token = next_token(code))) {
 	switch (token->type) {
@@ -134,7 +134,7 @@ token_t *next_token(const string_t code) {
 
     token_type type;
     string_t vbuffer = NULL;
-    bool_t accept_null = false;
+    bool accept_null = false;
     token_t *token;
 
     if (!clean_whitespaces(code) || !clean_comments(code)) {
@@ -191,7 +191,7 @@ token_t *next_token(const string_t code) {
  *
  * @return false if we reach the EOF
  */
-bool_t clean_whitespaces(string_t code) {
+bool clean_whitespaces(string_t code) {
     char c;
 
     while ((c = getnc(code)) != EOF && isspace(c));
@@ -210,7 +210,7 @@ bool_t clean_whitespaces(string_t code) {
  *
  * @return false if we reach the EOF
  */
-bool_t clean_comments(string_t code) {
+bool clean_comments(string_t code) {
     char c;
 
     while ((c = getnc(code)) == ';') {
@@ -277,7 +277,7 @@ string_t read_as_number(const string_t code) {
 	"NUMBER IS TOO LONG"
     };
     int i = 0, noerror = 0;
-    bool_t period_found = false;
+    bool period_found = false;
     char c;
 
     /* this loop must end by its condition

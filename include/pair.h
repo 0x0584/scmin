@@ -7,7 +7,7 @@
 struct PAIR {
     sexpr_t *car;		/* current */
     sexpr_t *cdr;		/* rest */
-    bool_t islist;
+    bool islist;
 };
 
 sexpr_t *cons(sexpr_t * car, sexpr_t * cdr);

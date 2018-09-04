@@ -30,7 +30,7 @@
  * this is the typical function for vector operation
  */
 typedef void (*operation_t) (object_t);
-typedef bool_t (*compare_t) (object_t, object_t);
+typedef bool (*compare_t) (object_t, object_t);
 
 /**
  * @brief implementation of Vector data structure using an Objects[]

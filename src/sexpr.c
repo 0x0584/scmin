@@ -3,37 +3,37 @@
 #include "../include/scope.h"
 #include "../include/native.h"
 
-bool_t isnil(sexpr_t * expr) {
+bool isnil(sexpr_t * expr) {
     assert(expr != NULL);
     return expr->type == T_NIL;
 }
 
-bool_t isatom(sexpr_t * expr) {
+bool isatom(sexpr_t * expr) {
     assert(expr != NULL);
     return issymbol(expr) || isstring(expr) || isnumber(expr);
 }
 
-bool_t issymbol(sexpr_t * expr) {
+bool issymbol(sexpr_t * expr) {
     assert(expr != NULL);
     return expr->type == T_SYMBOL;
 }
 
-bool_t isnumber(sexpr_t * expr) {
+bool isnumber(sexpr_t * expr) {
     assert(expr != NULL);
     return expr->type == T_NUMBER;
 }
 
-bool_t isstring(sexpr_t * expr) {
+bool isstring(sexpr_t * expr) {
     assert(expr != NULL);
     return expr->type == T_STRING;
 }
 
-bool_t islambda(sexpr_t * expr) {
+bool islambda(sexpr_t * expr) {
     assert(expr != NULL);
     return expr->type == T_LAMBDA;
 }
 
-bool_t ispair(sexpr_t * expr) {
+bool ispair(sexpr_t * expr) {
     assert(expr != NULL);
     return expr->type == T_PAIR;
 }
@@ -43,24 +43,41 @@ sexpr_t *sexpr_new(type_t type) {
 
     expr->type = type;
 
-#if GC_DEBUG == DBG_ON
-    /* printf("%d", type); */
-    /* gc_debug_memory(); */
-#endif
+    if (type == T_LAMBDA)
+	expr->l = gc_alloc_lambda();
 
     return expr;
 }
 
-void sexpr_free(sexpr_t * expr);
+sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
+			   native_t * func) {
+    sexpr_t *lambda = sexpr_new(T_LAMBDA);
+
+    lambda->l->parent = parent;
+    lambda->l->args = args;
+    lambda->l->isnative = true;
+    lambda->l->native = func;
+
+    return lambda;
+}
+
+sexpr_t *lambda_new(scope_t * parent, sexpr_t * args, sexpr_t * body) {
+    sexpr_t *lambda = sexpr_new(T_LAMBDA);
+
+    lambda->l->parent = parent;
+    lambda->l->args = args;
+    lambda->l->isnative = false;
+    lambda->l->body = body;
+
+    return lambda;
+}
 
 void print_tabs(int ntabs) {
     int i, j, tab_size = 4;
 
-    for (i = 0; i < ntabs; ++i) {
-	for (j = 0; j < tab_size; ++j) {
+    for (i = 0; i < ntabs; ++i)
+	for (j = 0; j < tab_size; ++j)
 	    putchar(' ');
-	}
-    }
 };
 
 void sexpr_describe(object_t o) {
@@ -72,7 +89,7 @@ void sexpr_describe(object_t o) {
     sexpr_t *expr = (sexpr_t *) o;
     static int ntabs = 0;
     char *type_str = NULL;
-    bool_t isfinished = false;
+    bool isfinished = false;
 
     switch (expr->type) {
     case T_NUMBER:
@@ -82,11 +99,12 @@ void sexpr_describe(object_t o) {
 	type_str = "STRING";
 	break;			/** "anything in between" */
     case T_SYMBOL:
-	type_str = "ATOM";
+	type_str = "SYMBOL";
 	break;			/** foo foo-bar */
 
     case T_LAMBDA:		/* TODO: describe lambda */
-	type_str = "lambda";
+	type_str = "LAMBDA";
+	isfinished = true;
 	break;
     case T_PAIR:
 	type_str = "CONS-PAIR";
@@ -113,20 +131,17 @@ void sexpr_describe(object_t o) {
 
     print_tabs(++ntabs);
 
-    if (isstring(expr) || issymbol(expr)) {
+    if (isstring(expr) || issymbol(expr))
 	printf("content: %s\n", expr->s);
-    } else if (isnumber(expr)) {
+    else if (isnumber(expr))
 	printf("content: %lf\n", expr->n);
-    } else if (ispair(expr)) {
+    else if (ispair(expr)) {
 	printf("content: ----------------- \n");
 	print_tabs(ntabs);
 	sexpr_describe(expr->c->car);
 	putchar('\n');
 	print_tabs(ntabs);
 	sexpr_describe(expr->c->cdr);
-    } else if (islambda(expr)) {
-	printf("content: ----------------- \n");
-	lambda_describe(expr->l);
     }
 
     --ntabs;
@@ -141,12 +156,15 @@ void lambda_describe(object_t o) {
     lambda_t *l = o;
 
     printf("[%s]", l->gci.ismarked ? "X" : " ");
-    scope_describe(l->parent);
+
+    /* if (l->parent != NULL) */
+    /*	scope_describe(l->parent); */
 
     if (l->isnative)
 	printf("%s - %p\n", l->native->symbol, l->native->func);
     else
 	sexpr_describe(l->body);
 
+    if(l->args != NULL)
     sexpr_describe(l->args);
 }
