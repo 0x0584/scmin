@@ -99,11 +99,12 @@ void sexpr_describe(object_t o) {
 	type_str = "STRING";
 	break;			/** "anything in between" */
     case T_SYMBOL:
-	type_str = "ATOM";
+	type_str = "SYMBOL";
 	break;			/** foo foo-bar */
 
     case T_LAMBDA:		/* TODO: describe lambda */
-	type_str = "lambda";
+	type_str = "LAMBDA";
+	isfinished = true;
 	break;
     case T_PAIR:
 	type_str = "CONS-PAIR";
@@ -156,13 +157,14 @@ void lambda_describe(object_t o) {
 
     printf("[%s]", l->gci.ismarked ? "X" : " ");
 
-    if (l->parent != NULL)
-	scope_describe(l->parent);
+    /* if (l->parent != NULL) */
+    /*	scope_describe(l->parent); */
 
     if (l->isnative)
 	printf("%s - %p\n", l->native->symbol, l->native->func);
     else
 	sexpr_describe(l->body);
 
+    if(l->args != NULL)
     sexpr_describe(l->args);
 }

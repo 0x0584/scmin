@@ -17,24 +17,23 @@ static struct {
     {NULL, NULL}
 };
 
-/* FIXME: handle erros in a more sofisticated way */
 sexpr_t *eval(scope_t * s, sexpr_t * expr) {
-    sexpr_t *operator = NULL, *tail = NULL, *args = NULL, *tmp = NULL;
-    sexpr_t *nil = sexpr_new(T_NIL);
+    sexpr_t *operator = NULL, *tail = NULL, *args = NULL;
+    sexpr_t *tmp = NULL, *nil = sexpr_new(T_NIL);
     k_func kwd_func;
 
-    kwd_func = iskeyword(tmp = car(expr));
+    kwd_func = iskeyword(tmp = expr);
 
     if (kwd_func != NULL)	/* evaluate the keyword */
 	return kwd_func(s, cdr(expr));
-    else if (isbonded(s, tmp))	/* resolve symbol  */
-	return resolve_bond(s, expr);
-    else if (!ispair(tmp))	/* just an atom/nil */
+    else if (isbonded(s, tmp)){	/* resolve symbol  */
+	return resolve_bond(s, tmp);
+    } else if (!ispair(tmp))	/* just an atom/nil */
 	return expr;
 
     /* take the operator of the s-expression */
     if (!(operator = eval(s, car(expr))))
-	return car(expr);
+	return NULL;
 
     /* make a list of evaluated arguments */
     for (tmp = expr; ispair(tmp = cdr(tmp)); tail = args) {
@@ -100,7 +99,7 @@ sexpr_t *eval_if(scope_t * s, ...) {
 
 void eval_testing() {
     string_t exprs[] = {
-	"(+ 11111 (* 22222 33333))",
+	"(+ 11 (* 22 33))",
 	/* "	; this is cool\n(bar baz)", */
 	/* "(\"this is a string\")	 " */
     };
@@ -110,7 +109,7 @@ void eval_testing() {
     sexpr_t *expr = NULL, *eval_expr = NULL;
     scope_t *gs = global_scope_init();
 
-    scope_describe(gs);
+    /* scope_describe(gs); */
 
     for (i = 0; i < size; ++i) {
 	printf("\n + parsing %s\n", exprs[i]);
@@ -126,10 +125,13 @@ void eval_testing() {
 	sexpr_describe(expr);
 
 	eval_expr = eval(gs, expr);
+	puts("\n + evaluated expression");
 	sexpr_describe(eval_expr);
 
+	puts("===========================");
+
+	/* gc_collect(true); */
 	vector_free(v);
-	puts("========= =========");
     }
 }
 #endif

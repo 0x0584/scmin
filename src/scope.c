@@ -48,16 +48,22 @@ void bond_describe(object_t o) {
     sexpr_describe(b->sexpr);
 }
 
+/*
+ * resolving bonds has some serious bugs, you may need to
+ * rewrite bond_cmp() and vector find()
+ */
 sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr) {
-    assert(issymbol(expr) || islambda(expr));
+    if (!issymbol(expr))
+	return NULL;
 
     bond_t *resolved = NULL;
 
     if (!(resolved = vector_find(s->bonds, expr->s))) {
 	puts("SYMBOLE COULD NOT BE RESOLVED!");
+	return NULL;
     }
 
-    return resolved ? resolved->sexpr : NULL;
+    return resolved->sexpr;
 }
 
 bool isbonded(scope_t * s, sexpr_t * expr) {
@@ -104,7 +110,7 @@ scope_t *global_scope_init(void) {
     for (i = 0; stdlib[i].symbol; ++i) {
 	native_t *tmp = &stdlib[i];
 	sexpr_t *lambda = lambda_new_native(global, NULL, tmp);
-	vector_push(global->bonds, bond_new(tmp->symbol, lambda));
+	vector_push(global->bonds, bond_new(strdup(tmp->symbol), lambda));
     }
 
     vector_compact(global->bonds);
