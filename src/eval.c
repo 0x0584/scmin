@@ -100,6 +100,8 @@ sexpr_t *eval_if(scope_t * s, ...) {
 void eval_testing() {
     string_t exprs[] = {
 	"(+ 11 (* 22 33))",
+	/* "(quote (a b c))", */
+	"(* 2 (+ 1 1))"
 	/* "	; this is cool\n(bar baz)", */
 	/* "(\"this is a string\")	 " */
     };

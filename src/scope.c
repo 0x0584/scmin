@@ -59,7 +59,8 @@ sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr) {
     bond_t *resolved = NULL;
 
     if (!(resolved = vector_find(s->bonds, expr->s))) {
-	puts("SYMBOLE COULD NOT BE RESOLVED!");
+	sexpr_describe(expr);
+	puts("SYMBOL COULD NOT BE RESOLVED!");
 	return NULL;
     }
 

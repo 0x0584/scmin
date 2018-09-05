@@ -84,8 +84,6 @@ vector_t *read_tokens(const string_t code) {
 	    islastloop = depth ? false : true;
 	    break;
 
-	case TOK_QUOTE:
-	case TOK_STRING:
 	default:
 	    token->depth = depth;
 	    break;

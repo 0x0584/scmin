@@ -32,11 +32,16 @@ token_type predict_token_type(string_t code) {
     };
 
     if (isdigit(c) || strchr(".-+", c)) {
-	if ((c = getnc(code)) == ' ' || !isdigit(c)) {
-	    type = TOK_SYMBOL;	/* number */
+	char cc = getnc(code);
+
+	/* next character must be a space/digit
+	 * otherwise it's a symbol */
+	if ((isdigit(cc) || isspace(cc) || cc == ')') && !strchr(".-+", c)) {
+	    type = TOK_NUMBER;
 	} else {
-	    type = TOK_NUMBER;	/* number */
+	    type = TOK_SYMBOL;
 	}
+
 	ungetnc();
     } else {
 	type = TOK_SYMBOL;	/* symbol */

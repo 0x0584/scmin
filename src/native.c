@@ -6,11 +6,6 @@
 #include "../include/sexpr.h"
 #include "../include/pair.h"
 
-bool isnative(sexpr_t * expr) {
-    assert(expr != NULL);
-    return expr->l->isnative;
-}
-
 sexpr_t *native_add(sexpr_t * expr) {
     sexpr_t *result = NULL, *tmp = expr;
     number_t n = 0;
@@ -83,7 +78,7 @@ sexpr_t *native_div(sexpr_t * expr) {
 
 /* 'expr i.e. (quote expr) */
 sexpr_t *native_quote(sexpr_t * expr) {
-    return NULL;
+    return expr;
 }
 
 /* (or s-exprs) */
