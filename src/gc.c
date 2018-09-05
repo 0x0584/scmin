@@ -104,12 +104,8 @@ void gc_mark_sexpr(sexpr_t * expr) {
     if (isnil(expr))
 	return;
     else if (ispair(expr)) {
-	sexpr_t *head = car(expr), *rest = cdr(expr);
-
-	if (head)
-	    gc_mark_sexpr(head);
-	if (rest)
-	    gc_mark_sexpr(rest);
+	gc_mark_sexpr(car(expr));
+	gc_mark_sexpr(cdr(expr));
     }
 }
 
@@ -144,11 +140,6 @@ void gc_sweep_sexprs(vector_t * v) {
 	    tmp->gci.ismarked = false;
 	}
     }
-
-#if GC_DEBUG == DBG_ON
-    puts("sexprs stack after");
-    vector_print(v);
-#endif
 
     vector_compact(v);
 
@@ -223,16 +214,6 @@ void gc_free_lambda(object_t o) {
 
     lambda_t *l = o;
 
-    /* gc_free_sexpr(l->args); */
-    gc_free_scope(l->parent);
-
-    if (!l->isnative) {
-	gc_free_sexpr(l->body);
-    } else {
-	free(l->native->symbol);
-	free(l->native);
-    }
-
     free(l);
 }
 
@@ -276,11 +257,6 @@ void gc_sweep_lambdas(vector_t * v) {
 	    tmp->gci.ismarked = false;
 	}
     }
-
-#if GC_DEBUG == DBG_ON
-    puts("lambda stack after");
-    vector_print(v);
-#endif
 
     vector_compact(v);
 
@@ -367,11 +343,6 @@ void gc_sweep_scopes(vector_t * v) {
 	    tmp->gci.ismarked = false;
 	}
     }
-
-#if GC_DEBUG == DBG_ON
-    puts("scope stack after");
-    vector_print(v);
-#endif
 
     vector_compact(v);
 

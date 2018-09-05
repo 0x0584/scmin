@@ -128,7 +128,7 @@ void eval_testing() {
 	puts("\n + evaluated expression");
 	sexpr_describe(eval_expr);
 
-	puts("===========================");
+	puts("===========================\n");
 
 	/* gc_collect(true); */
 	vector_free(v);
