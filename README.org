@@ -4,18 +4,21 @@
 
   + [X] read and split text contaning lisp syntax into tokens
   + [X] parse the tokens into a s-expression object
-  + [-] evaluate the parsed s-expression object
-  + [-] memory is handled via a garbage collector
-  + [ ] support basic syntax like =define=, =eq?=, =if=, =cond=, ...
+  + [X] evaluate the parsed s-expression object
+  + [X] memory is handled via a garbage collector
+  + [-] syntax support
+    + [X] support native arethmic operation =+=, =-=, =*= and =/=
+    + [ ] support basic syntax like =define=, =eq?=, =if=, =cond=, ..
+    + [ ] support lambda expressions
   + [ ] +support recursion+
   + [ ] +support simple objects+
 
 * Lisp as a programming language
 
-  LISP is a really old /functional programming language/ that stands for literaly for /LISt Processing/ because it is based on a data structure called /List/. It was invented by Mr. /John McCarthy/ (a genius) and the first time lisp was mentioned was in a paper published in 1959 called [[http://www-formal.stanford.edu/jmc/recursive.pdf][Recursive Functions of Symbolic Expressions and Their Computation by Machine]]. Also a nice paper published in 2002 by Mr. /Paul Graham/ called [[http://www.paulgraham.com/rootsoflisp.html][Roots of Lisp]] contain some useful information based on what Lisp did while being around since the first appearance in tha 1959's paper.
+  LISP is a really old /functional programming language/ that stands for literaly for /LISt Processing/ because it is based on a data structure called /List/. It was invented by Mr. /John McCarthy/ (a genius) and the first time lisp was mentioned was in a paper published in 1959 called [[http://www-formal.stanford.edu/jmc/recursive.pdf][Recursive Functions of Symbolic Expressions and Their Computation by Machine]]. Also, a nice paper published in 2002 by Mr. /Paul Graham/ called [[http://www.paulgraham.com/rootsoflisp.html][Roots of Lisp]] contain some useful information based on what Lisp did while being around since the first appearance in tha 1959's paper as well as basic lisp functionalities and syntax
 
   #+BEGIN_QUOTE
-  Lisp is based on s-exps i.e. /symbolic expressions/. An expression is either an /atom/ -- sequence of characters, or a /list of more expressions/
+  Generally, Lisp is based on s-exps i.e. /symbolic expressions/. An expression is either an /atom/ -- sequence of characters, or a /list of more expressions/
 
   #+BEGIN_SRC scheme
     ;;; Comments start with ';'.
@@ -48,13 +51,41 @@
     (fib (* 2 5))			    ; >> 55
   #+END_SRC
   #+END_QUOTE
+
 * A basic Lisp Interpreter
-  a basic lisp interpreter would pass through a finite setp of steps thgat could be declared as following:
 
-  + Lexer :: takes /source code/ and returns a /vector of tokens/
-  + Parser :: take a /vector of tokens/ and returns a /parsed s-expression/
-  + Evaluator :: take a /s-expression/, /expand it/ and then /evaluate it/
+  To interpret a Lisp code, we have to pass through three fundamental phases, that goes from reading the source code and identify special tokens to assembling those tokens as a single s-expression. And finally evaluating that s-expression and print the result.
 
-** Lexer -- =lexer.{c,h}=
-** Parser -- =parser.{c,h}=
-** Evaluator -- =eval.{c,h}=
+  + Lexing :: /source code/ \to /vector of tokens/
+  + Parsing :: /vector of tokens/ \to /parsed s-expression/
+  + Evaluation :: /s-expression/ \to /result/
+
+** Lexing
+
+   The process of lexing is where the input, i.e. source code, is /splited into a Vector of tokens/. Each token have an assosiated value-buffer that holds additional information about the token, e.g. the content of a string.
+
+   #+BEGIN_QUOTE
+   /NOTE:/ See [[file:include/README.org][=lexer.h=]] for additional information on possible token types and their meaning. While [[file:src/README.org][=lexer.c=]] holds the declaration of lexing functions, the main function called =lexer()=.
+   #+END_QUOTE
+
+** Parsing
+
+   The process of parsing is where the tokens get converted into a s-expression. This is done by checking token, one after the other and based on the /token type/ we create the correspondent s-expression until we reach the last token.
+
+   #+BEGIN_QUOTE
+   /NOTE:/ See [[file:include/README.org][=parser.h=]] for additional information on the parsing process and related function definitions. [[file:src/README.org][=parser.c=]] holds the main parsing function, called =parse_sexpr()=, as well as other parsing-related function declarations.
+   #+END_QUOTE
+
+** Evaluation
+
+   The process of evaluating a s-expression is basically a recursive process. Starts by indetifiying the operator and pass the arguments so that we could apply the operator on those arguments. a typical s-expression would look like this:
+
+   #+BEGIN_SRC lisp
+     (operator s-exprs...)
+   #+END_SRC
+
+   while the s-exprs could range from aa single /atom/ to another s-expr with it's own operator..
+
+   #+BEGIN_QUOTE
+   /NOTE:/ See [[file:include/README.org][=eval.h=]] for additional information on the evaluation process and related function definitions. [[file:src/README.org][=eval.c=]] holds the main evaluation function, called =eval()=, as well as other eval-related function declarations.
+   #+END_QUOTE
