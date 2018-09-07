@@ -2,6 +2,8 @@
 #include "../include/native.h"
 #include "../include/vector.h"
 
+static scope_t *global_scope = NULL;
+
 bond_t *bond_new(string_t key, sexpr_t * expr) {
     if (key == NULL) {
 	puts("KEY IS NULL");
@@ -81,7 +83,15 @@ scope_t *scope_init(scope_t * parent) {
     return s;
 }
 
+scope_t *get_global_scope(void) {
+    scope_t *global_scope_init(void);
+    return global_scope_init();
+}
+
 scope_t *global_scope_init(void) {
+    if (global_scope != NULL)
+	return global_scope;
+
     static native_t stdlib[] = {
 	{"+", native_add},
 	{"-", native_minus},
@@ -104,19 +114,19 @@ scope_t *global_scope_init(void) {
 
 	{NULL, NULL}
     };
-
     static int i;
-    scope_t *global = scope_init(NULL);
+
+    global_scope = scope_init(NULL);
 
     for (i = 0; stdlib[i].symbol; ++i) {
 	native_t *tmp = &stdlib[i];
-	sexpr_t *lambda = lambda_new_native(global, NULL, tmp);
-	vector_push(global->bonds, bond_new(strdup(tmp->symbol), lambda));
+	sexpr_t *lambda = lambda_new_native(global_scope, NULL, tmp);
+	vector_push(global_scope->bonds, bond_new(strdup(tmp->symbol), lambda));
     }
 
-    vector_compact(global->bonds);
+    /* vector_compact(global_scope->bonds); */
 
-    return global;
+    return global_scope;
 }
 
 void scope_describe(object_t o) {

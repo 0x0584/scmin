@@ -44,25 +44,25 @@ long gc_allocated_size(void);
  */
 sexpr_t *gc_alloc_sexpr(void);
 void gc_free_sexpr(object_t o);
-void gc_mark_sexpr(sexpr_t * expr);
+void gc_setmark_sexpr(sexpr_t * expr, bool mark);
 void gc_sweep_sexprs(vector_t * v);
 
 lambda_t *gc_alloc_lambda(void);
 void gc_free_lambda(object_t o);
-void gc_mark_lambda(lambda_t * lambda);
+void gc_setmark_lambda(lambda_t * lambda, bool mark);
 void gc_sweep_lambdas(vector_t * v);
 
 scope_t *gc_alloc_scope(void);
 void gc_free_scope(object_t o);
-void gc_mark_scope(scope_t * scope);
+void gc_setmark_scope(scope_t * scope, bool mark);
 void gc_sweep_scopes(vector_t * v);
 
 context_t *gc_alloc_context();
 void gc_free_context(object_t o);
-void gc_mark_context(context_t * scope);
+void gc_setmark_context(context_t * scope, bool mark);
 void gc_sweep_context(vector_t * v);
 
-void gc_mark_stack_sexprs(vector_t * v);
+void gc_setmark_stack_sexprs(vector_t * v, bool mark);
 
 #  if GC_DEBUG == DBG_ON
 /**

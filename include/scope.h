@@ -26,7 +26,7 @@ bool isbonded(scope_t *s,sexpr_t *);
 bool bind_lambda_args(scope_t *s,lambda_t *l, sexpr_t *args);
 
 scope_t *scope_init(scope_t * parent);
-scope_t *global_scope_init(void);
+scope_t *get_global_scope(void);
 void scope_push_bond(scope_t * s, bond_t * b);
 void scope_describe(object_t s);
 

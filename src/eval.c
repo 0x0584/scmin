@@ -101,7 +101,8 @@ void eval_testing() {
     string_t exprs[] = {
 	"(+ 11 (* 22 33))",
 	/* "(quote (a b c))", */
-	"(* 2 (+ 3 (* 6 2)))"
+	"(* 2 (+ 3 (* 6 2)))",
+	"(* (+ 5 5) (+ 3 (* (- 4 1) 2)))",
 	/* "	; this is cool\n(bar baz)", */
 	/* "(\"this is a string\")	 " */
     };
@@ -109,7 +110,7 @@ void eval_testing() {
     int i, size = sizeof(exprs) / sizeof(exprs[0]);
     vector_t *v = NULL;
     sexpr_t *expr = NULL, *eval_expr = NULL;
-    scope_t *gs = global_scope_init();
+    scope_t *gs = get_global_scope();
 
     /* scope_describe(gs); */
 
@@ -140,8 +141,8 @@ void eval_testing() {
 
 	puts("\n\n===========================\n");
 
-	/* gc_collect(true); */
 	vector_free(v);
+	gc_collect(true);
     }
 }
 #endif

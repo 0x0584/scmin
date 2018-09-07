@@ -29,8 +29,6 @@ void gc_init(void) {
 }
 
 void gc_clean(void) {
-    /* gc_collect(true); */
-
     vector_free(gc_allocd_sexprs);
     vector_free(gc_allocd_lambdas);
     vector_free(gc_allocd_scopes);
@@ -63,13 +61,22 @@ void gc_collect(bool iscleanup) {
 	return;
     }
 
+    #if GC_DEBUG == DBG_ON
     puts("\n================ sweep scopes ==================\n");
+    #endif
+
     gc_sweep_scopes(gc_allocd_scopes);
 
+    #if GC_DEBUG == DBG_ON
     puts("\n================ sweep lambdas ==================\n");
+    #endif
+
     gc_sweep_lambdas(gc_allocd_lambdas);
 
+    #if GC_DEBUG == DBG_ON
     puts("\n================ sweep sexprs ==================\n");
+    #endif
+
     gc_sweep_sexprs(gc_allocd_sexprs);
 
 #if GC_DEBUG == DBG_ON
@@ -78,13 +85,13 @@ void gc_collect(bool iscleanup) {
 
 }
 
-void gc_mark_stack_sexprs(vector_t * v) {
+void gc_setmark_stack_sexprs(vector_t * v, bool mark) {
     int i;
 
     /* marking all that stacka as reachable */
     for (i = 0; i < v->size; ++i) {
 	if (i % 2 == 0)		/* testing */
-	    gc_mark_sexpr(vector_get(v, i));
+	    gc_setmark_sexpr(vector_get(v, i), mark);
     }
 }
 
@@ -92,20 +99,17 @@ void gc_mark_stack_sexprs(vector_t * v) {
  *		   s-expressions memory management
  * ==============================================================
  */
-void gc_mark_sexpr(sexpr_t * expr) {
-    assert(expr != NULL);
-
-    /* already marked as reachable */
-    if (expr->gci.ismarked)
+void gc_setmark_sexpr(sexpr_t * expr, bool mark) {
+    if (expr == NULL || expr->gci.ismarked == mark)
 	return;
 
-    expr->gci.ismarked = true;
+    expr->gci.ismarked = mark;
 
     if (isnil(expr))
 	return;
     else if (ispair(expr)) {
-	gc_mark_sexpr(car(expr));
-	gc_mark_sexpr(cdr(expr));
+	gc_setmark_sexpr(car(expr), mark);
+	gc_setmark_sexpr(cdr(expr), mark);
     }
 }
 
@@ -123,11 +127,9 @@ void gc_sweep_sexprs(vector_t * v) {
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
-	/* lambdas are handled separately -- that was a bad idea */
-	/*
-	if (islambda(tmp))
+	if(!tmp || islambda(tmp))
 	    continue;
-	*/
+
 	if (!tmp->gci.ismarked) {
 	    gc_free_sexpr(tmp);
 	    vector_set(v, i, NULL);
@@ -137,7 +139,7 @@ void gc_sweep_sexprs(vector_t * v) {
 #endif
 
 	} else {
-	    tmp->gci.ismarked = false;
+	    gc_setmark_sexpr(tmp, false);
 	}
     }
 
@@ -153,10 +155,8 @@ void gc_sweep_sexprs(vector_t * v) {
 }
 
 sexpr_t *gc_alloc_sexpr(void) {
-
-    if (!gc_has_space_left()) {
+    if (!gc_has_space_left())
 	gc_collect(true);
-    }
 
     sexpr_t *s = malloc(sizeof *s);
 
@@ -180,11 +180,7 @@ void gc_free_sexpr(object_t o) {
 	free(expr->c);
     }
 
-    /* lambdas are handled alone using gc_free_lambda */
-
     free(expr);
-
-    expr = NULL;
 }
 
 /* ==============================================================
@@ -217,18 +213,18 @@ void gc_free_lambda(object_t o) {
     free(l);
 }
 
-void gc_mark_lambda(lambda_t * l) {
-    if (l == NULL || l->gci.ismarked)
+void gc_setmark_lambda(lambda_t * l, bool mark) {
+    if (l == NULL || l->gci.ismarked == mark)
 	return;
 
-    l->gci.ismarked = true;
-    gc_mark_sexpr(l->args);
+    l->gci.ismarked = mark;
+    gc_setmark_sexpr(l->args, mark);
 
     if (!l->isnative) {
-	gc_mark_sexpr(l->body);
+	gc_setmark_sexpr(l->body, mark);
     }
 
-    gc_mark_scope(l->parent);
+    gc_setmark_scope(l->parent, mark);
 }
 
 void gc_sweep_lambdas(vector_t * v) {
@@ -245,6 +241,9 @@ void gc_sweep_lambdas(vector_t * v) {
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
+	if (tmp->isnative)
+	    continue;
+
 	if (!tmp->gci.ismarked) {
 	    gc_free_lambda(tmp);
 	    vector_set(v, i, NULL);
@@ -254,7 +253,7 @@ void gc_sweep_lambdas(vector_t * v) {
 #endif
 
 	} else {
-	    tmp->gci.ismarked = false;
+	    gc_setmark_lambda(tmp, false);
 	}
     }
 
@@ -302,24 +301,28 @@ void gc_free_scope(object_t o) {
     free(s);
 }
 
-void gc_mark_scope(scope_t * s) {
-    if (s == NULL || s->gci.ismarked)
+void gc_setmark_scope(scope_t * s, bool mark) {
+    if (s == NULL || s->gci.ismarked == mark)
 	return;
+
     int i;
 
-    s->gci.ismarked = true;
+    s->gci.ismarked = mark;
 
     for (i = 0; i < s->bonds->size; ++i) {
 	bond_t *b = vector_get(s->bonds, i);
-	gc_mark_sexpr(b->sexpr);
+	gc_setmark_sexpr(b->sexpr, mark);
+
+	if (islambda(b->sexpr))
+	    gc_setmark_lambda(b->sexpr->l, mark);
     }
 
-    gc_mark_scope(s->parent);
+    gc_setmark_scope(s->parent, mark);
 }
 
 void gc_sweep_scopes(vector_t * v) {
-    int i;
     scope_t *tmp;
+    int i;
 
 #if GC_DEBUG == DBG_ON
     int freed = 0, size = v->size;
@@ -331,6 +334,9 @@ void gc_sweep_scopes(vector_t * v) {
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
+	if (tmp->parent == NULL) /* global scope */
+	    continue;
+
 	if (!tmp->gci.ismarked) {
 	    gc_free_scope(tmp);
 	    vector_set(v, i, NULL);
@@ -340,7 +346,7 @@ void gc_sweep_scopes(vector_t * v) {
 #endif
 
 	} else {
-	    tmp->gci.ismarked = false;
+	    gc_setmark_scope(tmp, false);
 	}
     }
 
@@ -412,42 +418,42 @@ void gc_debug_memory(void) {
 
        scope_describe(s);
 
-       gc_mark_scope(s);
+       gc_setmark_scope(s);
 
        gc_collect(true);
      */
+    /*
+       puts("========== testing lambdas ==========");
+       sexpr_t *x = sexpr_new(T_NUMBER);
+       x->n = 20;
 
-    puts("========== testing lambdas ==========");
-    sexpr_t *x = sexpr_new(T_NUMBER);
-    x->n = 20;
+       sexpr_t *y = sexpr_new(T_NUMBER);
+       y->n = 10;
 
-    sexpr_t *y = sexpr_new(T_NUMBER);
-    y->n = 10;
+       sexpr_t *args = cons(x, cons(y, sexpr_new(T_NIL)));
 
-    sexpr_t *args = cons(x, cons(y, sexpr_new(T_NIL)));
+       native_t *n_add = malloc(sizeof *n_add);
+       n_add->symbol = strdup("+");
+       n_add->func = native_add;
 
-    native_t *n_add = malloc(sizeof *n_add);
-    n_add->symbol = strdup("+");
-    n_add->func = native_add;
-
-    lambda_t *l = gc_alloc_lambda();
-    l->args = args;
-    l->isnative = true;
-    l->native = n_add;
+       lambda_t *l = gc_alloc_lambda();
+       l->args = args;
+       l->isnative = true;
+       l->native = n_add;
 
 
-    sexpr_t *lam = gc_alloc_sexpr();
-    lam->type = T_LAMBDA;
-    lam->l = l;
+       sexpr_t *lam = gc_alloc_sexpr();
+       lam->type = T_LAMBDA;
+       lam->l = l;
 
-    sexpr_describe(lam);
+       sexpr_describe(lam);
 
-    sexpr_t *result = native_add(args);
+       sexpr_t *result = native_add(args);
 
-    sexpr_describe(result);
-
+       sexpr_describe(result);
+     */
     /* gc_free_sexpr(lam); */
 
-    gc_collect(true);
+    /* gc_collect(true); */
 }
 #endif
