@@ -101,7 +101,7 @@ void eval_testing() {
     string_t exprs[] = {
 	"(+ 11 (* 22 33))",
 	/* "(quote (a b c))", */
-	"(* 2 (+ 1 1))"
+	"(* 2 (+ 3 (* 6 2)))"
 	/* "	; this is cool\n(bar baz)", */
 	/* "(\"this is a string\")	 " */
     };
@@ -123,14 +123,22 @@ void eval_testing() {
 	puts("-----------\n");
 
 	expr = parse_sexpr(v);
+
 	puts("\n + parsed expression");
 	sexpr_describe(expr);
 
+	puts("\n + parsed result");
+	sexpr_print(expr);
+
 	eval_expr = eval(gs, expr);
-	puts("\n + evaluated expression");
+
+	puts("\n\n + evaluated expression");
 	sexpr_describe(eval_expr);
 
-	puts("===========================\n");
+	printf("%s", "\n + evaluated result: ");
+	sexpr_print(eval_expr);
+
+	puts("\n\n===========================\n");
 
 	/* gc_collect(true); */
 	vector_free(v);

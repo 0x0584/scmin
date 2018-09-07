@@ -38,6 +38,11 @@ bool ispair(sexpr_t * expr) {
     return expr->type == T_PAIR;
 }
 
+bool islist(sexpr_t * expr) {
+    assert(expr != NULL);
+    return ispair(expr) && expr->c->islist;
+}
+
 sexpr_t *sexpr_new(type_t type) {
     sexpr_t *expr = gc_alloc_sexpr();
 
@@ -92,28 +97,32 @@ void sexpr_describe(object_t o) {
     bool isfinished = false;
 
     switch (expr->type) {
-    case T_NUMBER:
-	type_str = "NUMBER";
-	break;			/** 0 -100 0.25 */
-    case T_STRING:
-	type_str = "STRING";
-	break;			/** "anything in between" */
-    case T_SYMBOL:
-	type_str = "SYMBOL";
-	break;			/** foo foo-bar */
-
-    case T_LAMBDA:		/* TODO: describe lambda */
-	type_str = "LAMBDA";
-	isfinished = true;
-	break;
     case T_PAIR:
 	type_str = "CONS-PAIR";
+	break;
+
+    case T_NUMBER:
+	type_str = "NUMBER";
+	break;
+
+    case T_STRING:
+	type_str = "STRING";
+	break;
+
+    case T_SYMBOL:
+	type_str = "SYMBOL";
+	break;
+
+    case T_LAMBDA:
+	type_str = "LAMBDA";
+	isfinished = true;
 	break;
 
     case T_NIL:
 	type_str = "NIL";
 	isfinished = true;
 	break;
+
     case T_ERR:
 	type_str = "ERROR";
 	isfinished = true;
@@ -122,6 +131,10 @@ void sexpr_describe(object_t o) {
 
     printf(" [%s] expr: %p, type:%d (%s)\n",
 	   expr->gci.ismarked ? "X" : "O", expr, expr->type, type_str);
+
+    if (islambda(expr)) {
+	lambda_describe(expr->l);
+    }
 
     if (isfinished) {
 	print_tabs(ntabs);
@@ -167,4 +180,46 @@ void lambda_describe(object_t o) {
 
     if(l->args != NULL)
     sexpr_describe(l->args);
+}
+
+void sexpr_print(object_t o) {
+    if (o == NULL) {
+	puts("expr was NULL");
+	return;
+    }
+
+    sexpr_t *expr = (sexpr_t *) o;
+    bool isfinished = false;
+
+    switch (expr->type) {
+    case T_NIL:
+	isfinished = true;
+	break;
+    case T_ERR:
+	isfinished = true;
+    default:
+	break;
+    }
+
+    if (isfinished) {
+	return;
+    }
+
+    if (isstring(expr) || issymbol(expr))
+	printf("%s", expr->s);
+    else if (isnumber(expr))
+	printf("%lf", expr->n);
+    else if (ispair(expr)) {
+	 if (expr->c->ishead)
+	    putchar('(');
+
+	sexpr_print(car(expr));
+
+	if(!isnil(cdr(expr)))
+	    putchar(' ');
+	else
+	    putchar(')');
+
+	sexpr_print(cdr(expr));
+    }
 }

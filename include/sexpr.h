@@ -63,7 +63,7 @@ bool ispair(sexpr_t * expr);
 
 sexpr_t *sexpr_new(type_t type);
 void sexpr_describe(object_t expr);
-
+void sexpr_print(object_t expr);
 sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
 			   native_t * func);
 sexpr_t *lambda_new(scope_t * parent, sexpr_t * args, sexpr_t * body);

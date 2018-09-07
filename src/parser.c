@@ -91,6 +91,7 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 
 	/* ====================== testing this ====================== */
 	expr = cons(value, sexpr_nil);
+	expr->c->ishead = !head;
 
 	if (!head)
 	    head = expr;
@@ -164,6 +165,7 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	}
 
 	expr = cons(value, sexpr_nil);
+	expr->c->ishead = !head;
 
 	if (!head)
 	    head = expr;
