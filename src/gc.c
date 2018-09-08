@@ -99,6 +99,7 @@ void gc_setmark_stack_sexprs(vector_t * v, bool mark) {
  *		   s-expressions memory management
  * ==============================================================
  */
+
 void gc_setmark_sexpr(sexpr_t * expr, bool mark) {
     if (expr == NULL || expr->gci.ismarked == mark)
 	return;
@@ -127,7 +128,7 @@ void gc_sweep_sexprs(vector_t * v) {
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
-	if(!tmp || islambda(tmp))
+	if(!tmp || (islambda(tmp) && tmp->l->isnative))
 	    continue;
 
 	if (!tmp->gci.ismarked) {
@@ -146,11 +147,11 @@ void gc_sweep_sexprs(vector_t * v) {
     vector_compact(v);
 
 #if GC_DEBUG == DBG_ON
+    puts("final sexprs stack");
+    vector_print(v);
+
     printf("previous: %d - current: %d - freed: %d \n",
 	   size, v->size, freed);
-
-    puts("final stack");
-    vector_print(v);
 #endif
 }
 
@@ -187,31 +188,6 @@ void gc_free_sexpr(object_t o) {
  *		      lambda memory management
  * ==============================================================
  */
-lambda_t *gc_alloc_lambda(void) {
-    if (!gc_has_space_left())
-	gc_collect(true);
-
-    lambda_t *l = malloc(sizeof *l);
-
-    l->gci.ismarked = false;
-    l->parent = NULL;
-    l->args = NULL;
-    l->body = NULL;
-    l->isnative = false;
-
-    vector_push(gc_allocd_lambdas, l);
-
-    return l;
-}
-
-void gc_free_lambda(object_t o) {
-    if (o == NULL)
-	return;
-
-    lambda_t *l = o;
-
-    free(l);
-}
 
 void gc_setmark_lambda(lambda_t * l, bool mark) {
     if (l == NULL || l->gci.ismarked == mark)
@@ -260,46 +236,44 @@ void gc_sweep_lambdas(vector_t * v) {
     vector_compact(v);
 
 #if GC_DEBUG == DBG_ON
+    puts("final lambdasstack");
+    vector_print(v);
+
     printf("previous: %d - current: %d - freed: %d \n",
 	   size, v->size, freed);
-
-    puts("final stack");
-    vector_print(v);
 #endif
+}
+
+lambda_t *gc_alloc_lambda(void) {
+    if (!gc_has_space_left())
+	gc_collect(true);
+
+    lambda_t *l = malloc(sizeof *l);
+
+    l->gci.ismarked = false;
+    l->parent = NULL;
+    l->args = NULL;
+    l->body = NULL;
+    l->isnative = false;
+
+    vector_push(gc_allocd_lambdas, l);
+
+    return l;
+}
+
+void gc_free_lambda(object_t o) {
+    if (o == NULL)
+	return;
+
+    lambda_t *l = o;
+
+    free(l);
 }
 
 /* ==============================================================
  *		       scope memory management
  * ==============================================================
  */
-scope_t *gc_alloc_scope(void) {
-    if (!gc_has_space_left())
-	gc_collect(true);
-
-    scope_t *s = malloc(sizeof *s);
-
-    s->bonds = vector_new(bond_free, bond_describe, bond_cmp);
-    s->parent = NULL;
-    s->gci.ismarked = false;
-
-    vector_push(gc_allocd_scopes, s);
-
-    return s;
-}
-
-void gc_free_scope(object_t o) {
-    if (o == NULL)
-	return;
-
-    scope_t *s = o;
-
-    vector_free(s->bonds);
-
-    if (s->parent)
-	gc_free_scope(s->parent);
-
-    free(s);
-}
 
 void gc_setmark_scope(scope_t * s, bool mark) {
     if (s == NULL || s->gci.ismarked == mark)
@@ -361,10 +335,40 @@ void gc_sweep_scopes(vector_t * v) {
 #endif
 }
 
+scope_t *gc_alloc_scope(void) {
+    if (!gc_has_space_left())
+	gc_collect(true);
+
+    scope_t *s = malloc(sizeof *s);
+
+    s->bonds = vector_new(bond_free, bond_describe, bond_cmp);
+    s->parent = NULL;
+    s->gci.ismarked = false;
+
+    vector_push(gc_allocd_scopes, s);
+
+    return s;
+}
+
+void gc_free_scope(object_t o) {
+    if (o == NULL)
+	return;
+
+    scope_t *s = o;
+
+    vector_free(s->bonds);
+
+    if (s->parent)
+	gc_free_scope(s->parent);
+
+    free(s);
+}
+
 /* ==============================================================
  *		      context memory management
  * ==============================================================
  */
+
 context_t *gc_alloc_context() {
     if (!gc_has_space_left())
 	gc_collect(true);

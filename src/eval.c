@@ -7,7 +7,6 @@
 #include "../include/vector.h"
 #include "../include/characters.h"
 
-k_func iskeyword(sexpr_t * expr);
 static struct {
     string_t keyword;
     k_func func;
@@ -16,58 +15,6 @@ static struct {
     {"if", eval_if},
     {NULL, NULL}
 };
-
-sexpr_t *eval(scope_t * s, sexpr_t * expr) {
-    sexpr_t *operator = NULL, *tail = NULL, *args = NULL;
-    sexpr_t *tmp = NULL, *nil = sexpr_new(T_NIL);
-    k_func kwd_func;
-
-    kwd_func = iskeyword(tmp = expr);
-
-    if (kwd_func != NULL)	/* evaluate the keyword */
-	return kwd_func(s, cdr(expr));
-    else if (isbonded(s, tmp)){	/* resolve symbol  */
-	return resolve_bond(s, tmp);
-    } else if (!ispair(tmp))	/* just an atom/nil */
-	return expr;
-
-    /* take the operator of the s-expression */
-    if (!(operator = eval(s, car(expr))))
-	return NULL;
-
-    /* make a list of evaluated arguments */
-    for (tmp = expr; ispair(tmp = cdr(tmp)); tail = args) {
-	if (!args)
-	    args = cons(eval(s, car(tmp)), nil);
-	else
-	    set_cdr(tail, cons(eval(s, car(tmp)), nil));
-    }
-
-    if (operator-> l->isnative)	/* call the native function */
-	return operator-> l->native->func(args);
-    else {			/* interprete the lambda */
-	scope_t *child = scope_init(s);
-	sexpr_t *result = NULL;
-
-	/* TODO: bind lambda args to evaluated args */
-	if (!bind_lambda_args(child, operator-> l, args)) {
-	    raise_error(stdout, "cannot bind lambda args");
-	    goto FAILED;
-	}
-
-	tmp = operator-> l->body;
-
-	while (!isnil(tmp)) {
-	    result = eval(child, car(tmp));
-	    tmp = cdr(tmp);
-	}
-
-	return result;
-    }
-
-  FAILED:
-    return NULL;
-}
 
 k_func iskeyword(sexpr_t * expr) {
     int i;
@@ -79,6 +26,65 @@ k_func iskeyword(sexpr_t * expr) {
 	if (!strcmp(expr->s, kwd[i].keyword))
 	    return kwd[i].func;
 
+    return NULL;
+}
+
+sexpr_t *eval(scope_t * s, sexpr_t * expr) {
+    sexpr_t *result = NULL, *operator = NULL;
+    sexpr_t *args = NULL, *nil = sexpr_new(T_NIL);
+    k_func kwd_func = iskeyword(expr);
+
+    /* ==================== ==================== ==================== */
+
+    if (!IS_NULL(kwd_func))	/* symbol was a keyword */
+	result = kwd_func(s, cdr(expr));
+    else if (isbonded(s, expr))	/* symbol was bounded  */
+	result = resolve_bond(s, expr);
+    else if (!ispair(expr))	/* just an atom/nil */
+	result = expr;
+
+    /* ==================== ==================== ==================== */
+
+    if (!IS_NULL(result))	/* we have a result */
+	goto RET;
+    else if (!(operator = eval(s, car(expr))))
+	goto FAILED;		/* no operator was found */
+
+    /* ==================== ==================== ==================== */
+
+    for (sexpr_t *tmp = expr, *tail; ispair(tmp = cdr(tmp)); tail = args)
+	if (!args)
+	    args = cons(eval(s, car(tmp)), nil);
+	else
+	    set_cdr(tail, cons(eval(s, car(tmp)), nil));
+
+    /* ==================== ==================== ==================== */
+
+    if (operator-> l->isnative)	/* call the native function */
+	result = operator-> l->native->func(args);
+    else {			/* interprete the lambda */
+	sexpr_t *tmp = operator-> l->body;
+	scope_t *child = scope_init(s);
+
+	/* TODO: bind lambda args to evaluated args */
+	if (!bind_lambda_args(child, operator-> l, args)) {
+	    raise_error(stdout, "CANNOT BIND LAMBDA ARGS");
+	    goto FAILED;
+	}
+
+	while (!isnil(tmp)) {
+	    result = eval(child, car(tmp));
+	    tmp = cdr(tmp);
+	}
+    }
+
+    if (IS_NULL(result))
+	raise_error(stdout, "FINAL RESULT SHOULD NOT BE NULL");
+
+  RET:
+    return result;
+
+  FAILED:
     return NULL;
 }
 

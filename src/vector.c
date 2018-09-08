@@ -29,7 +29,9 @@ vector_t *vector_new(operation_t free_obj, operation_t print_obj,
 
     v->capacity = 0;
     v->size = 0;
+
     v->objs = malloc(sizeof(object_t));
+
     v->free_obj = free_obj;
     v->print_obj = print_obj;
     v->cmp_obj = cmp_obj;
@@ -46,19 +48,15 @@ vector_t *vector_new(operation_t free_obj, operation_t print_obj,
 void vector_free(vector_t * v) {
     int i;
 
-    for (i = 0; i < v->capacity; ++i) {
-	if (v->free_obj) {
+    if (v->free_obj != NULL) {
+	for (i = 0; i < v->capacity; ++i) {
 	    v->free_obj(v->objs[i]);
 	}
     }
-    assert(v != NULL);
 
-    if (v->objs)
-	free(v->objs);
+    free(v->objs);
     free(v);
-    v = NULL;
 }
-
 
 /**
  * adds the Object `o` in the i-th index of `v->objs[]`
@@ -69,9 +67,8 @@ void vector_free(vector_t * v) {
  * @param i index where to put `o`
  */
 object_t vector_add(vector_t * v, object_t o, int i) {
-    if (i < 0 || i > v->capacity) {
+    if (i < 0 || i > v->capacity)
 	return NULL;
-    }
 
     if (v->size == v->capacity) {
 	const int dc = VECTOR_DEFAULT_CAPACITY;
@@ -84,13 +81,13 @@ object_t vector_add(vector_t * v, object_t o, int i) {
     }
 
     v->size++;
+
     return (v->objs[i] = o);
 }
 
 void vector_del(vector_t * v, int i) {
-    if (i < 0 || i > v->size) {
+    if (i < 0 || i > v->size)
 	return;
-    }
 
     v->objs[i] = NULL;
     v->size--;
@@ -114,9 +111,8 @@ object_t vector_push(vector_t * v, object_t o) {
  * @return the popped object
  */
 object_t vector_pop(vector_t * v) {
-    if (v->size < 0) {
+    if (v->size < 0)
 	return NULL;
-    }
 
     int index = (v->size == 0) ? v->size : v->size - 1;
     object_t o = v->objs[index];
@@ -156,10 +152,10 @@ object_t vector_peek(vector_t * v) {
  * @param i index where to put @p o
  */
 void vector_set(vector_t * v, int i, object_t o) {
-    if (i < 0 || i > v->size) {
+    if (i < 0 || i > v->size)
 	return;
-    }
-    v->objs[i] = o;
+    else
+	v->objs[i] = o;
 }
 
 /**
@@ -172,11 +168,10 @@ void vector_set(vector_t * v, int i, object_t o) {
  *	   otherwise NULL is returned
  */
 object_t vector_get(vector_t * v, int i) {
-    if (i < 0 || i > v->size) {
+    if (i < 0 || i > v->size)
 	return NULL;
-    }
-
-    return v->objs[i];
+    else
+	return v->objs[i];
 }
 
 /**
@@ -186,11 +181,10 @@ object_t vector_get(vector_t * v, int i) {
  * @param v Vector
  */
 vector_t *vector_compact(vector_t * v) {
-    if (!v) {
+    if (v == NULL)
 	return NULL;
-    } else if (v->size == 0) {
+    else if (v->size == 0)
 	return v;
-    }
 
     int i = 0, j, size = v->size;
 
@@ -203,13 +197,12 @@ vector_t *vector_compact(vector_t * v) {
     for (i = 0; i < size; ++i) {
 	if (!(v->objs[i])) {
 	    for (j = i; j < size - 1; ++j) {
+		v->objs[j] = v->objs[j + 1];
 		if (!v->objs[j + 1])
 		    --size;
-		v->objs[j] = v->objs[j + 1];
 	    }
 	    --size;
 	}
-
     }
 
     /* in case the vecy first object was NULL
@@ -232,32 +225,41 @@ vector_t *vector_compact(vector_t * v) {
     return v;
 }
 
+object_t vector_find(vector_t * v, object_t o) {
+    if (v->cmp_obj == NULL)
+	return NULL;
+
+    int i;
+
+    for (i = 0; i < v->size; ++i) {
+	if (v->cmp_obj(v->objs[i], o))
+	    return v->objs[i];
+    }
+
+    return NULL;
+}
+
 /**
  * prints the @p v elements using print_obj()
  *
  * @param v Vector
  */
 void vector_print(vector_t * v) {
-    int i;
-
-#if VECTOR_DEBUG == DBG_ON
-    assert(v != NULL);
-#endif
-
-    if (!v) {
+    if (v == NULL)
 	return;
-    }
+
+    int i;
 
     for (i = 0; i < v->size; ++i) {
 	if (v->objs[i] == NULL)
 	    continue;
 
 	puts("//////////////////////////////");
-	if (v->print_obj) {
+	if (v->print_obj)
 	    v->print_obj(v->objs[i]);
-	} else {
+	else
 	    printf("%p -- %d", v->objs[i], i);
-	}
+
     }
     puts("//////////////////////////////");
 
@@ -279,26 +281,7 @@ void vector_debug(FILE * stream, vector_t * v) {
     puts("--------------");
 }
 
-object_t vector_find(vector_t * v, object_t o) {
-    if (!v->cmp_obj) {
-	return NULL;
-    }
-
-    int i;
-
-    for (i = 0; i < v->size; ++i) {
-	object_t tmp = v->objs[i];
-
-	if (v->cmp_obj(tmp, o)) {
-	    return tmp;
-	}
-    }
-
-    return NULL;
-}
-
 #if VECTOR_DEBUG == DBG_ON
-
 void print_int(object_t o) {
     if (!o) {
 	return;

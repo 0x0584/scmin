@@ -33,6 +33,8 @@
 #  define PARSER_DEBUG		DBG_OFF
 #  define EVALUATOR_DEBUG	DBG_ON
 
+#  define IS_NULL(expr)		((expr) == NULL)
+
 /**
  * for now this just print the err_msg
  *
