@@ -61,6 +61,8 @@ void gc_collect(bool iscleanup) {
 	return;
     }
 
+    gc_setmark_scope(get_global_scope(), true);
+
     #if GC_DEBUG == DBG_ON
     puts("\n================ sweep scopes ==================\n");
     #endif
@@ -83,16 +85,6 @@ void gc_collect(bool iscleanup) {
     puts("================================================\n");
 #endif
 
-}
-
-void gc_setmark_stack_sexprs(vector_t * v, bool mark) {
-    int i;
-
-    /* marking all that stacka as reachable */
-    for (i = 0; i < v->size; ++i) {
-	if (i % 2 == 0)		/* testing */
-	    gc_setmark_sexpr(vector_get(v, i), mark);
-    }
 }
 
 /* ==============================================================
@@ -393,7 +385,6 @@ void gc_free_context(object_t o) {
     vector_free(c->reg);
 }
 
-#if GC_DEBUG == DBG_ON
 void gc_debug_memory(void) {
     /*
        puts("========== testing sexprs ==========");
@@ -460,4 +451,3 @@ void gc_debug_memory(void) {
 
     /* gc_collect(true); */
 }
-#endif

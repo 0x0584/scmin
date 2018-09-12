@@ -4,43 +4,35 @@
 #include "../include/native.h"
 
 bool isnil(sexpr_t * expr) {
-    assert(expr != NULL);
-    return expr->type == T_NIL;
-}
-
-bool isatom(sexpr_t * expr) {
-    assert(expr != NULL);
-    return issymbol(expr) || isstring(expr) || isnumber(expr);
-}
-
-bool issymbol(sexpr_t * expr) {
-    assert(expr != NULL);
-    return expr->type == T_SYMBOL;
-}
-
-bool isnumber(sexpr_t * expr) {
-    assert(expr != NULL);
-    return expr->type == T_NUMBER;
-}
-
-bool isstring(sexpr_t * expr) {
-    assert(expr != NULL);
-    return expr->type == T_STRING;
-}
-
-bool islambda(sexpr_t * expr) {
-    assert(expr != NULL);
-    return expr->type == T_LAMBDA;
+    return !expr ? false : expr->type == T_NIL;
 }
 
 bool ispair(sexpr_t * expr) {
-    assert(expr != NULL);
-    return expr->type == T_PAIR;
+    return !expr ? false : expr->type == T_PAIR;
+}
+
+bool isatom(sexpr_t * expr) {
+    return !ispair(expr);
+}
+
+bool issymbol(sexpr_t * expr) {
+    return !expr ? false : expr->type == T_SYMBOL;
+}
+
+bool isnumber(sexpr_t * expr) {
+    return !expr ? false : expr->type == T_NUMBER;
+}
+
+bool isstring(sexpr_t * expr) {
+    return !expr ? false : expr->type == T_STRING;
+}
+
+bool islambda(sexpr_t * expr) {
+    return !expr ? false : expr->type == T_LAMBDA;
 }
 
 bool islist(sexpr_t * expr) {
-    assert(expr != NULL);
-    return ispair(expr) && expr->c->islist;
+    return !expr ? false : ispair(expr) && expr->c->islist;
 }
 
 sexpr_t *sexpr_new(type_t type) {
@@ -86,15 +78,15 @@ void print_tabs(int ntabs) {
 };
 
 void sexpr_describe(object_t o) {
-    if (o == NULL) {
-	puts("expr was NULL");
-	return;
-    }
-
     sexpr_t *expr = (sexpr_t *) o;
     static int ntabs = 0;
     char *type_str = NULL;
     bool isfinished = false;
+
+    if (expr == NULL) {
+	puts("expr was NULL");
+	return;
+    }
 
     switch (expr->type) {
     case T_PAIR:
@@ -132,9 +124,8 @@ void sexpr_describe(object_t o) {
     printf(" [%s] expr: %p, type:%d (%s)\n",
 	   expr->gci.ismarked ? "X" : "O", expr, expr->type, type_str);
 
-    if (islambda(expr)) {
+    if (islambda(expr))
 	lambda_describe(expr->l);
-    }
 
     if (isfinished) {
 	print_tabs(ntabs);
@@ -161,12 +152,12 @@ void sexpr_describe(object_t o) {
 }
 
 void lambda_describe(object_t o) {
-    if (o == NULL) {
+    lambda_t *l = o;
+
+    if (l == NULL) {
 	puts("lambda was NULL");
 	return;
     }
-
-    lambda_t *l = o;
 
     printf("[%s]", l->gci.ismarked ? "X" : " ");
 
@@ -178,18 +169,18 @@ void lambda_describe(object_t o) {
     else
 	sexpr_describe(l->body);
 
-    if(l->args != NULL)
-    sexpr_describe(l->args);
+    if (l->args != NULL)
+	sexpr_describe(l->args);
 }
 
-void sexpr_print(object_t o) {
-    if (o == NULL) {
+void _sexpr_print(object_t o) {
+    sexpr_t *expr = (sexpr_t *) o;
+    bool isfinished = false;
+
+    if (expr == NULL) {
 	puts("expr was NULL");
 	return;
     }
-
-    sexpr_t *expr = (sexpr_t *) o;
-    bool isfinished = false;
 
     switch (expr->type) {
     case T_NIL:
@@ -205,21 +196,29 @@ void sexpr_print(object_t o) {
 	return;
     }
 
+    if (issymbol(expr) && !strcmp(expr->s, "quote"))
+	printf("(");
+
     if (isstring(expr) || issymbol(expr))
 	printf("%s", expr->s);
     else if (isnumber(expr))
 	printf("%lf", expr->n);
     else if (ispair(expr)) {
-	 if (expr->c->ishead)
+	if (expr->c->ishead)
 	    putchar('(');
 
-	sexpr_print(car(expr));
+	_sexpr_print(car(expr));
 
-	if(!isnil(cdr(expr)))
+	if (!isnil(cdr(expr)))
 	    putchar(' ');
 	else
 	    putchar(')');
 
-	sexpr_print(cdr(expr));
+	_sexpr_print(cdr(expr));
     }
+}
+
+void sexpr_print(object_t o) {
+    _sexpr_print(o);
+    putchar('\n');
 }

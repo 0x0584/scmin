@@ -281,7 +281,6 @@ void vector_debug(FILE * stream, vector_t * v) {
     puts("--------------");
 }
 
-#if VECTOR_DEBUG == DBG_ON
 void print_int(object_t o) {
     if (!o) {
 	return;
@@ -296,7 +295,7 @@ void free_int(object_t o) {
 }
 
 void vector_testing(void) {
-    vector_t *v = vector_new(free_int, print_int);
+    vector_t *v = vector_new(free_int, print_int, NULL);
     int i, size = 15, tab[size];
 
     for (i = 0; i < size; ++i) {
@@ -326,4 +325,3 @@ void vector_testing(void) {
     puts("freeing the vector");
     vector_free(v);
 }
-#endif

@@ -25,25 +25,11 @@ int main(int argc, char **argv) {
 
     gc_init();
 
-#if VECTOR_DEBUG == DBG_ON
-    vector_testing();
-#endif
-
-#if LEXER_DEBUG == DBG_ON
-    lexer_testing();
-#endif
-
-#if PARSER_DEBUG == DBG_ON
-    parser_testing();
-#endif
-
-#if EVALUATOR_DEBUG == DBG_ON
+    /* vector_testing(); */
+    /* lexer_testing(); */
+    /* parser_testing(); */
     eval_testing();
-#endif
-
-#if GC_DEBUG == DBG_ON
     gc_debug_memory();
-#endif
 
     gc_clean();
 

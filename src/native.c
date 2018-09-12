@@ -54,7 +54,7 @@ sexpr_t *native_times(sexpr_t * expr) {
     return result;
 }
 
-sexpr_t *native_div(sexpr_t * expr) {
+sexpr_t *native_divid(sexpr_t * expr) {
     number_t n = 1;
     sexpr_t *result = NULL, *tmp = expr;
 

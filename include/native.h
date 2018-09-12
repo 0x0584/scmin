@@ -12,10 +12,8 @@ struct NATIVE_LAMBDA {
 sexpr_t *native_add(sexpr_t * expr);
 sexpr_t *native_minus(sexpr_t * expr);
 sexpr_t *native_times(sexpr_t * expr);
-sexpr_t *native_div(sexpr_t * expr);
+sexpr_t *native_divid(sexpr_t * expr);
 
-/* 'expr i.e. (quote sexpr) */
-sexpr_t *native_quote(sexpr_t * expr);
 /* (or sexprs) */
 sexpr_t *native_or(sexpr_t * expr);
 /* (not sexpr) */

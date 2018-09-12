@@ -362,7 +362,6 @@ string_t read_as_symbol(const string_t code) {
     return NULL;
 }
 
-#if LEXER_DEBUG == DBG_ON
 void lexer_testing(void) {
     /* FILE *stream = stdout; */
 
@@ -400,4 +399,3 @@ void lexer_testing(void) {
 	/* getchar(); */
     }
 }
-#endif

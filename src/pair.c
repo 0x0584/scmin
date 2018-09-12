@@ -34,8 +34,6 @@ sexpr_t *cons(sexpr_t * car, sexpr_t * cdr) {
 }
 
 sexpr_t *car(sexpr_t * expr) {
-    assert(expr != NULL);
-
     return ispair(expr) ? expr->c->car : NULL;
 }
 

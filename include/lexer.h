@@ -11,7 +11,6 @@
  *
  * @see @file token.h
  * @see @file vector.h
- *
  */
 
 #  include "main.h"
@@ -133,8 +132,6 @@ string_t read_as_symbol(string_t code);
 
 string_t read_as_lambda(const string_t code);
 
-#  if LEXER_DEBUG == DBG_ON
 void lexer_testing(void);
-#  endif
 
 #endif				/* _SCMIN_LEXER_H */

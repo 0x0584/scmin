@@ -162,8 +162,6 @@ object_t vector_find(vector_t *v, object_t o);
 
 void vector_debug(FILE * stream, vector_t * v);
 
-#  if VECTOR_DEBUG == DBG_ON
 void vector_testing(void);
-#  endif
 
 #endif				/* __SCMIN_LIST_H */

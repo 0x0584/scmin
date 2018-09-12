@@ -1,18 +1,13 @@
-/*
- * this would take a set of tokens and then creates a parse-tree
- * PS: or something like that
+/**
+ * @file parser.c
+ * this file contains the declaration of parsing functionailties, the
+ * main method here is parse_sexpr()
  *
+ * @see @file vector.h
+ * @see @file token.h
+ *
+ * @todo this would take a set of tokens and then creates a parse-tree
  * the process of parsing has duplication in it!
- *
- * removed EOL for the moment, it's not important as it seems!
- *
- * it's a design failure i'm trying to create an interpreter, which
- * is a software that reads text and generate desired output based on
- * a well specified syntax which i'm trying to parse right now.
- * this is really fun yet very hard, or kinda
- *
- * the code has a lot of redundancy, i need to clean it but later, after
- * figuring out the first evaluation i.e. the code works
  */
 
 #include "../include/parser.h"
@@ -23,8 +18,6 @@
 #include "../include/pair.h"
 #include "../include/sexpr.h"
 
-static bool isfinished = false;
-
 /**
  * @brief this function is resposible of turning a set of tokens into a
  * s-expression.
@@ -32,35 +25,35 @@ static bool isfinished = false;
  * first it reads a set of tokens and then it parses each one as
  * described below:
  *
+ *    + if it was a list, then parse_as_list()
+ *    + if it was either a number/string/symbol then parse_as_x()
+ *    + if it was was quote then parse_as_quote()
  *    + if the token was and error-token, then stop the process!
- *    + if it was a list, then parse_as_list
- *    + if it was
  */
 sexpr_t *parse_sexpr(vector_t * tokens) {
     sexpr_t *expr = NULL, *value = NULL;
     sexpr_t *head = NULL, *tail = NULL;
-    sexpr_t *sexpr_nil = sexpr_new(T_NIL);
+    sexpr_t *nil = sexpr_new(T_NIL);
     token_t *token = NULL;
 
     while ((token = vector_peek(tokens))) {
-	/* token_print(token); */
+#if PARSER_DEBUG == DBG_ON
+	puts("current token:");
+	token_print(token);
+	putchar('\n');
+#endif
 
 	switch (token->type) {
 	case TOK_ERR:
 	    token_free(token);
-	    vector_free(tokens);
 	    goto FAILED;
 
 	case TOK_L_PAREN:
 	    value = parse_as_list(tokens);
 	    break;
 
-	case TOK_QUOTE:{
-		sexpr_t *quote = sexpr_new(T_SYMBOL);
-		quote->s = strdup("quote");
-
-		value = cons(quote, parse_as_quote(tokens));
-	    }
+	case TOK_QUOTE:
+	    value = parse_as_quote(tokens);
 	    break;
 
 	case TOK_NUMBER:
@@ -77,20 +70,14 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 	    break;
 	}
 
-	if (isfinished) {
-	    if (expr == NULL)
-		expr = value;
+	token_free(token);
 
-	    isfinished = false;
-	    token_free(token);
-
+	if (tokens->size == 0 && !head) {
+	    head = value;
 	    break;
 	}
 
-	assert(expr != NULL);
-
-	/* ====================== testing this ====================== */
-	expr = cons(value, sexpr_nil);
+	expr = cons(value, nil);
 	expr->c->ishead = !head;
 
 	if (!head)
@@ -99,12 +86,9 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 	    set_cdr(tail, expr);
 
 	tail = expr;
-	/* ========================================================== */
-
-	token_free(token);
     }
 
-    return expr;
+    return head;
 
   FAILED:
     gc_collect(true);
@@ -118,24 +102,26 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 sexpr_t *parse_as_list(vector_t * tokens) {
     sexpr_t *expr = NULL, *value = NULL;
     sexpr_t *head = NULL, *tail = NULL;
-    sexpr_t *sexpr_nil = sexpr_new(T_NIL);
+    sexpr_t *nil = sexpr_new(T_NIL);
 
     token_t *token = NULL;
     bool isfirstloop = true;
 
-    /* puts("list starting"); */
+#if PARSER_DEBUG == DBG_ON
+    puts("list starting");
+#endif
+
     while ((token = vector_peek(tokens))) {
-	/* token_print(token); */
+#if PARSER_DEBUG == DBG_ON
+	puts("current token:");
+	token_print(token);
+	putchar('\n');
+#endif
 
 	if (token->type == TOK_R_PAREN) {
-	    /* this indicats that the parsing process has finished */
-	    if (token->depth == 0)
-		isfinished = true;
-
 	    token_free(token);
-
 	    if (isfirstloop)	/* '() empty list is like a nil */
-		return sexpr_nil;
+		return nil;
 	    else		/* reached the end of the list */
 		break;
 	}
@@ -160,11 +146,16 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	    break;
 
 	default:
+
+#if PARSER_DEBUG == DBG_ON
 	    puts("UNKNOWN SYMBOL");
+#endif
 	    return NULL;	/* this would cause problems */
 	}
 
-	expr = cons(value, sexpr_nil);
+	token_free(token);
+
+	expr = cons(value, nil);
 	expr->c->ishead = !head;
 
 	if (!head)
@@ -174,12 +165,13 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 
 	tail = expr;
 
-	token_free(token);
 	isfirstloop = false;
     }
 
-    /* sexpr_describe(head); */
-    /* puts("list ending\n--------------\n"); */
+#if PARSER_DEBUG == DBG_ON
+    sexpr_print(head);
+    puts("list ending\n--------------\n");
+#endif
 
     return head;
 }
@@ -210,12 +202,14 @@ sexpr_t *parse_as_quote(vector_t * tokens) {
 	return NULL;		/* this would cause problems */
     }
 
-    sexpr_describe(value);
-
     quote = sexpr_new(T_SYMBOL);
     quote->s = strdup("quote");
 
     value = cons(quote, cons(value, sexpr_new(T_NIL)));
+
+#if PARSER_DEBUG == DBG_ON
+    sexpr_print(value);
+#endif
 
     token_free(token);
 
@@ -243,14 +237,13 @@ sexpr_t *parse_as_symbol(string_t value) {
     return expr;
 }
 
-#if PARSER_DEBUG == DBG_ON
 #  include "../include/lexer.h"
 
 void parser_testing(void) {
     string_t exprs[] = {
-	/* "(+ 11111 (* 22222 33333))", */
-	"(define bar '(* 22222 33333))",
-	"(define bar 'b)",
+	"(+ 11111 (* 22222 33333))",
+	/* "(define bar '(* 22222 33333))", */
+	/* "(define bar 'b)", */
 	"(quote (a b c))"
 	"(quote a)"
 	/* "	; this is cool\n(bar baz)", */
@@ -269,7 +262,6 @@ void parser_testing(void) {
     /* puts("----------"); */
     /* vector_free(tmp); */
 
-    getchar();
     int i, size = sizeof(exprs) / sizeof(exprs[0]);
     vector_t *v = NULL;
     sexpr_t *expr = NULL;
@@ -285,10 +277,9 @@ void parser_testing(void) {
 
 	expr = parse_sexpr(v);
 	puts("\n + parsed expression");
-	sexpr_describe(expr);
+	sexpr_print(expr);
+	puts(" ================== ================= ================= ");
 
 	vector_free(v);
-	puts(" ================== ================= ================= ");
     }
 }
-#endif

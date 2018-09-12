@@ -62,12 +62,5 @@ void gc_free_context(object_t o);
 void gc_setmark_context(context_t * scope, bool mark);
 void gc_sweep_context(vector_t * v);
 
-void gc_setmark_stack_sexprs(vector_t * v, bool mark);
-
-#  if GC_DEBUG == DBG_ON
-/**
- * show occopied memory and useful informations
- */
 void gc_debug_memory(void);
-#  endif
 #endif				/* _SCMIN_GC_H */

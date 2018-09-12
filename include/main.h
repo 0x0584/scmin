@@ -6,7 +6,6 @@
 #  include <stdio.h>
 #  include <stdlib.h>
 #  include <stdbool.h>
-#  include <stdarg.h>
 
 #  include <math.h>
 
@@ -26,14 +25,12 @@
 /**
  * debug information
  */
-#  define GC_DEBUG		DBG_ON
+#  define GC_DEBUG		DBG_OFF
 
 #  define VECTOR_DEBUG		DBG_OFF
 #  define LEXER_DEBUG		DBG_OFF
 #  define PARSER_DEBUG		DBG_OFF
-#  define EVALUATOR_DEBUG	DBG_ON
-
-#  define IS_NULL(expr)		((expr) == NULL)
+#  define EVALUATOR_DEBUG	DBG_OFF
 
 /**
  * for now this just print the err_msg

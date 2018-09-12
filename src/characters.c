@@ -67,14 +67,36 @@ string_t stream_as_string(FILE * stream) {
     return "";
 }
 
-char ungetnc(void) {
-    return stream_string("0x0584", false);
-}
-
+/**
+ * basically calling stream_string() with @p str and pass isget as true
+ *
+ * @see stream_string()
+ *
+ * @return the next character in the stream
+ */
 char getnc(const string_t str) {
     return stream_string(str, true);
 }
 
+/**
+ * basically calling stream_string() with @p str and pass isget as false
+ *
+ * @see stream_string()
+ *
+ * @return the previously streamed character in the stream
+ */
+char ungetnc(void) {
+    return stream_string("0x0584", false);
+}
+
+/**
+ * takes a dynamically allocated string, and reduce it's size to fit
+ * the optimal size, i.e. its length plus the null character '\0'
+ *
+ * @param str a dynamically allocated string
+ *
+ * @return optimal-size string
+ */
 string_t reduce_string_size(string_t str) {
-    return realloc(str, 1 + strlen(str) * sizeof(char));
+    return realloc(str, (1 + strlen(str)) * sizeof(char));
 }

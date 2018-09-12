@@ -23,7 +23,7 @@ typedef struct NATIVE_LAMBDA native_t;
 typedef struct S_EXPR sexpr_t;
 
 /* keyword function */
-typedef sexpr_t *(*k_func) (scope_t *, ...);
+typedef sexpr_t *(*k_func) (scope_t *, sexpr_t *);
 
 typedef struct BEHAVIOR behavior_t;
 #endif				/* _SCMIN_TYPES_H */

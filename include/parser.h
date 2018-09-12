@@ -11,7 +11,5 @@ sexpr_t *parse_as_string(string_t value);
 sexpr_t *parse_as_symbol(string_t value);
 sexpr_t *parse_as_boolean(string_t value);
 
-#  if PARSER_DEBUG == DBG_ON
 void parser_testing(void);
-#  endif
 #endif				/* _SCMIN_PARSER_H */

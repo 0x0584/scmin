@@ -51,12 +51,12 @@ run: build
 	./$(EXEC) $(ARGS)
 	@echo " "
 
-build:clean all
+build: clean all
 
-valg:build
+valg: build
 	valgrind ./$(EXEC)
 
-valk:build
+valk: build
 	valkyrie ./$(EXEC)
 
 clean:

@@ -96,9 +96,7 @@ scope_t *global_scope_init(void) {
 	{"+", native_add},
 	{"-", native_minus},
 	{"*", native_times},
-	{"/", native_div},
-
-	{"quote", native_quote},
+	{"/", native_divid},
 
 	{"cons", native_cons},
 	{"car", native_car},
@@ -121,7 +119,8 @@ scope_t *global_scope_init(void) {
     for (i = 0; stdlib[i].symbol; ++i) {
 	native_t *tmp = &stdlib[i];
 	sexpr_t *lambda = lambda_new_native(global_scope, NULL, tmp);
-	vector_push(global_scope->bonds, bond_new(strdup(tmp->symbol), lambda));
+	vector_push(global_scope->bonds,
+		    bond_new(strdup(tmp->symbol), lambda));
     }
 
     /* vector_compact(global_scope->bonds); */
