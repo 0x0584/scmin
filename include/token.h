@@ -12,6 +12,7 @@
 #  include "main.h"
 
 #  define TOK_SIZE_LIMIT	(2 << 8)
+#  define TOK_LIMIT(index)	(index > TOK_SIZE_LIMIT - 1)
 
 /**
  * set of token types

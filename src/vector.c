@@ -282,15 +282,15 @@ void vector_debug(FILE * stream, vector_t * v) {
 }
 
 void print_int(object_t o) {
-    if (!o) {
+    if (!o)
 	return;
-    }
     int *i = o;
 
     printf(" %d \n", *i);
 }
 
 void free_int(object_t o) {
+    if (o)
     return;
 }
 

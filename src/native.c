@@ -7,11 +7,15 @@
 #include "../include/pair.h"
 
 sexpr_t *native_add(sexpr_t * expr) {
-    sexpr_t *result = NULL, *tmp = expr;
+    sexpr_t *result = NULL, *tmp = expr, *value;
     number_t n = 0;
 
     while (!isnil(tmp)) {
-	sexpr_t *value = car(tmp);
+	err_raise(ERR_ARG_TYPE, !isnumber(value = car(tmp)));
+
+	if(err_log())
+	    return sexpr_err();
+
 	n += value->n;
 	tmp = cdr(tmp);
     }
@@ -24,10 +28,14 @@ sexpr_t *native_add(sexpr_t * expr) {
 
 sexpr_t *native_minus(sexpr_t * expr) {
     number_t n = 0;
-    sexpr_t *result = NULL, *tmp = expr;
+    sexpr_t *result = NULL, *tmp = expr, *value;
 
     while (!isnil(tmp)) {
-	sexpr_t *value = car(tmp);
+	err_raise(ERR_ARG_TYPE, !isnumber(value = car(tmp)));
+
+	if(err_log())
+	    return sexpr_err();
+
 	n -= value->n;
 	tmp = cdr(tmp);
     }
@@ -40,10 +48,14 @@ sexpr_t *native_minus(sexpr_t * expr) {
 
 sexpr_t *native_times(sexpr_t * expr) {
     number_t n = 1;
-    sexpr_t *result = NULL, *tmp = expr;
+    sexpr_t *result = NULL, *tmp = expr, *value;
 
     while (!isnil(tmp)) {
-	sexpr_t *value = car(tmp);
+	err_raise(ERR_ARG_TYPE, !isnumber(value = car(tmp)));
+
+	if(err_log())
+	    return sexpr_err();
+
 	n *= value->n;
 	tmp = cdr(tmp);
     }
@@ -55,40 +67,41 @@ sexpr_t *native_times(sexpr_t * expr) {
 }
 
 sexpr_t *native_divid(sexpr_t * expr) {
-    number_t n = 1;
-    sexpr_t *result = NULL, *tmp = expr;
+    sexpr_t *result = NULL, *tmp, *tmp0;
 
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) > 2);
+    err_raise(ERR_ARG_TYPE, !isnumber(tmp = car(expr)));
+    err_raise(ERR_ARG_TYPE, !isnumber(tmp0 = car(expr)));
 
-    while (ispair(expr)) {
-	tmp = car(expr);
+    if (err_log())
+	return sexpr_err();
 
-	if (tmp->n == 0) {
-	    return NULL;	/* not dividing by zero */
-	}
+    err_raise(ERR_ARG_TYPE, !tmp0->n);
 
-	n /= tmp->n;
-	tmp = cdr(tmp);
-    }
+    if (err_log())
+	return sexpr_err();
 
     result = sexpr_new(T_NUMBER);
-    result->n = n;
+    result->n = tmp->n / tmp0->n;;
 
     return result;
 }
 
-/* 'expr i.e. (quote expr) */
-sexpr_t *native_quote(sexpr_t * expr) {
-    return expr;
-}
-
 /* (or s-exprs) */
 sexpr_t *native_or(sexpr_t * expr) {
-    return NULL;
+    sexpr_t *ret = NULL, *tmp = expr;
+
+    while (true) {
+	if (isnil(tmp)) return tmp;
+	else tmp = cdr(tmp);
+    }
+
+    return ret;
 }
 
 /* (not s-expr) */
 sexpr_t *native_not(sexpr_t * expr) {
-    return NULL;
+    return expr;
 }
 
 /* (and s-exprs) */

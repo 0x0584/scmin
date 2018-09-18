@@ -9,9 +9,11 @@
  */
 enum S_EXPR_TYPE {
     T_PAIR,			/* car, cdr */
+
     T_NUMBER,			/* 0 -100 0.25 */
     T_STRING,			/* "string" */
     T_SYMBOL,			/* foo foo-bar */
+
     T_LAMBDA,			/* (lambda (args) ...) */
 
     T_NIL,			/* like NULL */
@@ -54,16 +56,22 @@ struct S_EXPR {
 };
 
 bool isnil(sexpr_t * expr);
+bool istrue(sexpr_t * expr);
 bool isatom(sexpr_t * expr);
 bool isnumber(sexpr_t * expr);
 bool isstring(sexpr_t * expr);
 bool issymbol(sexpr_t * expr);
 bool islambda(sexpr_t * expr);
 bool ispair(sexpr_t * expr);
+bool islist(sexpr_t * expr);
+bool isnative(sexpr_t * expr);
 
 sexpr_t *sexpr_new(type_t type);
+sexpr_t *sexpr_err(void);
 void sexpr_describe(object_t expr);
 void sexpr_print(object_t expr);
+int sexpr_length(sexpr_t * expr);
+
 sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
 			   native_t * func);
 sexpr_t *lambda_new(scope_t * parent, sexpr_t * args, sexpr_t * body);

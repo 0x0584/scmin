@@ -39,33 +39,19 @@
  * @return a Vector of tokens
  */
 vector_t *read_tokens(const string_t code) {
-#if LEXER_DEBUG == DBG_ON
-    assert(code != NULL);
-#endif
-
     vector_t *tokens = vector_new(token_free, token_print, NULL);
     token_t *token = NULL;
-
-    int depth = 0, noerror = -1;
-    string_t error[] = {
-	"ERROR: PARENS ARE NOT BALANCED",
-	"ERROR: STARTING WITH A CLOSING PAREN",
-	"ERROR: TOKEN IS NOT CORRECT"
-    };
-
+    int depth = 0;
     bool islastloop = false;
 
     while ((token = next_token(code))) {
 	switch (token->type) {
 	case TOK_ERR:		/* error while lexing */
-	    noerror = 2;
-	    goto FAILED;
+	    err_raise(ERR_TOK_ERR, true);
+	    break;
 
 	case EOL:		/* end of lexing */
-	    if (depth != 0) {
-		noerror = 0;
-		goto FAILED;
-	    }
+	    err_raise(ERR_PRNS_BLNC, depth != 0);
 	    islastloop = true;
 	    break;
 
@@ -75,12 +61,7 @@ vector_t *read_tokens(const string_t code) {
 
 	case TOK_R_PAREN:	/* right paren */
 	    token->depth = --depth;
-	    /* puts("this is in"); */
-	    if (depth < 0) {
-		noerror = 1;
-		goto FAILED;
-	    }
-
+	    err_raise(ERR_PRNS_CLS, depth < 0);
 	    islastloop = depth ? false : true;
 	    break;
 
@@ -89,21 +70,20 @@ vector_t *read_tokens(const string_t code) {
 	    break;
 	};
 
-	vector_push(tokens, token);
+	if (err_log())
+	    goto FAILED;
+	else
+	    vector_push(tokens, token);
 
-	if (islastloop) {
+	if (islastloop)
 	    break;
-	}
     }
 
     return vector_compact(tokens);
 
   FAILED:
 
-    raise_error(stderr, error[noerror]);
-    vector_free(tokens);
-
-    return NULL;
+    return vector_free(tokens), NULL;
 }
 
 /**
@@ -126,14 +106,9 @@ vector_t *read_stream_tokens(FILE * stream) {
  * @return a Token
  */
 token_t *next_token(const string_t code) {
-#if LEXER_DEBUG == DBG_ON
-    assert(code != NULL);
-#endif
-
     token_type type;
     string_t vbuffer = NULL;
     bool accept_null = false;
-    token_t *token;
 
     if (!clean_whitespaces(code) || !clean_comments(code)) {
 	type = EOL;
@@ -165,21 +140,14 @@ token_t *next_token(const string_t code) {
 	return NULL;
     };
 
-#if LEXER_DEBUG == DBG_ON
-
-#endif
-
     if (!vbuffer && !accept_null) {
 	puts("i'm really lost");
 	type = TOK_ERR;
     }
 
-    /* printf("	 ==> %c\n", getnc(code)); */
-    /* ungetnc(); */
-
   RET:
-    token = token_new(type, vbuffer, 0);
-    return token;
+
+    return token_new(type, vbuffer, 0);
 }
 
 /**
@@ -194,11 +162,10 @@ bool clean_whitespaces(string_t code) {
 
     while ((c = getnc(code)) != EOF && isspace(c));
 
-    if (c != EOF) {
+    if (c != EOF)
 	ungetnc();
-    }
 
-    return (c != EOF);
+    return c != EOF;
 }
 
 /**
@@ -211,17 +178,15 @@ bool clean_whitespaces(string_t code) {
 bool clean_comments(string_t code) {
     char c;
 
-    while ((c = getnc(code)) == ';') {
-	do {
+    while ((c = getnc(code)) == ';')
+	do
 	    c = getnc(code);
-	} while (c != '\n' && c != '\r' && c != EOF);
-    }
+	while (c != '\n' && c != '\r' && c != EOF);
 
-    if (c != EOF) {
+    if (c != EOF)
 	ungetnc();
-    }
 
-    return (c != EOF);
+    return c != EOF;
 }
 
 /*
@@ -233,133 +198,92 @@ bool clean_comments(string_t code) {
  */
 string_t read_as_string(const string_t code) {
     string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
-    string_t error[] = {
-	"REACH EOF",
-	"STRING IS TOO LONG OR HAS NO END"
-    };
-    int i = 0, noerror = 0;
+    int i = 0;
     char c;
 
     /* this loop must end by its condition
      * otherwise this would count as an error */
     while ((c = getnc(code)) != '\"' && c != EOF) {
-	vbuffer[i++] = c;
-	/* the string is too long */
-	if (i > TOK_SIZE_LIMIT - 1) {
-	    noerror = 1;
+	err_raise(ERR_SIZE_ERR, TOK_LIMIT(i));
+	err_raise(ERR_EOF_ERR, c == EOF);
+
+	if (err_log())
 	    goto FAILED;
-	}
+
+	vbuffer[i++] = c;
     }
 
-    if (c != EOF && c != '\"') {
+    if (c != EOF && c != '\"')
 	putchar(ungetnc());
-    }
 
     vbuffer[i] = '\0';
 
     return reduce_string_size(vbuffer);
 
   FAILED:
-    raise_error(stderr, error[noerror]);
-    free(vbuffer);
 
-    return NULL;
+    return free(vbuffer), NULL;
 }
 
 string_t read_as_number(const string_t code) {
     string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
-    string_t error[] = {
-	"NUMBER FORMAT ERROR: MULTIPLE SIGNS",
-	"NUMBER FORMAT ERROR: MULTIPLE PERIODS",
-	"NUMBER FORMAT ERROR: NOT A DIGIT ",
-	"NUMBER IS TOO LONG"
-    };
-    int i = 0, noerror = 0;
+    int i = 0;
     bool period_found = false;
     char c;
 
-    /* this loop must end by its condition
-     * otherwise this is an error */
     while ((c = getnc(code)) != ' ' && c != ')') {
-	if ((c == '+' || c == '-')) {
-	    if (i != 0) {
-		noerror = 0;	/* something like +56- */
-		goto FAILED;
-	    }
-	} else if (c == '.') {
-	    if (!period_found) {
-		period_found = true;
-	    } else {
-		noerror = 1;	/* something like 52.3.2 */
-		goto FAILED;
-	    }
-	} else if (!isdigit(c)) {
-	    noerror = 2;	/* something like 34abc */
-	    goto FAILED;
-	}
+	err_raise(ERR_NUM_DIG, !isdigit(c) && !strchr("+-.", c));
+	err_raise(ERR_NUM_SIGN, strchr("+-", c) && i);
+	err_raise(ERR_NUM_PRD, c == '.' && period_found);
+	err_raise(ERR_SIZE_ERR, TOK_LIMIT(i));
+	err_raise(ERR_EOF_ERR, c == EOF);
 
+	if (err_log())
+	    goto FAILED;
+
+	period_found = (c == '.');
 	vbuffer[i++] = c;
-
-	/* the number is too long */
-	if (i > TOK_SIZE_LIMIT - 1) {
-	    noerror = 3;	/* surpassing the limit */
-	    goto FAILED;
-	}
     }
 
-    if (c == ')') {
+    if (c == ')')
 	ungetnc();
-    }
 
     vbuffer[i] = '\0';
 
     return reduce_string_size(vbuffer);
 
   FAILED:
-    raise_error(stderr, error[noerror]);
-    free(vbuffer);
-    return NULL;
+
+    return free(vbuffer), NULL;
 }
 
 string_t read_as_symbol(const string_t code) {
     string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
-    string_t not_allowed = "()#\'\"";
-    string_t error[] = {
-	"SYMBOL IS TOO LONG OR HAS NO END",
-	"SYMBOL CONTAINS CHARACTERS THAT ARE NOT ALLOWED"
-    };
+    string_t not_allowed = "()\'\"\\";
     char c;
-    int i = 0, noerror = 0;
+    int i = 0;
 
-    /* this loop must end, same as before, by its condition
-     * otherwise, this counts as an error*/
     while ((c = getnc(code)) != ' ' && c != ')') {
-	if (strchr(not_allowed, c)) {
-	    noerror = 1;	/* not allowed characters */
+	err_raise(ERR_SYM_ERR, strchr(not_allowed, c));
+	err_raise(ERR_SIZE_ERR, TOK_LIMIT(i));
+	err_raise(ERR_EOF_ERR, c == EOF);
+
+	if (err_log())
 	    goto FAILED;
-	}
 
 	vbuffer[i++] = c;
-
-	/* the string is too long */
-	if (i > TOK_SIZE_LIMIT - 1) {
-	    noerror = 0;	/* surpassing the limit */
-	    goto FAILED;
-	}
     }
 
-    if (c == ')') {
+    if (c == ')')
 	ungetnc();
-    }
 
     vbuffer[i] = '\0';
 
     return reduce_string_size(vbuffer);
 
   FAILED:
-    raise_error(stderr, error[noerror]);
-    free(vbuffer);
-    return NULL;
+
+    return free(vbuffer), NULL;
 }
 
 void lexer_testing(void) {

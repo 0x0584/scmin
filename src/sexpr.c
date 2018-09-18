@@ -7,12 +7,12 @@ bool isnil(sexpr_t * expr) {
     return !expr ? false : expr->type == T_NIL;
 }
 
-bool ispair(sexpr_t * expr) {
-    return !expr ? false : expr->type == T_PAIR;
+bool istrue(sexpr_t * expr) {
+    return !isnil(expr);
 }
 
 bool isatom(sexpr_t * expr) {
-    return !ispair(expr);
+    return !ispair(expr) && !islambda(expr);
 }
 
 bool issymbol(sexpr_t * expr) {
@@ -27,12 +27,20 @@ bool isstring(sexpr_t * expr) {
     return !expr ? false : expr->type == T_STRING;
 }
 
-bool islambda(sexpr_t * expr) {
-    return !expr ? false : expr->type == T_LAMBDA;
+bool ispair(sexpr_t * expr) {
+    return !expr ? false : expr->type == T_PAIR;
 }
 
 bool islist(sexpr_t * expr) {
     return !expr ? false : ispair(expr) && expr->c->islist;
+}
+
+bool islambda(sexpr_t * expr) {
+    return !expr ? false : expr->type == T_LAMBDA;
+}
+
+bool isnative(sexpr_t * expr) {
+    return islambda(expr) && expr->l->isnative;
 }
 
 sexpr_t *sexpr_new(type_t type) {
@@ -44,6 +52,14 @@ sexpr_t *sexpr_new(type_t type) {
 	expr->l = gc_alloc_lambda();
 
     return expr;
+}
+
+sexpr_t *sexpr_err(void) {
+    return sexpr_new(T_ERR);
+}
+
+sexpr_t *sexpr_nil(void) {
+    return sexpr_new(T_NIL);
 }
 
 sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
@@ -196,11 +212,8 @@ void _sexpr_print(object_t o) {
 	return;
     }
 
-    if (issymbol(expr) && !strcmp(expr->s, "quote"))
-	printf("(");
-
     if (isstring(expr) || issymbol(expr))
-	printf("%s", expr->s);
+	printf("%s%s", !strcmp(expr->s, "quote") ? "(" : "", expr->s);
     else if (isnumber(expr))
 	printf("%lf", expr->n);
     else if (ispair(expr)) {
@@ -221,4 +234,19 @@ void _sexpr_print(object_t o) {
 void sexpr_print(object_t o) {
     _sexpr_print(o);
     putchar('\n');
+}
+
+int sexpr_length(sexpr_t * expr) {
+    sexpr_t *tmp = expr;
+    int length = 0;
+
+    if (expr == NULL || isatom(expr))
+	return length;
+
+    while (!isnil(tmp)) {
+	++length;
+	tmp = cdr(tmp);
+    }
+
+    return length;
 }

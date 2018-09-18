@@ -149,10 +149,11 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	scope_t *child = scope_init(scope);
 
 	/* TODO: bind lambda args to evaluated args */
-	if (!bind_lambda_args(child, operator-> l, args)) {
-	    raise_error(stdout, "CANNOT BIND LAMBDA ARGS");
+	err_raise(ERR_LMBD_ARGS,
+		    !bind_lambda_args(child, operator-> l, args));
+
+	if (err_log())
 	    goto FAILED;
-	}
 
 	while (!isnil(tmp)) {
 	    result = eval_sexpr(child, car(tmp));
@@ -160,11 +161,15 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	}
     }
 
-    if (!result)
-	raise_error(stdout, "FINAL RESULT SHOULD NOT BE NULL");
+    err_raise(ERR_RSLT_NULL, !result);
 
     /* FIXME: after finishing the evaluation you need to clean the memory */
     /* gc_collect(false); */
+
+#if EVALUATOR_DEBUG == DBG_ON
+    puts("result: ");
+    sexpr_describe(result);
+#endif
 
   RET:
     return result;
@@ -189,7 +194,11 @@ sexpr_t *eval_define(scope_t * s, sexpr_t * expr) {
 
 /* (if (condition) (true) (false)) */
 sexpr_t *eval_if(scope_t * s, sexpr_t * expr) {
-    return NULL;
+    if (s) {
+
+    }
+
+    return expr;
 
 }
 
@@ -201,8 +210,8 @@ sexpr_t *eval_quote(scope_t * s, sexpr_t * expr) {
     return car(expr);
 }
 
-#  include "../include/lexer.h"
-#  include "../include/parser.h"
+#include "../include/lexer.h"
+#include "../include/parser.h"
 
 void eval_testing() {
     string_t exprs[] = {
@@ -240,6 +249,7 @@ void eval_testing() {
 
 	puts("\n + parsed result");
 	sexpr_print(expr);
+	printf("length of expression %d\n", sexpr_length(expr));
 
 	eval_expr = eval_sexpr(gs, expr);
 
@@ -248,10 +258,11 @@ void eval_testing() {
 
 	printf("%s", "\n + evaluated result: ");
 	sexpr_print(eval_expr);
+	printf("length of expression %d\n", sexpr_length(eval_expr));
 
 	/* scope_describe(gs); */
 
-	puts("\n\n===========================\n");
+	puts("\n===========================\n");
 
 	vector_free(v);
 	/* gc_collect(true); */

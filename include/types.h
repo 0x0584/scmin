@@ -1,6 +1,9 @@
 #ifndef _SCMIN_TYPES_H
 #  define _SCMIN_TYPES_H
 
+typedef enum SERROR serror_t;
+typedef struct ERROR error_t;
+
 /* garbage Collector information */
 typedef struct GC_INFO gc_info;
 

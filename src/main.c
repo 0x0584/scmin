@@ -8,6 +8,7 @@
  *   + if no argument was sent, a repl-system would set up on infinity
  *     loop (until EOF is sent by the user)
  */
+
 #include "../include/main.h"
 #include "../include/gc.h"
 #include "../include/vector.h"
@@ -34,8 +35,4 @@ int main(int argc, char **argv) {
     gc_clean();
 
     return EXIT_SUCCESS;
-}
-
-void raise_error(FILE * stream, string_t errmsg) {
-    fputs(errmsg, stream);
 }

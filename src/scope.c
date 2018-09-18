@@ -5,23 +5,29 @@
 static scope_t *global_scope = NULL;
 
 bond_t *bond_new(string_t key, sexpr_t * expr) {
-    if (key == NULL) {
-	puts("KEY IS NULL");
-	exit(0);
-    }
+    assert(key != NULL);
+    assert(expr != NULL);
+
     bond_t *b = malloc(sizeof *b);
 
     b->key = key;
     b->sexpr = expr;
+    b->isconst = false;
 
     return b;
 }
 
-void bond_free(object_t o) {
-    if (o == NULL)
-	return;
+bond_t *bond_new_const(string_t key, sexpr_t * expr) {
+    bond_t *b = bond_new(key, expr);
+    b->isconst = true;
+    return b;
+}
 
+void bond_free(object_t o) {
     bond_t *b = o;
+
+    if (b == NULL)
+	return;
 
     free(b->key);
     free(b);
