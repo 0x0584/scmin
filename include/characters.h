@@ -25,6 +25,15 @@
 char stream_string(const string_t str, bool isget);
 
 /**
+ * takes input from the stream and format it as a string
+ *
+ * @param stream to get characters from
+ *
+ * @return the content of what was typed until the (\r || \n) as a string
+ */
+string_t stream_as_string(const char *filename);
+
+/**
  * this is literally a call to stream_string() by passing isget as false
  *
  * @param str a string
@@ -50,14 +59,5 @@ char getnc(const string_t str);
  * @note this function modifies @p str
  */
 string_t reduce_string_size(string_t str);
-
-/**
- * takes input from the stream and format it as a string
- *
- * @param stream to get characters from
- *
- * @return the content of what was typed until the (\r || \n) as a string
- */
-string_t stream_as_string(FILE *stream);
 
 #endif

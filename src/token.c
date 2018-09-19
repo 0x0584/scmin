@@ -111,15 +111,10 @@ void token_free(object_t o) {
     token_t *t = o;
     /* static int i = 0; */
 
-    /* printf("%d - this>>\n", ++i); */
-    /* token_print(t); */
-    /* printf("<<<<\n\n"); */
-
-    if(t->type != TOK_L_PAREN && t->type != TOK_R_PAREN
-       && t->type != TOK_QUOTE) {
+    if (t->type != TOK_L_PAREN && t->type != TOK_R_PAREN
+	&& t->type != TOK_QUOTE && t->type != EOL) {
 	assert(t->vbuffer != NULL);
     }
-
 #endif
 
     if (((token_t *) o)->vbuffer != NULL)

@@ -25,9 +25,9 @@
 /**
  * debug information
  */
-#  define GC_DEBUG		DBG_OFF
-#  define VECTOR_DEBUG		DBG_OFF
-#  define LEXER_DEBUG		DBG_OFF
+#  define GC_DEBUG		DBG_ON
+#  define VECTOR_DEBUG		DBG_ON
+#  define LEXER_DEBUG		DBG_ON
 #  define PARSER_DEBUG		DBG_OFF
 #  define EVALUATOR_DEBUG	DBG_OFF
 
@@ -50,8 +50,9 @@ struct ERROR {
 	ERR_ARG_TYPE,
 	ERR_ARG_COUNT,
 	ERR_LMBD_ARGS,
-	ERR_RSLT_NULL,
 
+	ERR_RSLT_NULL,
+	ERR_FILE_ERR,
 	ERR_NO_ERROR = -1
     } err;
 };

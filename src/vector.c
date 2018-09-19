@@ -45,16 +45,16 @@ vector_t *vector_new(operation_t free_obj, operation_t print_obj,
  *
  * @param v Vector
  */
-void vector_free(vector_t * v) {
+void vector_free(object_t o) {
     int i;
+    vector_t *v = o;
 
-    if (v->free_obj != NULL) {
-	for (i = 0; i < v->capacity; ++i) {
+    if (v->free_obj != NULL)
+	for (i = 0; i < v->capacity; ++i)
 	    v->free_obj(v->objs[i]);
-	}
-    }
 
-    free(v->objs);
+    if(v->objs)
+	free(v->objs);
     free(v);
 }
 
@@ -244,12 +244,12 @@ object_t vector_find(vector_t * v, object_t o) {
  *
  * @param v Vector
  */
-void vector_print(vector_t * v) {
-    if (v == NULL)
+void vector_print(object_t o) {
+    if (o == NULL)
 	return;
 
     int i;
-
+    vector_t *v = o;
     for (i = 0; i < v->size; ++i) {
 	if (v->objs[i] == NULL)
 	    continue;

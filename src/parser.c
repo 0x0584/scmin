@@ -33,7 +33,7 @@
 sexpr_t *parse_sexpr(vector_t * tokens) {
     sexpr_t *expr = NULL, *value = NULL;
     sexpr_t *head = NULL, *tail = NULL;
-    sexpr_t *nil = sexpr_new(T_NIL);
+    sexpr_t *nil = sexpr_nil();
     token_t *token = NULL;
 
     while ((token = vector_peek(tokens))) {
@@ -91,8 +91,29 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
     return head;
 
   FAILED:
-    gc_collect(true);
     return NULL;
+}
+
+vector_t *parse_sexprs(vector_t * vtokens) {
+    int i;
+    vector_t *v = vector_new(NULL, sexpr_print, NULL);
+
+    for (i = 0; i < vtokens->size; ++i) {
+#if PARSER_DEBUG == DBG_ON
+	puts(" ========== vector of tokens =========== ");
+	vector_print(vector_get(vtokens, i));
+	puts(" ========== ================ =========== ");
+	sexpr_t *tmp =
+#endif
+	    vector_push(v, parse_sexpr(vector_get(vtokens, i)));
+
+#if PARSER_DEBUG == DBG_ON
+	printf("parsed sexpr: ");
+	sexpr_print(tmp);
+#endif
+    }
+
+    return v;
 }
 
 /* ===================================================================
@@ -102,7 +123,7 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 sexpr_t *parse_as_list(vector_t * tokens) {
     sexpr_t *expr = NULL, *value = NULL;
     sexpr_t *head = NULL, *tail = NULL;
-    sexpr_t *nil = sexpr_new(T_NIL);
+    sexpr_t *nil = sexpr_nil();
 
     token_t *token = NULL;
     bool isfirstloop = true;
@@ -202,16 +223,19 @@ sexpr_t *parse_as_quote(vector_t * tokens) {
 	return NULL;		/* this would cause problems */
     }
 
+    token_free(token);
+
+    if (isnil(value))
+	return value;
+
     quote = sexpr_new(T_SYMBOL);
     quote->s = strdup("quote");
 
-    value = cons(quote, cons(value, sexpr_new(T_NIL)));
+    value = cons(quote, cons(value, sexpr_nil()));
 
 #if PARSER_DEBUG == DBG_ON
     sexpr_print(value);
 #endif
-
-    token_free(token);
 
     return value;
 }
@@ -233,22 +257,21 @@ sexpr_t *parse_as_string(string_t value) {
 sexpr_t *parse_as_symbol(string_t value) {
     sexpr_t *expr = NULL;
     expr = parse_as_string(value);
-    expr->type = T_SYMBOL;
+    expr->type = !strcmp(value, "nil") ? T_NIL : T_SYMBOL;
     return expr;
 }
 
-#  include "../include/lexer.h"
+#include "../include/lexer.h"
 
 void parser_testing(void) {
     string_t exprs[] = {
 	"(+ 11111 (* 22222 33333))",
 	/* "(define bar '(* 22222 33333))", */
 	/* "(define bar 'b)", */
-	"(quote (a b c))"
-	"(quote a)"
-	/* "	; this is cool\n(bar baz)", */
-	/* "(define square (lambda (n) (* n n)))", */
-	/* "(\"this is a string\")	 " */
+	"(quote (a b c))" "(quote a)"
+	    /* "    ; this is cool\n(bar baz)", */
+	    /* "(define square (lambda (n) (* n n)))", */
+	    /* "(\"this is a string\")	     " */
     };
 
     /* vector_t *tmp = read_tokens("(quote (a b c))"); */

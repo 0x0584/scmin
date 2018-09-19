@@ -20,8 +20,11 @@
 enum TOKEN_TYPE {
     TOK_L_PAREN = 0,
     TOK_R_PAREN,
+
     TOK_QUOTE,
+
     TOK_LAMBDA,
+
     TOK_SYMBOL,
     TOK_STRING,
     TOK_NUMBER,

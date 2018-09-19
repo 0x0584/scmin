@@ -65,14 +65,14 @@ vector_t *vector_new(operation_t free_obj, operation_t print_obj, compare_t cmp_
  *
  * @param v Vector
  */
-void vector_free(vector_t * v);
+void vector_free(object_t v);
 
 /**
  * prints the @p v elements using print_obj()
  *
  * @param v Vector
  */
-void vector_print(vector_t * v);
+void vector_print(object_t v);
 
 /**
  * eliminating the NULL Objects and set the @p v

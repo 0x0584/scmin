@@ -59,7 +59,15 @@ sexpr_t *sexpr_err(void) {
 }
 
 sexpr_t *sexpr_nil(void) {
-    return sexpr_new(T_NIL);
+    sexpr_t *t = sexpr_new(T_NIL);
+    t->s = strdup("nil");
+    return t;
+}
+
+sexpr_t *sexpr_true(void) {
+    sexpr_t *t = sexpr_new(T_SYMBOL);
+    t->s = strdup("t");
+    return t;
 }
 
 sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
@@ -191,33 +199,20 @@ void lambda_describe(object_t o) {
 
 void _sexpr_print(object_t o) {
     sexpr_t *expr = (sexpr_t *) o;
-    bool isfinished = false;
 
     if (expr == NULL) {
 	puts("expr was NULL");
 	return;
     }
 
-    switch (expr->type) {
-    case T_NIL:
-	isfinished = true;
-	break;
-    case T_ERR:
-	isfinished = true;
-    default:
-	break;
-    }
-
-    if (isfinished) {
-	return;
-    }
-
-    if (isstring(expr) || issymbol(expr))
+    if (isstring(expr))
+	printf("\"%s\"", expr->s);
+    else if (issymbol(expr) || isnil(expr))
 	printf("%s%s", !strcmp(expr->s, "quote") ? "(" : "", expr->s);
     else if (isnumber(expr))
 	printf("%lf", expr->n);
     else if (ispair(expr)) {
-	if (expr->c->ishead)
+	if (expr->c->ishead && strcmp(car(expr)->s, "quote"))
 	    putchar('(');
 
 	_sexpr_print(car(expr));
@@ -227,7 +222,8 @@ void _sexpr_print(object_t o) {
 	else
 	    putchar(')');
 
-	_sexpr_print(cdr(expr));
+	if(!isnil(cdr(expr)))
+	    _sexpr_print(cdr(expr));
     }
 }
 

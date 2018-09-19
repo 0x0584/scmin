@@ -29,7 +29,9 @@ static error_t errs[] = {
     {"ARGUMENT TYPE IS NOT CORRECT", ERR_ARG_TYPE},
     {"ARGUMENT COUNT IS NOT CORRECT", ERR_ARG_COUNT},
     {"CANNOT BIND LAMBDA ARGS", ERR_LMBD_ARGS},
+
     {"FINAL RESULT SHOULD NOT BE NULL", ERR_RSLT_NULL},
+    {"FILE NOT FOUND", ERR_FILE_ERR},
 
     {NULL, ERR_NO_ERROR}
 };
@@ -51,15 +53,17 @@ void err_raise(serror_t err, bool cond) {
 }
 
 int err_log(void) {
+    int size = errlog->size;
     if(!errlog || errlog->size == 0)
 	return 0;
-    vector_debug(stdout, errlog);
+    vector_print(errlog);
     err_clean();
-    return errlog->size;
+    return size;
 }
 
 void err_clean(void) {
     vector_free(errlog);
+    errlog = NULL;
 }
 
 

@@ -30,19 +30,17 @@ char stream_string(const string_t str, bool isget) {
     static char *oldstr = NULL;
 
     /* string must not be NULL */
-    if (!str) {
+    if (str == NULL)
 	return EOF;
-    }
 
     /* if this is a different string, use the new string */
     if (str != oldstr && isget) {
-	oldstr = str;
 	index = 0;
+	oldstr = str;
     }
 
     if (isget) {		/* getnc() stream forward */
-	if (!oldstr[index]) {	/* we have reached the end of the string
-				 * so set everything back again */
+	if (!oldstr[index]) {	/* set everything back again after '\0' */
 	    index = 0;
 	    oldstr = NULL;
 	    return EOF;
@@ -50,21 +48,46 @@ char stream_string(const string_t str, bool isget) {
 
 	return oldstr[index++];	/* move the index to the next character */
     } else {			/* ungetnc() stream backward */
-	if (index > 0) {
+	if (index > 0)
 	    return oldstr[index--];
-	} else if (index == 0) {
+	else if (index == 0)
 	    return oldstr[index];
-	} else {
+	else
 	    return EOF;		/* not reachable */
-	}
     }
 }
 
 /* todo: write this to read the files */
-string_t stream_as_string(FILE * stream) {
-    fputc('\0', stream);
+string_t stream_as_string(const char *filename) {
+    static char *buffer = NULL;
+    FILE *handler = NULL;
 
-    return "";
+    err_raise(ERR_FILE_ERR, !(handler = fopen(filename, "r")));
+
+    if (err_log())
+	return NULL;
+
+    int string_size, read_size;
+
+    fseek(handler, 0, SEEK_END); /* Beginning of the stream */
+    string_size = ftell(handler); /* Size of the stream */
+    rewind(handler);
+
+    buffer = (char*) malloc( sizeof(char) * (string_size + 1) );
+
+    /* Binary size of the stream */
+    read_size = fread(buffer, sizeof(char), string_size, handler);
+    buffer[string_size] = '\0';
+
+    /* The readied size is != to stream size */
+    if (string_size != read_size) {
+	free(buffer);
+	buffer = NULL;
+    }
+
+    fclose(handler);
+
+    return buffer;
 }
 
 /**

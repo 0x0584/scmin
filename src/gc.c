@@ -388,7 +388,7 @@ void gc_free_context(object_t o) {
 void gc_debug_memory(void) {
     /*
        puts("========== testing sexprs ==========");
-       sexpr_t *number = sexpr_new(T_NUMBER), *nil = sexpr_new(T_NIL);
+       sexpr_t *number = sexpr_new(T_NUMBER), *nil = sexpr_nil();
        number->n = 45.2;
 
        sexpr_t *expr0 = cons(number, nil);
@@ -425,7 +425,7 @@ void gc_debug_memory(void) {
        sexpr_t *y = sexpr_new(T_NUMBER);
        y->n = 10;
 
-       sexpr_t *args = cons(x, cons(y, sexpr_new(T_NIL)));
+       sexpr_t *args = cons(x, cons(y, sexpr_nil()));
 
        native_t *n_add = malloc(sizeof *n_add);
        n_add->symbol = strdup("+");

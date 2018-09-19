@@ -93,6 +93,9 @@ k_func iskeyword(sexpr_t * expr) {
  * @note this fucntion may call itself recursively
  */
 sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
+    if (expr == NULL)
+	return sexpr_nil();
+    
     sexpr_t *result = NULL, *operator = NULL;
     k_func kwd_func = iskeyword(car(expr));
 
@@ -128,7 +131,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     /* ==================== ==================== ==================== */
 
-    sexpr_t *args = NULL, *nil = sexpr_new(T_NIL);
+    sexpr_t *args = NULL, *nil = sexpr_nil();
     for (sexpr_t * tmp = expr, *tail; ispair(tmp = cdr(tmp)); tail = args)
 	if (!args)
 	    args = cons(eval_sexpr(scope, car(tmp)), nil);
@@ -178,9 +181,31 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     return NULL;
 }
 
+vector_t *eval_sexprs(scope_t * s, vector_t * sexprs) {
+    int i;
+    vector_t *v = vector_new(NULL, sexpr_print, NULL);
+
+    for (i = 0; i < sexprs->size; ++i) {
+#if EVALUATOR_DEBUG == DBG_ON
+	puts(" ========== sexpr to eval =========== ");
+	sexpr_print(vector_get(sexprs, i));
+	puts(" ========== ================ =========== ");
+	sexpr_t *tmp =
+#endif
+	vector_push(v, eval_sexpr(s, vector_get(sexprs, i)));
+	
+#if EVALUATOR_DEBUG == DBG_ON
+	printf("parsed sexpr: ");
+	sexpr_print(tmp);
+#endif
+
+    }
+    
+    return v;
+}
+
 /* (define symbol 's-expr) */
 sexpr_t *eval_define(scope_t * s, sexpr_t * expr) {
-    puts("================ evaluated define ================");
     sexpr_t *tmp = eval_sexpr(s, car(cdr(expr)));
 
 #if EVALUATOR_DEBUG == DBG_ON
@@ -206,7 +231,6 @@ sexpr_t *eval_quote(scope_t * s, sexpr_t * expr) {
     if (s) {
 	/* just to supress compiler warnings */
     }
-
     return car(expr);
 }
 
@@ -215,56 +239,92 @@ sexpr_t *eval_quote(scope_t * s, sexpr_t * expr) {
 
 void eval_testing() {
     string_t exprs[] = {
-	/* "(+ 11 (* 22 33))", */
+	"(+ 11 (* 22 33))",
+	"(* 2 (+ 3 (* 6 2)))",
+	/* "(* (+ 5 5) (+ 3 (* (- 4 1) 2)))", */
 	"(quote (a b c))",
 	"'(a b c)",
-	/* "(* 2 (+ 3 (* 6 2)))", */
-	/* "(* (+ 5 5) (+ 3 (* (- 4 1) 2)))", */
 	"(define x 4)",
 	"(define y (+ 5 4))",
 	"(+ x y)",
-	"(define z '(+ 5 4))"
+	"(define z '(+ 5 4))",
+	"(car '(a b c))",
+	"(cdr '(a b c))",
+	"(car (cdr '(a b c)))",
+	"(and x y z)",
+	"(and '() y z)",
+	"(and x '() z)",
+	"(and x y '())",
     };
 
     int i, size = sizeof(exprs) / sizeof(exprs[0]);
-    vector_t *v = NULL;
+    vector_t *vv = NULL, *v = NULL, *w = NULL, *x = NULL;
     sexpr_t *expr = NULL, *eval_expr = NULL;
     scope_t *gs = get_global_scope();
 
     /* scope_describe(gs); */
 
+    v = read_stream_tokens("examples/basic.scm");
+
+    /* puts("stream of tokens"); */
+    /* vector_print(v); */
+    /* puts("-----------\n"); */
+
+    w = parse_sexprs(v);
+
+    puts("\nparsed stream:");
+    vector_print(w);
+
+    x = eval_sexprs(gs, w);
+
+    puts("\nevaluated expression:");
+    vector_print(x);
+    puts("======================================");
+    
+    vector_free(w);
+    puts("/////");
+    vector_free(x);
+    puts("/////");
+    for (int i = 0; i < v->size; ++i) {
+	vector_free(vector_get(v, i));
+    }
+    vector_free(v);
+    puts("/////");
+
+    puts("+++++++++++++++++++++");
+    
     for (i = 0; i < size; ++i) {
-	printf("\n + parsing %s\n", exprs[i]);
+	printf("parsing: %s\n", exprs[i]);
 
-	v = read_tokens(exprs[i]);
+	vv = read_tokens(exprs[i]);
 
-	puts("\n + list of tokens");
-	vector_print(v);
-	puts("-----------\n");
+	/* puts("\n + list of tokens"); */
+	/* vector_print(v); */
+	/* puts("-----------\n"); */
 
-	expr = parse_sexpr(v);
+	expr = parse_sexpr(vv);
 
-	puts("\n + parsed expression");
-	sexpr_describe(expr);
+	/* puts("parsed expression"); */
+	/* sexpr_describe(expr); */
 
-	puts("\n + parsed result");
+	printf("parsed result: ");
 	sexpr_print(expr);
-	printf("length of expression %d\n", sexpr_length(expr));
+	/* printf("length of expression %d\n", sexpr_length(expr)); */
 
 	eval_expr = eval_sexpr(gs, expr);
 
-	puts("\n\n + evaluated expression");
-	sexpr_describe(eval_expr);
+	/* puts("evaluated expression"); */
+	/* sexpr_describe(eval_expr); */
 
-	printf("%s", "\n + evaluated result: ");
+	printf("evaluated result: ");
 	sexpr_print(eval_expr);
-	printf("length of expression %d\n", sexpr_length(eval_expr));
+	/* printf(" > length of expression %d\n", sexpr_length(eval_expr)); */
 
 	/* scope_describe(gs); */
 
-	puts("\n===========================\n");
+	puts("\n====================== ======================\n");
 
-	vector_free(v);
+	vector_free(vv);
 	/* gc_collect(true); */
     }
 }

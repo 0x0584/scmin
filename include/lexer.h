@@ -41,7 +41,7 @@ vector_t *read_tokens(string_t code);
  *
  * @return a vector of tokens found in @p code
  */
-vector_t *read_stream_tokens(FILE * stream);
+vector_t *read_stream_tokens(const char *filename);
 
 /**
  * @berief move through all the tokens in a giving @p code.

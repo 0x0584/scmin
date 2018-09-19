@@ -30,7 +30,6 @@
 #include "../include/main.h"
 #include "../include/vector.h"
 
-
 /**
  * this function reads a @p code string, i.e. source code
  *
@@ -94,8 +93,21 @@ vector_t *read_tokens(const string_t code) {
  *
  * @return a Vector of tokens
  */
-vector_t *read_stream_tokens(FILE * stream) {
-    return read_tokens(stream_as_string(stream));
+vector_t *read_stream_tokens(const char *filename) {
+    vector_t *vv = vector_new(NULL, vector_print, NULL);
+    string_t tmp = stream_as_string(filename);
+
+    puts(tmp);
+
+    while (getnc(tmp) != EOF)
+	if (!clean_whitespaces(tmp))
+	    break;
+	else if (!clean_comments(tmp))
+	    break;
+	else
+	    vector_push(vv, read_tokens(tmp));
+
+    return vv;
 }
 
 /**

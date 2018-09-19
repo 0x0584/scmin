@@ -68,6 +68,9 @@ bool isnative(sexpr_t * expr);
 
 sexpr_t *sexpr_new(type_t type);
 sexpr_t *sexpr_err(void);
+sexpr_t *sexpr_nil(void);
+sexpr_t *sexpr_true(void);
+
 void sexpr_describe(object_t expr);
 void sexpr_print(object_t expr);
 int sexpr_length(sexpr_t * expr);
