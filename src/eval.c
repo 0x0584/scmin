@@ -255,7 +255,7 @@ void eval_testing() {
 
     /* scope_describe(gs); */
 
-    v = read_stream_tokens("examples/arithmetic.scm");
+    v = read_stream_tokens("examples/basic.scm");
 
     /* puts("stream of tokens"); */
     /* vector_print(v); */

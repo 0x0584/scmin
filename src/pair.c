@@ -51,3 +51,23 @@ void set_car(sexpr_t * expr, sexpr_t * car) {
     if (ispair(expr))
 	expr->c->car = car;
 }
+
+sexpr_t *caar(sexpr_t * expr) {
+    return car(car(expr));
+}
+
+sexpr_t *cdar(sexpr_t * expr) {
+    return cdr(car(expr));
+}
+
+sexpr_t *cadr(sexpr_t * expr) {
+    return car(cdr(expr));
+}
+
+sexpr_t *cddr(sexpr_t * expr) {
+    return cdr(cdr(expr));
+}
+
+sexpr_t *caddr(sexpr_t * expr) {
+    return car(cdr(cdr(expr)));
+}

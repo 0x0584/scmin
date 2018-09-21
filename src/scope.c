@@ -109,6 +109,8 @@ scope_t *global_scope_init(void) {
 	{"cons", native_cons},
 	{"car", native_car},
 	{"cdr", native_cdr},
+	{"set-car", native_set_car},
+	{"set-cdr", native_set_cdr},
 
 	{"eq?", native_iseq},
 	{"atom?", native_isatom},
@@ -117,6 +119,8 @@ scope_t *global_scope_init(void) {
 	{"and", native_and},
 	{"or", native_or},
 	{"not", native_not},
+
+	{"diplay", native_diplay},
 
 	{NULL, NULL}
     };

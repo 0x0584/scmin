@@ -2,6 +2,7 @@
 #include "../include/pair.h"
 #include "../include/scope.h"
 #include "../include/native.h"
+#include "../include/lexer.h"
 
 bool isnil(sexpr_t * expr) {
     return !expr ? false : expr->type == T_NIL;
@@ -227,7 +228,7 @@ void _sexpr_print(object_t o) {
 	else
 	    putchar(')');
 
-	if(!isnil(cdr(expr)))
+	if (!isnil(cdr(expr)))
 	    _sexpr_print(cdr(expr));
     }
 }
@@ -272,4 +273,47 @@ int sexpr_length(sexpr_t * expr) {
     }
 
     return length;
+}
+
+void _sexpr_tostr(sexpr_t * output, sexpr_t * expr) {
+    if (expr == NULL) {
+	puts("expr was NULL");
+	return;
+    }
+
+    size_t len = strlen(output->s);
+
+    sexpr_print(output);
+
+    if (isstring(expr))
+	sprintf(output->s + len, "\"%s\"", expr->s);
+    else if (issymbol(expr) || isnil(expr))
+	sprintf(output->s + len, "%s%s",
+		!strcmp(expr->s, "quote") ? "(" : "", expr->s);
+    else if (isnumber(expr))
+	sprintf(output->s + len, "%lf", expr->n);
+    else if (ispair(expr)) {
+	if (expr->c->ishead && strcmp(car(expr)->s, "quote"))
+	    sprintf(output->s + len, "%c", '(');
+
+	_sexpr_tostr(output, car(expr));
+
+	if (!isnil(cdr(expr)))
+	    sprintf(output->s + len, "%c", ' ');
+	else
+	    sprintf(output->s + len, "%c", ')');
+
+	if (!isnil(cdr(expr)))
+	    _sexpr_tostr(output, cdr(expr));
+    }
+}
+
+sexpr_t *sexpr_tostr(sexpr_t * expr) {
+    sexpr_t *str = sexpr_new(T_STRING);
+    str->s = malloc(512 * sizeof(char));
+    *str->s = '\0';
+    _sexpr_tostr(str, expr);
+    str->s[strlen(str->s)] = '\0';
+    str->s = reduce_string_size(str->s);
+    return str;
 }

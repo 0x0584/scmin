@@ -74,7 +74,7 @@ sexpr_t *sexpr_true(void);
 void sexpr_describe(object_t expr);
 void sexpr_print(object_t expr);
 int sexpr_length(sexpr_t * expr);
-
+sexpr_t *sexpr_tostr(sexpr_t * expr);
 sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
 			   native_t * func);
 sexpr_t *lambda_new(scope_t * parent, sexpr_t * args, sexpr_t * body);

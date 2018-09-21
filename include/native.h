@@ -32,5 +32,9 @@ sexpr_t *native_cons(sexpr_t * expr);
 sexpr_t *native_car(sexpr_t * expr);
 /* (cdr sexpr) */
 sexpr_t *native_cdr(sexpr_t * expr);
+sexpr_t *native_set_car(sexpr_t * expr);
+sexpr_t *native_set_cdr(sexpr_t * expr);
+
+sexpr_t *native_diplay(sexpr_t * expr);
 
 #endif				/* _SCHMIN_NATIVE */

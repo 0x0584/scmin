@@ -19,3 +19,19 @@
 (or num-1 nil)				; t
 (or num-1 num-2)			; t
 (or nil '())				; nil
+
+(not num-1)
+(not '())
+(not nil)
+(not t)
+
+(define fuzz (cons 1 (cons 2 '())))
+
+(pair? fuzz)
+(atom? fuzz)
+(atom? (car fuzz))
+(car fuzz)
+
+(diplay fuzz)
+(set-car fuzz 5)
+(diplay fuzz)
