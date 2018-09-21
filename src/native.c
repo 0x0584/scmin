@@ -13,7 +13,7 @@ sexpr_t *native_add(sexpr_t * expr) {
     while (!isnil(tmp)) {
 	err_raise(ERR_ARG_TYPE, !isnumber(value = car(tmp)));
 
-	if(err_log())
+	if (err_log())
 	    return sexpr_err();
 
 	n += value->n;
@@ -29,16 +29,21 @@ sexpr_t *native_add(sexpr_t * expr) {
 sexpr_t *native_minus(sexpr_t * expr) {
     number_t n = 0;
     sexpr_t *result = NULL, *tmp = expr, *value;
+    bool isfirst = true;
 
-    puts("minus");
-    sexpr_print(expr);
     while (!isnil(tmp)) {
 	err_raise(ERR_ARG_TYPE, !isnumber(value = car(tmp)));
 
-	if(err_log())
+	if (err_log())
 	    return sexpr_err();
 
 	n -= value->n;
+
+	if (isfirst) {
+	    n *= -1;
+	    isfirst = false;
+	}
+
 	tmp = cdr(tmp);
     }
 
@@ -55,7 +60,7 @@ sexpr_t *native_times(sexpr_t * expr) {
     while (!isnil(tmp)) {
 	err_raise(ERR_ARG_TYPE, !isnumber(value = car(tmp)));
 
-	if(err_log())
+	if (err_log())
 	    return sexpr_err();
 
 	n *= value->n;
@@ -73,7 +78,7 @@ sexpr_t *native_divid(sexpr_t * expr) {
 
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) > 2);
     err_raise(ERR_ARG_TYPE, !isnumber(tmp = car(expr)));
-    err_raise(ERR_ARG_TYPE, !isnumber(tmp0 = car(expr)));
+    err_raise(ERR_ARG_TYPE, !isnumber(tmp0 = car(cdr(expr))));
 
     if (err_log())
 	return sexpr_err();
@@ -84,7 +89,7 @@ sexpr_t *native_divid(sexpr_t * expr) {
 	return sexpr_err();
 
     result = sexpr_new(T_NUMBER);
-    result->n = tmp->n / tmp0->n;;
+    result->n = (number_t) tmp->n / tmp0->n;;
 
     return result;
 }
@@ -114,7 +119,7 @@ sexpr_t *native_not(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    return isnil(expr) ? sexpr_true(): sexpr_nil();
+    return isnil(expr) ? sexpr_true() : sexpr_nil();
 }
 
 /* (and s-exprs) */
@@ -164,12 +169,15 @@ sexpr_t *native_iseq(sexpr_t * expr) {
 	if (isnumber(tmp0))
 	    if (tmp0->n != tmp1->n)
 		return sexpr_nil();
-	    else continue;
+	    else
+		continue;
 	else if (isstring(tmp0))
 	    if (tmp0->n != tmp1->n)
 		return sexpr_nil();
-	    else continue;
-	else continue;
+	    else
+		continue;
+	else
+	    continue;
     } while (!isnil(tmp = cdr(cdr(tmp))));
 
     return sexpr_true();
