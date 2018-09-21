@@ -30,6 +30,8 @@ sexpr_t *native_minus(sexpr_t * expr) {
     number_t n = 0;
     sexpr_t *result = NULL, *tmp = expr, *value;
 
+    puts("minus");
+    sexpr_print(expr);
     while (!isnil(tmp)) {
 	err_raise(ERR_ARG_TYPE, !isnumber(value = car(tmp)));
 
@@ -124,7 +126,7 @@ sexpr_t *native_and(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    while (!isnil(cdr(tmp)))
+    while (!isnil(tmp))
 	if (isnil(car(tmp)))
 	    return car(tmp);
 	else

@@ -95,14 +95,15 @@ k_func iskeyword(sexpr_t * expr) {
 sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     if (expr == NULL)
 	return sexpr_nil();
-    
+
     sexpr_t *result = NULL, *operator = NULL;
     k_func kwd_func = iskeyword(car(expr));
 
     /* ==================== ==================== ==================== */
 #if EVALUATOR_DEBUG == DBG_ON
     puts("================ eval start ================");
-    sexpr_describe(expr);
+    sexpr_print(expr);
+    puts("============================================");
 #endif
 
     if (kwd_func)		/* symbol was a keyword */
@@ -116,7 +117,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
 #if EVALUATOR_DEBUG == DBG_ON
     puts(result ? "we have a result" : "there is no result");
-    sexpr_describe(result);
+    sexpr_print(result);
 #endif
 
     if (result)			/* we have a result */
@@ -126,21 +127,32 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
 #if EVALUATOR_DEBUG == DBG_ON
   puts(operator ? "we have an operator ":"there is no operator");
-    sexpr_describe(operator);
+    sexpr_print(operator);
 #endif
 
     /* ==================== ==================== ==================== */
 
-    sexpr_t *args = NULL, *nil = sexpr_nil();
-    for (sexpr_t * tmp = expr, *tail; ispair(tmp = cdr(tmp)); tail = args)
+    sexpr_t *args = NULL, *tail = NULL;
+    sexpr_t *foo = expr, *bar = NULL;
+    sexpr_t *nil = sexpr_nil();
+    
+    while (!isnil(foo = cdr(foo))) {
+	bar = cons(eval_sexpr(scope, car(foo)), nil);
+	/* puts("current arg"); */
+	/* sexpr_print(tmp); */
 	if (!args)
-	    args = cons(eval_sexpr(scope, car(tmp)), nil);
+	    args = bar;
 	else
-	    set_cdr(tail, cons(eval_sexpr(scope, car(tmp)), nil));
+	    set_cdr(tail, bar);
+	/* puts("current args"); */
+	/* sexpr_print(args); */
+	tail = bar;
+    }
 
 #if EVALUATOR_DEBUG == DBG_ON
     puts("args: ");
-    sexpr_describe(args);
+    printf("length: %d \n", sexpr_length(args));
+    sexpr_print(args);
 #endif
 
     /* ==================== ==================== ==================== */
@@ -153,7 +165,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
 	/* TODO: bind lambda args to evaluated args */
 	err_raise(ERR_LMBD_ARGS,
-		    !bind_lambda_args(child, operator-> l, args));
+		  !bind_lambda_args(child, operator-> l, args));
 
 	if (err_log())
 	    goto FAILED;
@@ -171,7 +183,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
 #if EVALUATOR_DEBUG == DBG_ON
     puts("result: ");
-    sexpr_describe(result);
+    sexpr_print(result);
 #endif
 
   RET:
@@ -192,15 +204,15 @@ vector_t *eval_sexprs(scope_t * s, vector_t * sexprs) {
 	puts(" ========== ================ =========== ");
 	sexpr_t *tmp =
 #endif
-	vector_push(v, eval_sexpr(s, vector_get(sexprs, i)));
-	
+	    vector_push(v, eval_sexpr(s, vector_get(sexprs, i)));
+
 #if EVALUATOR_DEBUG == DBG_ON
 	printf("parsed sexpr: ");
 	sexpr_print(tmp);
 #endif
 
     }
-    
+
     return vector_compact(v);
 }
 
@@ -260,10 +272,10 @@ void eval_testing() {
 	puts("================= // =================");
     }
     puts("======================================");
-    
+
     vector_free(w);
     vector_free(x);
     vector_free(v);
-    
+
     gc_collect(true);
 }
