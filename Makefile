@@ -6,6 +6,8 @@ LDFLAGS = -I. -lm
 
 # DEFAULT PROGRAM NAME
 EXEC = scmin
+# DEFAULT DEBUGGING FLAGS
+GDB_FLAGS = -x gdb.txt
 # DEFAULT PROGRAM ARGUMENTS
 ARGS = "(+ 4 5)"
 
@@ -59,6 +61,8 @@ valg: build
 valk: build
 	valkyrie ./$(EXEC)
 
+gdb: build
+	gdb $(GDB_FLAGS) $(EXEC)
 clean:
 	@echo  "cleaning up.."
 	$(RM) $(EXEC)
