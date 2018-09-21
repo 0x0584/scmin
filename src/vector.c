@@ -46,6 +46,9 @@ vector_t *vector_new(operation_t free_obj, operation_t print_obj,
  * @param v Vector
  */
 void vector_free(object_t o) {
+    if (o == NULL)
+	return;
+
     int i;
     vector_t *v = o;
 
@@ -56,6 +59,8 @@ void vector_free(object_t o) {
     if(v->objs)
 	free(v->objs);
     free(v);
+
+    o = NULL;
 }
 
 /**
@@ -82,7 +87,7 @@ object_t vector_add(vector_t * v, object_t o, int i) {
 
     v->size++;
 
-    return (v->objs[i] = o);
+    return v->objs[i] = o;
 }
 
 void vector_del(vector_t * v, int i) {
@@ -253,16 +258,14 @@ void vector_print(object_t o) {
     for (i = 0; i < v->size; ++i) {
 	if (v->objs[i] == NULL)
 	    continue;
-
-	puts("//////////////////////////////");
+	else
+	    puts("-----------------------------------");
 	if (v->print_obj)
 	    v->print_obj(v->objs[i]);
 	else
-	    printf("%p -- %d", v->objs[i], i);
-
+	    printf("%p -- %d\n", v->objs[i], i);
     }
-    puts("//////////////////////////////");
-
+    puts("-----------------------------------");
 }
 
 void vector_debug(FILE * stream, vector_t * v) {
@@ -272,7 +275,7 @@ void vector_debug(FILE * stream, vector_t * v) {
     fprintf(stream, "[size:%d] [capacity:%d]\n", v->size, v->capacity);
     puts("--------------");
     for (i = 0; i < v->size; ++i) {
-	fprintf(stream, "[%d] - (addr:%p) -", i, v->objs[i]);
+	fprintf(stream, "[%d] - @%p -", i, v->objs[i]);
 	if (v->print_obj) {
 	    v->print_obj(v->objs[i]);
 	}

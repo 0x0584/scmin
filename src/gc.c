@@ -20,25 +20,30 @@ static vector_t *gc_allocd_lambdas;
 static vector_t *gc_allocd_scopes;
 static vector_t *gc_allocd_contexts;
 
+#if GC_DEBUG == DBG_ON
+void (*logger)(object_t ) = true ? sexpr_print : sexpr_describe;
+#endif
+
 void gc_init(void) {
-    gc_allocd_sexprs = vector_new(gc_free_sexpr, sexpr_describe, NULL);
-    gc_allocd_lambdas = vector_new(gc_free_lambda, lambda_describe, NULL);
+    gc_allocd_sexprs = vector_new(gc_free_sexpr, sexpr_print, NULL);
+    gc_allocd_lambdas = vector_new(gc_free_lambda, lambda_print, NULL);
     gc_allocd_scopes = vector_new(gc_free_scope, scope_describe, NULL);
     gc_allocd_contexts = vector_new(gc_free_context,
 				    context_describe, NULL);
 }
 
 void gc_clean(void) {
-    vector_free(gc_allocd_sexprs);
-    vector_free(gc_allocd_lambdas);
+    gc_collect(true);
     vector_free(gc_allocd_scopes);
+    vector_free(gc_allocd_lambdas);
+    vector_free(gc_allocd_sexprs);
     vector_free(gc_allocd_contexts);
 }
 
 long gc_allocated_size(void) {
     return (gc_allocd_sexprs->size * sizeof(sexpr_t))
-	+ (gc_allocd_scopes->size * sizeof(scope_t))
 	+ (gc_allocd_contexts->size * sizeof(context_t))
+	+ (gc_allocd_scopes->size * sizeof(scope_t))
 	+ (gc_allocd_lambdas->size * sizeof(lambda_t));
 }
 
@@ -57,11 +62,16 @@ void gc_collect(bool iscleanup) {
 #endif
 
     /* ignore garbage collection in case of not surpassing limit */
-    if (gc_has_space_left() && !iscleanup) {
+    if (gc_has_space_left() && !iscleanup)
 	return;
-    }
 
     gc_setmark_scope(get_global_scope(), true);
+
+    #if GC_DEBUG == DBG_ON
+    puts("\n================ sweep sexprs ==================\n");
+    #endif
+
+    gc_sweep_sexprs(gc_allocd_sexprs);
 
     #if GC_DEBUG == DBG_ON
     puts("\n================ sweep scopes ==================\n");
@@ -75,11 +85,6 @@ void gc_collect(bool iscleanup) {
 
     gc_sweep_lambdas(gc_allocd_lambdas);
 
-    #if GC_DEBUG == DBG_ON
-    puts("\n================ sweep sexprs ==================\n");
-    #endif
-
-    gc_sweep_sexprs(gc_allocd_sexprs);
 
 #if GC_DEBUG == DBG_ON
     puts("================================================\n");
@@ -113,7 +118,7 @@ void gc_sweep_sexprs(vector_t * v) {
 #if GC_DEBUG == DBG_ON
     int freed = 0, size = v->size;
 
-    puts("sexprs stack before");
+    puts(" -*- sexprs stack before -*- ");
     vector_print(v);
 #endif
 
@@ -139,7 +144,7 @@ void gc_sweep_sexprs(vector_t * v) {
     vector_compact(v);
 
 #if GC_DEBUG == DBG_ON
-    puts("final sexprs stack");
+    puts("\n -*- final sexprs stack -*- ");
     vector_print(v);
 
     printf("previous: %d - current: %d - freed: %d \n",
@@ -148,9 +153,6 @@ void gc_sweep_sexprs(vector_t * v) {
 }
 
 sexpr_t *gc_alloc_sexpr(void) {
-    if (!gc_has_space_left())
-	gc_collect(true);
-
     sexpr_t *s = malloc(sizeof *s);
 
     s->gci.ismarked = false;
@@ -167,11 +169,10 @@ void gc_free_sexpr(object_t o) {
     sexpr_t *expr = o;
 
     /* because they got an allocated string */
-    if (isstring(expr) || issymbol(expr)) {
+    if (isstring(expr) || issymbol(expr) || isnil(expr))
 	free(expr->s);
-    } else if (ispair(expr)) {
+    else if (ispair(expr))
 	free(expr->c);
-    }
 
     free(expr);
 }
@@ -202,7 +203,7 @@ void gc_sweep_lambdas(vector_t * v) {
 #if GC_DEBUG == DBG_ON
     int freed = 0, size = v->size;
 
-    puts("lambdas stack before");
+    puts(" -*- lambda stack before -*- ");
     vector_print(v);
 #endif
 
@@ -228,7 +229,7 @@ void gc_sweep_lambdas(vector_t * v) {
     vector_compact(v);
 
 #if GC_DEBUG == DBG_ON
-    puts("final lambdasstack");
+    puts("\n -*- final lambdas stack -*- ");
     vector_print(v);
 
     printf("previous: %d - current: %d - freed: %d \n",
@@ -237,9 +238,6 @@ void gc_sweep_lambdas(vector_t * v) {
 }
 
 lambda_t *gc_alloc_lambda(void) {
-    if (!gc_has_space_left())
-	gc_collect(true);
-
     lambda_t *l = malloc(sizeof *l);
 
     l->gci.ismarked = false;
@@ -293,7 +291,7 @@ void gc_sweep_scopes(vector_t * v) {
 #if GC_DEBUG == DBG_ON
     int freed = 0, size = v->size;
 
-    puts("scope stack before");
+    puts(" -*- scope stack before -*- ");
     vector_print(v);
 #endif
 
@@ -319,18 +317,16 @@ void gc_sweep_scopes(vector_t * v) {
     vector_compact(v);
 
 #if GC_DEBUG == DBG_ON
+    puts("\n -*- final scopess stack -*- ");
+    vector_print(v);
+
     printf("previous: %d - current: %d - freed: %d \n",
 	   size, v->size, freed);
 
-    puts("final stack");
-    vector_print(v);
 #endif
 }
 
 scope_t *gc_alloc_scope(void) {
-    if (!gc_has_space_left())
-	gc_collect(true);
-
     scope_t *s = malloc(sizeof *s);
 
     s->bonds = vector_new(bond_free, bond_describe, bond_cmp);
@@ -362,9 +358,6 @@ void gc_free_scope(object_t o) {
  */
 
 context_t *gc_alloc_context() {
-    if (!gc_has_space_left())
-	gc_collect(true);
-
     context_t *ctx = malloc(sizeof *ctx);
 
     vector_push(gc_allocd_contexts, ctx);
@@ -386,68 +379,8 @@ void gc_free_context(object_t o) {
 }
 
 void gc_debug_memory(void) {
-    /*
-       puts("========== testing sexprs ==========");
-       sexpr_t *number = sexpr_new(T_NUMBER), *nil = sexpr_nil();
-       number->n = 45.2;
-
-       sexpr_t *expr0 = cons(number, nil);
-
-       sexpr_t *number0 = sexpr_new(T_NUMBER);
-       number0->n = 44411224;
-
-       gc_collect(true);
-     */
-    /*
-       puts("========== testing scope ==========");
-       scope_t *s = scope_init(NULL);
-
-       sexpr_t *expr1 = sexpr_new(T_STRING);
-       expr1->s = strdup("this is string");
-
-       bond_t *b = bond_new(strdup("str"), expr1);
-       vector_push(s->bonds, b);
-
-       sexpr_t *expr2 = sexpr_new(T_SYMBOL);
-       expr2->s = strdup("fuzz");
-
-       scope_describe(s);
-
-       gc_setmark_scope(s);
-
-       gc_collect(true);
-     */
-    /*
-       puts("========== testing lambdas ==========");
-       sexpr_t *x = sexpr_new(T_NUMBER);
-       x->n = 20;
-
-       sexpr_t *y = sexpr_new(T_NUMBER);
-       y->n = 10;
-
-       sexpr_t *args = cons(x, cons(y, sexpr_nil()));
-
-       native_t *n_add = malloc(sizeof *n_add);
-       n_add->symbol = strdup("+");
-       n_add->func = native_add;
-
-       lambda_t *l = gc_alloc_lambda();
-       l->args = args;
-       l->isnative = true;
-       l->native = n_add;
-
-
-       sexpr_t *lam = gc_alloc_sexpr();
-       lam->type = T_LAMBDA;
-       lam->l = l;
-
-       sexpr_describe(lam);
-
-       sexpr_t *result = native_add(args);
-
-       sexpr_describe(result);
-     */
-    /* gc_free_sexpr(lam); */
-
-    /* gc_collect(true); */
+    vector_print(gc_allocd_scopes);
+    vector_print(gc_allocd_sexprs);
+    vector_print(gc_allocd_lambdas);
+    vector_print(gc_allocd_contexts);
 }

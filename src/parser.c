@@ -113,7 +113,7 @@ vector_t *parse_sexprs(vector_t * vtokens) {
 #endif
     }
 
-    return v;
+    return vector_compact(v);
 }
 
 /* ===================================================================

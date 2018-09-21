@@ -39,25 +39,15 @@ sexpr_t *car(sexpr_t * expr) {
 }
 
 sexpr_t *cdr(sexpr_t * expr) {
-    assert(expr != NULL);
-
-    if (expr->c->cdr->type == T_NIL) {
-	return expr->c->cdr;
-    }
-
-    assert(expr->type != T_NIL);
-
     return ispair(expr) ? expr->c->cdr : NULL;
 }
 
 void set_cdr(sexpr_t * expr, sexpr_t * cdr) {
-    if (ispair(expr)) {
+    if (ispair(expr))
 	expr->c->cdr = cdr;
-    }
 }
 
 void set_car(sexpr_t * expr, sexpr_t * car) {
-    if (ispair(expr)) {
+    if (ispair(expr))
 	expr->c->car = car;
-    }
 }

@@ -10,7 +10,7 @@ bond_t *bond_new(string_t key, sexpr_t * expr) {
 
     bond_t *b = malloc(sizeof *b);
 
-    b->key = key;
+    b->key = strdup(key);
     b->sexpr = expr;
     b->isconst = false;
 
@@ -28,6 +28,8 @@ void bond_free(object_t o) {
 
     if (b == NULL)
 	return;
+
+    /* printf(" >>>> %s <<<< \n", b->key); */
 
     free(b->key);
     free(b);
@@ -52,8 +54,8 @@ void bond_describe(object_t o) {
     bond_t *b = o;
 
     printf("key: %s\n", b->key);
-    printf("sexpr:\n");
-    sexpr_describe(b->sexpr);
+    printf("sexpr: ");
+    sexpr_print(b->sexpr);
 }
 
 /*
@@ -120,18 +122,18 @@ scope_t *global_scope_init(void) {
     };
     static int i;
 
-    global_scope = scope_init(NULL);
+    scope_t *gs = scope_init(NULL);
 
     for (i = 0; stdlib[i].symbol; ++i) {
 	native_t *tmp = &stdlib[i];
-	sexpr_t *lambda = lambda_new_native(global_scope, NULL, tmp);
-	vector_push(global_scope->bonds,
-		    bond_new(strdup(tmp->symbol), lambda));
+	sexpr_t *lambda = lambda_new_native(gs, NULL, tmp);
+	vector_push(gs->bonds,
+		    bond_new(tmp->symbol, lambda));
     }
 
-    /* vector_compact(global_scope->bonds); */
+    /* vector_compact(gs->bonds); */
 
-    return global_scope;
+    return global_scope = gs;
 }
 
 void scope_describe(object_t o) {
@@ -143,7 +145,7 @@ void scope_describe(object_t o) {
     scope_t *s = o;
 
     printf("is marked? [%s]\n", s->gci.ismarked ? "X" : " ");
-    vector_debug(stdout, s->bonds);
+    vector_print(s->bonds);
 
     if (s->parent) {
 	puts(" parent");

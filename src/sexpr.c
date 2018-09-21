@@ -205,6 +205,11 @@ void _sexpr_print(object_t o) {
 	return;
     }
 
+    if (islambda(expr)) {
+	lambda_print(expr->l);
+	return;
+    }
+
     if (isstring(expr))
 	printf("\"%s\"", expr->s);
     else if (issymbol(expr) || isnil(expr))
@@ -230,6 +235,28 @@ void _sexpr_print(object_t o) {
 void sexpr_print(object_t o) {
     _sexpr_print(o);
     putchar('\n');
+}
+
+void lambda_print(object_t o) {
+    lambda_t *l = o;
+
+    if (l == NULL) {
+	puts("lambda was NULL");
+	return;
+    }
+
+    printf("[%s] ", l->gci.ismarked ? "X" : " ");
+
+    /* if (l->parent != NULL) */
+    /*	scope_describe(l->parent); */
+
+    if (l->isnative)
+	printf("%s @%p\n", l->native->symbol, l->native->func);
+    else
+	sexpr_print(l->body);
+
+    if (l->args != NULL)
+	sexpr_print(l->args);
 }
 
 int sexpr_length(sexpr_t * expr) {

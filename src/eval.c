@@ -201,7 +201,7 @@ vector_t *eval_sexprs(scope_t * s, vector_t * sexprs) {
 
     }
     
-    return v;
+    return vector_compact(v);
 }
 
 /* (define symbol 's-expr) */
@@ -238,28 +238,7 @@ sexpr_t *eval_quote(scope_t * s, sexpr_t * expr) {
 #include "../include/parser.h"
 
 void eval_testing() {
-    string_t exprs[] = {
-	"(+ 11 (* 22 33))",
-	"(* 2 (+ 3 (* 6 2)))",
-	/* "(* (+ 5 5) (+ 3 (* (- 4 1) 2)))", */
-	"(quote (a b c))",
-	"'(a b c)",
-	"(define x 4)",
-	"(define y (+ 5 4))",
-	"(+ x y)",
-	"(define z '(+ 5 4))",
-	"(car '(a b c))",
-	"(cdr '(a b c))",
-	"(car (cdr '(a b c)))",
-	"(and x y z)",
-	"(and '() y z)",
-	"(and x '() z)",
-	"(and x y '())",
-    };
-
-    int i, size = sizeof(exprs) / sizeof(exprs[0]);
-    vector_t *vv = NULL, *v = NULL, *w = NULL, *x = NULL;
-    sexpr_t *expr = NULL, *eval_expr = NULL;
+    vector_t *v = NULL, *w = NULL, *x = NULL;
     scope_t *gs = get_global_scope();
 
     /* scope_describe(gs); */
@@ -271,60 +250,20 @@ void eval_testing() {
     /* puts("-----------\n"); */
 
     w = parse_sexprs(v);
-
-    puts("\nparsed stream:");
-    vector_print(w);
-
     x = eval_sexprs(gs, w);
 
-    puts("\nevaluated expression:");
-    vector_print(x);
+    puts("======================================");
+    for (int i = 0; i < w->size; ++i) {
+	puts("================= // =================");
+	sexpr_print(vector_get(w, i));
+	sexpr_print(vector_get(x, i));
+	puts("================= // =================");
+    }
     puts("======================================");
     
     vector_free(w);
-    puts("/////");
     vector_free(x);
-    puts("/////");
-    for (int i = 0; i < v->size; ++i) {
-	vector_free(vector_get(v, i));
-    }
     vector_free(v);
-    puts("/////");
-
-    puts("+++++++++++++++++++++");
     
-    for (i = 0; i < size; ++i) {
-	printf("parsing: %s\n", exprs[i]);
-
-	vv = read_tokens(exprs[i]);
-
-	/* puts("\n + list of tokens"); */
-	/* vector_print(v); */
-	/* puts("-----------\n"); */
-
-	expr = parse_sexpr(vv);
-
-	/* puts("parsed expression"); */
-	/* sexpr_describe(expr); */
-
-	printf("parsed result: ");
-	sexpr_print(expr);
-	/* printf("length of expression %d\n", sexpr_length(expr)); */
-
-	eval_expr = eval_sexpr(gs, expr);
-
-	/* puts("evaluated expression"); */
-	/* sexpr_describe(eval_expr); */
-
-	printf("evaluated result: ");
-	sexpr_print(eval_expr);
-	/* printf(" > length of expression %d\n", sexpr_length(eval_expr)); */
-
-	/* scope_describe(gs); */
-
-	puts("\n====================== ======================\n");
-
-	vector_free(vv);
-	/* gc_collect(true); */
-    }
+    gc_collect(true);
 }

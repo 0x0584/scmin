@@ -79,5 +79,6 @@ sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
 			   native_t * func);
 sexpr_t *lambda_new(scope_t * parent, sexpr_t * args, sexpr_t * body);
 void lambda_describe(object_t expr);
+void lambda_print(object_t expr);
 
 #endif				/* _SCMIN_SEXPR_H */

@@ -30,9 +30,10 @@ int main(int argc, char **argv) {
     /* lexer_testing(); */
     /* parser_testing(); */
     eval_testing();
-    gc_debug_memory();
+    /* gc_debug_memory(); */
 
     gc_clean();
+    /* err_clean(); */
 
     return EXIT_SUCCESS;
 }

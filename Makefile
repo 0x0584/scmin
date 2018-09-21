@@ -1,7 +1,7 @@
 # DEFAULT COMPILER SETUP
 CC = gcc
-CFLAGS = -ggdb -O2 -Wall -Wextra
-# -Werror -pedantic -Wpadded
+CFLAGS = -ggdb -Wall -Wextra
+# -O2 -Werror -pedantic -Wpadded
 LDFLAGS = -I. -lm
 
 # DEFAULT PROGRAM NAME

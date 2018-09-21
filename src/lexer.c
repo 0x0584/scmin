@@ -94,7 +94,7 @@ vector_t *read_tokens(const string_t code) {
  * @return a Vector of tokens
  */
 vector_t *read_stream_tokens(const char *filename) {
-    vector_t *vv = vector_new(NULL, vector_print, NULL);
+    vector_t *vv = vector_new(vector_free, vector_print, NULL);
     string_t tmp = stream_as_string(filename);
 
     puts(tmp);
@@ -107,7 +107,7 @@ vector_t *read_stream_tokens(const char *filename) {
 	else
 	    vector_push(vv, read_tokens(tmp));
 
-    return vv;
+    return vector_compact(vv);
 }
 
 /**
