@@ -78,7 +78,6 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
 	}
 
 	expr = cons(value, nil);
-	expr->c->ishead = !head;
 
 	if (!head)
 	    head = expr;
@@ -138,9 +137,9 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	token_print(token);
 	putchar('\n');
 #endif
-
 	if (token->type == TOK_R_PAREN) {
 	    token_free(token);
+
 	    if (isfirstloop)	/* '() empty list is like a nil */
 		return nil;
 	    else		/* reached the end of the list */
@@ -177,7 +176,6 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	token_free(token);
 
 	expr = cons(value, nil);
-	expr->c->ishead = !head;
 
 	if (!head)
 	    head = expr;

@@ -20,10 +20,6 @@ static vector_t *gc_allocd_lambdas;
 static vector_t *gc_allocd_scopes;
 static vector_t *gc_allocd_contexts;
 
-#if GC_DEBUG == DBG_ON
-void (*logger)(object_t ) = true ? sexpr_print : sexpr_describe;
-#endif
-
 void gc_init(void) {
     gc_allocd_sexprs = vector_new(gc_free_sexpr, sexpr_print, NULL);
     gc_allocd_lambdas = vector_new(gc_free_lambda, lambda_print, NULL);
@@ -34,6 +30,7 @@ void gc_init(void) {
 
 void gc_clean(void) {
     gc_collect(true);
+
     vector_free(gc_allocd_scopes);
     vector_free(gc_allocd_lambdas);
     vector_free(gc_allocd_sexprs);
@@ -154,12 +151,8 @@ void gc_sweep_sexprs(vector_t * v) {
 
 sexpr_t *gc_alloc_sexpr(void) {
     sexpr_t *s = malloc(sizeof *s);
-
     s->gci.ismarked = false;
-
-    vector_push(gc_allocd_sexprs, s);
-
-    return s;
+    return vector_push(gc_allocd_sexprs, s);
 }
 
 void gc_free_sexpr(object_t o) {

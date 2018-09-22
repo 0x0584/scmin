@@ -20,15 +20,14 @@ sexpr_t *cons(sexpr_t * car, sexpr_t * cdr) {
     expr->c = malloc(sizeof(pair_t));
     expr->c->car = car;
     expr->c->cdr = cdr;
-    expr->c->ishead = false;
 
-    if (isnil(cdr)) {
+    if (isnil(cdr))
 	expr->c->islist = true;
-    } else if (ispair(cdr)) {
+    else if (ispair(cdr))
 	expr->c->islist = cdr->c->islist;
-    } else {
+    else
 	expr->c->islist = false;
-    }
+
 
 
     return expr;

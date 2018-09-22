@@ -16,4 +16,16 @@
 
 (+ 1 2)
 
+(sqrt 4)
+(square 2)
+
+(sqrt (square 2))
+
+(number? 4)
+
+(define num-1 8)			; 8
+(define num-2 (+ 5 1))			; 6
+
+(+ num-1 num-2)				; 14
+
 ;; (sqrt (square 2))			; >> 2

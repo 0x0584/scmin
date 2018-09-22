@@ -1,7 +1,13 @@
 /*
  * this would contain some native implementation to functions
  * i.e. built-in into the interpreter
+ *
+ * + - * /
+ * = < <= > >=
+ * atom? pair? list?
+ * number? string?
  */
+
 #include "../include/native.h"
 #include "../include/sexpr.h"
 #include "../include/pair.h"
@@ -200,7 +206,9 @@ sexpr_t *native_cons(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    return cons(car(expr), cadr(expr));
+    sexpr_t *sexpr = cons(car(expr), cadr(expr));
+
+    return sexpr;
 }
 
 /* (car sexpr) */
@@ -244,16 +252,151 @@ sexpr_t *native_set_cdr(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    set_car(car(expr), caddr(expr));
+    set_cdr(car(expr), cdr(expr));
 
     return sexpr_true();
 }
 
-sexpr_t *native_diplay(sexpr_t * expr) {
+sexpr_t *native_print(sexpr_t * expr) {
+    /* err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1); */
+
+    /* if (err_log()) */
+    /*	return sexpr_err(); */
+
+    /* return sexpr_tostr(car(expr));; */
+
+    return car(expr);
+}
+
+sexpr_t *native_list(sexpr_t * expr) {
+    return expr;
+}
+
+sexpr_t *native_eq(sexpr_t * expr) {
+    return car(expr);
+}
+
+sexpr_t *native_less(sexpr_t * expr) {
+    return car(expr);
+}
+
+sexpr_t *native_greater(sexpr_t * expr) {
+    return car(expr);
+}
+
+sexpr_t *native_less_eq(sexpr_t * expr) {
+    return car(expr);
+}
+
+sexpr_t *native_greater_eq(sexpr_t * expr) {
+    return car(expr);
+}
+
+sexpr_t *native_eval(sexpr_t * expr) {
+    return car(expr);
+}
+
+sexpr_t *native_isnil(sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
 
     if (err_log())
 	return sexpr_err();
 
-    return sexpr_tostr(car(expr));;
+    return isnil(car(expr)) ? sexpr_true() : sexpr_nil();
+}
+
+sexpr_t *native_istrue(sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+
+    if (err_log())
+	return sexpr_err();
+
+    return istrue(car(expr)) ? sexpr_true() : sexpr_nil();
+}
+
+sexpr_t *native_isstring(sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+
+    if (err_log())
+	return sexpr_err();
+
+    return isstring(car(expr)) ? sexpr_true() : sexpr_nil();
+}
+
+sexpr_t *native_isnumber(sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+
+    if (err_log())
+	return sexpr_err();
+
+    return isnumber(car(expr)) ? sexpr_true() : sexpr_nil();
+}
+
+sexpr_t *native_issymbol(sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+
+    if (err_log())
+	return sexpr_err();
+
+    return issymbol(car(expr)) ? sexpr_true() : sexpr_nil();
+}
+
+sexpr_t *native_islambda(sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+
+    if (err_log())
+	return sexpr_err();
+
+    return islambda(car(expr)) ? sexpr_true() : sexpr_nil();
+}
+
+sexpr_t *native_islist(sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+
+    if (err_log())
+	return sexpr_err();
+
+    return islist(car(expr)) ? sexpr_true() : sexpr_nil();
+}
+
+sexpr_t *native_length(sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+
+    if (err_log())
+	return sexpr_err();
+
+    sexpr_t *sexpr = sexpr_new(T_NUMBER);
+    sexpr->n = sexpr_length(car(expr));
+
+    return sexpr;
+}
+sexpr_t *native_sqrt(sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+    err_raise(ERR_ARG_TYPE, !isnumber(car(expr)));
+
+    if (err_log())
+	return sexpr_err();
+
+    err_raise(ERR_ARG_TYPE, car(expr)->n < 0);
+
+    if (err_log())
+	return sexpr_err();
+
+    sexpr_t *number = sexpr_new(T_NUMBER);
+    number->n = sqrt(car(expr)->n);
+
+    return number;
+}
+
+sexpr_t *native_square(sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+    err_raise(ERR_ARG_TYPE, !isnumber(car(expr)));
+
+    if (err_log())
+	return sexpr_err();
+
+    sexpr_t *number = sexpr_new(T_NUMBER);
+    number->n = car(expr)->n * car(expr)->n;
+
+    return number;
 }

@@ -135,17 +135,14 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     sexpr_t *args = NULL, *tail = NULL;
     sexpr_t *foo = expr, *bar = NULL;
     sexpr_t *nil = sexpr_nil();
-    
+
     while (!isnil(foo = cdr(foo))) {
 	bar = cons(eval_sexpr(scope, car(foo)), nil);
-	/* puts("current arg"); */
-	/* sexpr_print(tmp); */
+	
 	if (!args)
 	    args = bar;
 	else
 	    set_cdr(tail, bar);
-	/* puts("current args"); */
-	/* sexpr_print(args); */
 	tail = bar;
     }
 
@@ -198,18 +195,17 @@ vector_t *eval_sexprs(scope_t * s, vector_t * sexprs) {
     vector_t *v = vector_new(NULL, sexpr_print, NULL);
 
     for (i = 0; i < sexprs->size; ++i) {
-#if EVALUATOR_DEBUG == DBG_ON
-	puts(" ========== sexpr to eval =========== ");
+/* #if EVALUATOR_DEBUG == DBG_ON */
 	sexpr_print(vector_get(sexprs, i));
-	puts(" ========== ================ =========== ");
 	sexpr_t *tmp =
-#endif
+/* #endif */
 	    vector_push(v, eval_sexpr(s, vector_get(sexprs, i)));
 
-#if EVALUATOR_DEBUG == DBG_ON
-	printf("parsed sexpr: ");
+/* #if EVALUATOR_DEBUG == DBG_ON */
+	printf("> ");
 	sexpr_print(tmp);
-#endif
+	puts("");
+/* #endif */
 
     }
 
@@ -264,14 +260,14 @@ void eval_testing() {
     w = parse_sexprs(v);
     x = eval_sexprs(gs, w);
 
-    puts("======================================");
-    for (int i = 0; i < w->size; ++i) {
-	puts("================= // =================");
-	sexpr_print(vector_get(w, i));
-	sexpr_print(vector_get(x, i));
-	puts("================= // =================");
-    }
-    puts("======================================");
+    /* puts("======================================"); */
+    /* for (int i = 0; i < w->size; ++i) { */
+    /*  puts("================= // ================="); */
+    /*  sexpr_print(vector_get(w, i)); */
+    /*  sexpr_print(vector_get(x, i)); */
+    /*  puts("================= // ================="); */
+    /* } */
+    /* puts("======================================"); */
 
     vector_free(w);
     vector_free(x);
