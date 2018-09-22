@@ -55,6 +55,24 @@ sexpr_t *sexpr_new(type_t type) {
     return expr;
 }
 
+int sexpr_length(sexpr_t * expr) {
+    sexpr_t *tmp = expr;
+    int length = 0;
+
+    if (expr == NULL || isatom(expr))
+	return length;
+
+    while (ispair(tmp)) {
+	++length;
+	tmp = cdr(tmp);
+    }
+
+    if (!isnil(tmp))
+	++length;		/* this is a pair i.e. no nil at the end */
+
+    return length;
+}
+
 sexpr_t *sexpr_err(void) {
     return sexpr_new(T_ERR);
 }
@@ -176,6 +194,54 @@ void sexpr_describe(object_t o) {
     --ntabs;
 }
 
+void _sexpr_print(object_t o) {
+    sexpr_t *expr = (sexpr_t *) o, *tmp = expr;
+
+    if (expr == NULL) {
+	puts("expr was NULL");
+	return;
+    }
+
+    if (islambda(expr)) {
+	lambda_print(expr->l);
+	return;
+    }
+
+    if (isstring(expr))
+	printf("\"%s\"", expr->s);
+    else if (issymbol(expr) || isnil(expr))
+	printf("%s", expr->s);
+    else if (isnumber(expr))
+	printf("%lf", expr->n);
+    else if (ispair(expr)) {
+	putchar('(');
+
+	_sexpr_print(car(expr));
+
+	while (ispair(tmp = cdr(tmp))) {
+	    /* a pair be constructed of two pairs
+	     * so we should always check that */
+	    /* if (ispair(car(tmp)) && cadr(tmp) == NULL) */
+	    /*	break; */
+	    putchar(' ');
+	    _sexpr_print(car(tmp));
+	}
+
+	/* if it was just a pair not a list */
+	if (!isnil(tmp)) {
+	    printf(" . ");
+	    _sexpr_print(tmp);
+	}
+
+	putchar(')');
+    }
+}
+
+void sexpr_print(object_t o) {
+    _sexpr_print(o);
+    putchar('\n');
+}
+
 void lambda_describe(object_t o) {
     lambda_t *l = o;
 
@@ -198,46 +264,6 @@ void lambda_describe(object_t o) {
 	sexpr_describe(l->args);
 }
 
-void _sexpr_print(object_t o) {
-    sexpr_t *expr = (sexpr_t *) o;
-
-    if (expr == NULL) {
-	puts("expr was NULL");
-	return;
-    }
-
-    if (islambda(expr)) {
-	lambda_print(expr->l);
-	return;
-    }
-
-    if (isstring(expr))
-	printf("\"%s\"", expr->s);
-    else if (issymbol(expr) || isnil(expr))
-	printf("%s%s", !strcmp(expr->s, "quote") ? "(" : "", expr->s);
-    else if (isnumber(expr))
-	printf("%lf", expr->n);
-    else if (ispair(expr)) {
-	if (expr->c->ishead && strcmp(car(expr)->s, "quote"))
-	    putchar('(');
-
-	_sexpr_print(car(expr));
-
-	if (!isnil(cdr(expr)))
-	    putchar(' ');
-	else
-	    putchar(')');
-
-	if (!isnil(cdr(expr)))
-	    _sexpr_print(cdr(expr));
-    }
-}
-
-void sexpr_print(object_t o) {
-    _sexpr_print(o);
-    putchar('\n');
-}
-
 void lambda_print(object_t o) {
     lambda_t *l = o;
 
@@ -258,62 +284,4 @@ void lambda_print(object_t o) {
 
     if (l->args != NULL)
 	sexpr_print(l->args);
-}
-
-int sexpr_length(sexpr_t * expr) {
-    sexpr_t *tmp = expr;
-    int length = 0;
-
-    if (expr == NULL || isatom(expr))
-	return length;
-
-    while (!isnil(tmp)) {
-	++length;
-	tmp = cdr(tmp);
-    }
-
-    return length;
-}
-
-void _sexpr_tostr(sexpr_t * output, sexpr_t * expr) {
-    if (expr == NULL) {
-	puts("expr was NULL");
-	return;
-    }
-
-    size_t len = strlen(output->s);
-
-    sexpr_print(output);
-
-    if (isstring(expr))
-	sprintf(output->s + len, "\"%s\"", expr->s);
-    else if (issymbol(expr) || isnil(expr))
-	sprintf(output->s + len, "%s%s",
-		!strcmp(expr->s, "quote") ? "(" : "", expr->s);
-    else if (isnumber(expr))
-	sprintf(output->s + len, "%lf", expr->n);
-    else if (ispair(expr)) {
-	if (expr->c->ishead && strcmp(car(expr)->s, "quote"))
-	    sprintf(output->s + len, "%c", '(');
-
-	_sexpr_tostr(output, car(expr));
-
-	if (!isnil(cdr(expr)))
-	    sprintf(output->s + len, "%c", ' ');
-	else
-	    sprintf(output->s + len, "%c", ')');
-
-	if (!isnil(cdr(expr)))
-	    _sexpr_tostr(output, cdr(expr));
-    }
-}
-
-sexpr_t *sexpr_tostr(sexpr_t * expr) {
-    sexpr_t *str = sexpr_new(T_STRING);
-    str->s = malloc(512 * sizeof(char));
-    *str->s = '\0';
-    _sexpr_tostr(str, expr);
-    str->s[strlen(str->s)] = '\0';
-    /* str->s = reduce_string_size(str->s); */
-    return str;
 }

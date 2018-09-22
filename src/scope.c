@@ -102,14 +102,43 @@ scope_t *global_scope_init(void) {
 	{"-", native_minus},
 	{"*", native_times},
 	{"/", native_divid},
+	{"=", native_eq},
+	{"<", native_less},
+	{">", native_greater},
+	{"<=", native_less_eq},
+	{">=", native_greater_eq},
 
+	{"sqrt", native_sqrt},
+	{"square", native_square},
+
+	/* remapping */
+	{"add", native_add},
+	{"subtract", native_minus},
+	{"multiply", native_times},
+	{"divid", native_divid},
+	{"eq", native_eq},	/* require numbers */
+	{"less", native_less},
+	{"greater", native_greater},
+	{"less-or-eq", native_less_eq},
+	{"greater-or-eq", native_greater_eq},
+
+	{"list", native_list},
+	{"length", native_length},
 	{"cons", native_cons},
 	{"car", native_car},
 	{"cdr", native_cdr},
 	{"set-car", native_set_car},
 	{"set-cdr", native_set_cdr},
 
+	/* eq? would return true if only the type matches */
 	{"eq?", native_iseq},
+	{"nil?", native_isnil},
+	{"true?", native_istrue},
+	{"string?", native_isstring},
+	{"number?", native_isnumber},
+	{"symbol?", native_issymbol},
+	{"lambda?", native_islambda},
+	{"list?", native_islist},
 	{"atom?", native_isatom},
 	{"pair?", native_ispair},
 
@@ -118,6 +147,7 @@ scope_t *global_scope_init(void) {
 	{"not", native_not},
 
 	{"print", native_print},
+	{"eval", native_eval},
 
 	{NULL, NULL}
     };

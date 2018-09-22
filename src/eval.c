@@ -138,14 +138,11 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     while (!isnil(foo = cdr(foo))) {
 	bar = cons(eval_sexpr(scope, car(foo)), nil);
-	/* puts("current arg"); */
-	/* sexpr_print(tmp); */
+	
 	if (!args)
 	    args = bar;
 	else
 	    set_cdr(tail, bar);
-	/* puts("current args"); */
-	/* sexpr_print(args); */
 	tail = bar;
     }
 
