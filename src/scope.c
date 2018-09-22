@@ -68,13 +68,10 @@ sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr) {
 
     bond_t *resolved = NULL;
 
-    if (!(resolved = vector_find(s->bonds, expr->s))) {
-	sexpr_describe(expr);
-	puts("SYMBOL COULD NOT BE RESOLVED!");
+    if (!(resolved = vector_find(s->bonds, expr->s)))
 	return NULL;
-    }
-
-    return resolved->sexpr;
+    else
+	return resolved->sexpr;
 }
 
 bool isbonded(scope_t * s, sexpr_t * expr) {
@@ -120,7 +117,7 @@ scope_t *global_scope_init(void) {
 	{"or", native_or},
 	{"not", native_not},
 
-	{"diplay", native_diplay},
+	{"print", native_print},
 
 	{NULL, NULL}
     };

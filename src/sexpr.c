@@ -314,6 +314,6 @@ sexpr_t *sexpr_tostr(sexpr_t * expr) {
     *str->s = '\0';
     _sexpr_tostr(str, expr);
     str->s[strlen(str->s)] = '\0';
-    str->s = reduce_string_size(str->s);
+    /* str->s = reduce_string_size(str->s); */
     return str;
 }

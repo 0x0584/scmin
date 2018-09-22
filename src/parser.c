@@ -138,9 +138,9 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	token_print(token);
 	putchar('\n');
 #endif
-
 	if (token->type == TOK_R_PAREN) {
 	    token_free(token);
+
 	    if (isfirstloop)	/* '() empty list is like a nil */
 		return nil;
 	    else		/* reached the end of the list */

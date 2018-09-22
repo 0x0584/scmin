@@ -97,8 +97,6 @@ vector_t *read_stream_tokens(const char *filename) {
     vector_t *vv = vector_new(vector_free, vector_print, NULL);
     string_t tmp = stream_as_string(filename);
 
-    puts(tmp);
-
     while (getnc(tmp) != EOF)
 	if (!clean_whitespaces(tmp))
 	    break;
@@ -106,6 +104,8 @@ vector_t *read_stream_tokens(const char *filename) {
 	    break;
 	else
 	    vector_push(vv, read_tokens(tmp));
+
+    free(tmp);
 
     return vector_compact(vv);
 }

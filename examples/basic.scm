@@ -27,11 +27,16 @@
 
 (define fuzz (cons 1 (cons 2 '())))
 
+(print fuzz)
+(set-car fuzz 5)
+(print fuzz)
+(set-cdr fuzz foo)
+(print fuzz)
+
 (pair? fuzz)
+(pair? (car fuzz))
+(pair? (cdr fuzz))
+
 (atom? fuzz)
 (atom? (car fuzz))
-(car fuzz)
-
-(diplay fuzz)
-(set-car fuzz 5)
-(diplay fuzz)
+(atom? (cdr fuzz))

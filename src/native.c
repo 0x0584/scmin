@@ -109,7 +109,7 @@ sexpr_t *native_or(sexpr_t * expr) {
 	else
 	    tmp = cdr(tmp);
 
-    return tmp;
+    return sexpr_true();;
 }
 
 /* (not s-expr) */
@@ -200,7 +200,9 @@ sexpr_t *native_cons(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    return cons(car(expr), cadr(expr));
+    sexpr_t *sexpr = cons(car(expr), cadr(expr));
+
+    return sexpr;
 }
 
 /* (car sexpr) */
@@ -244,16 +246,18 @@ sexpr_t *native_set_cdr(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    set_car(car(expr), caddr(expr));
+    set_cdr(car(expr), cadr(expr));
 
     return sexpr_true();
 }
 
-sexpr_t *native_diplay(sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+sexpr_t *native_print(sexpr_t * expr) {
+    /* err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1); */
 
-    if (err_log())
-	return sexpr_err();
+    /* if (err_log()) */
+    /*	return sexpr_err(); */
 
-    return sexpr_tostr(car(expr));;
+    /* return sexpr_tostr(car(expr));; */
+
+    return expr;
 }
