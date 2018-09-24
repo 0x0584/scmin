@@ -1,29 +1,33 @@
 ;; this
 
-(and nil t)
-(and nil nil)
-(and t t)
-(and t nil)
+(define fuzz '(1 2 3))
 
-(or nil t)
-(or nil nil)
-(or t t)
-(or t nil)
+(atom? fuzz)				; nil
+(atom? (car fuzz))			; t
+(atom? (cdr fuzz))			; nil
 
-(not nil)
-(not t)
+(symbol? 'a)				; t
+(symbol? 1)				; nil
 
-(string? "this is a test")
-(string? 1)
+(and t t)				; t
+(and t nil)				; nil
+(and nil t)				; nil
+(and nil nil)				; nil
 
-(pair? fuzz)
-(pair? buzz)
-(list? fuzz)
-(list? buzz)
+(or t t)				; t
+(or t nil)				; t
+(or nil t)				; t
+(or nil nil)				; nil
 
-(pair? (car fuzz))
-(pair? (cdr fuzz))
+(not nil)				; t
+(not t)					; nil
 
-(atom? fuzz)
-(atom? (car fuzz))
-(atom? (cdr fuzz))
+(and (or 1 2) (not (or nil '())))	; t
+
+;; this would print yeah
+;; FIXME: a bug when inserting comments between expressions
+(if (or t nil)
+    (print "yeah")
+    (print "no"))
+
+(if t nil t)				; nil

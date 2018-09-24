@@ -216,31 +216,21 @@ vector_t *eval_sexprs(scope_t * s, vector_t * sexprs) {
 /* (define symbol 's-expr) */
 sexpr_t *eval_define(scope_t * s, sexpr_t * expr) {
     sexpr_t *tmp = eval_sexpr(s, cadr(expr));
-
-#if EVALUATOR_DEBUG == DBG_ON
-    puts("evaluated define");
-    sexpr_describe(tmp);
-#endif
-
     vector_push(s->bonds, bond_new(car(expr)->s, tmp));
     return tmp;
 }
 
 /* (if (condition) (true) (false)) */
 sexpr_t *eval_if(scope_t * s, sexpr_t * expr) {
-    if (s) {
-
-    }
-
-    return expr;
-
+    if (istrue(eval_sexpr(s, car(expr))))
+	return eval_sexpr(s,cadr(expr));
+    else
+	return eval_sexpr(s,caddr(expr));
 }
 
 sexpr_t *eval_quote(scope_t * s, sexpr_t * expr) {
-    if (s) {
-	/* just to supress compiler warnings */
-    }
-    return car(expr);
+    if (s || true)
+	return car(expr);
 }
 
 #include "../include/lexer.h"
@@ -252,7 +242,7 @@ void eval_testing() {
 
     /* scope_describe(gs); */
 
-    v = read_stream_tokens("examples/lists.scm");
+    v = read_stream_tokens("examples/basic.scm");
 
     /* puts("stream of tokens"); */
     /* vector_print(v); */
