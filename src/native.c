@@ -206,9 +206,7 @@ sexpr_t *native_cons(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    sexpr_t *sexpr = cons(car(expr), cadr(expr));
-
-    return sexpr;
+    return  cons(car(expr), cadr(expr));
 }
 
 /* (car sexpr) */

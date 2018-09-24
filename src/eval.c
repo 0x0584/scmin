@@ -108,7 +108,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     if (kwd_func)		/* symbol was a keyword */
 	result = kwd_func(scope, cdr(expr));
-    else if (isbonded(scope, expr))	/* symbol was bounded  */
+    else if (isbonded(scope, expr)) /* symbol was bounded  */
 	result = resolve_bond(scope, expr);
     else if (isatom(expr))	/* just an atom/nil */
 	result = expr;
@@ -138,7 +138,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     while (!isnil(foo = cdr(foo))) {
 	bar = cons(eval_sexpr(scope, car(foo)), nil);
-	
+
 	if (!args)
 	    args = bar;
 	else
@@ -214,7 +214,7 @@ vector_t *eval_sexprs(scope_t * s, vector_t * sexprs) {
 
 /* (define symbol 's-expr) */
 sexpr_t *eval_define(scope_t * s, sexpr_t * expr) {
-    sexpr_t *tmp = eval_sexpr(s, car(cdr(expr)));
+    sexpr_t *tmp = eval_sexpr(s, cadr(expr));
 
 #if EVALUATOR_DEBUG == DBG_ON
     puts("evaluated define");
@@ -251,7 +251,7 @@ void eval_testing() {
 
     /* scope_describe(gs); */
 
-    v = read_stream_tokens("examples/basic.scm");
+    v = read_stream_tokens("examples/lists.scm");
 
     /* puts("stream of tokens"); */
     /* vector_print(v); */
