@@ -22,8 +22,6 @@
  *
  * @return the desired character
  * @note string must not be NULL
- *
- * FIXME: try to keep track of multiple string at once
  */
 char stream_string(const string_t str, bool isget) {
     static int index = 0;

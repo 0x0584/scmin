@@ -115,10 +115,6 @@ vector_t *parse_sexprs(vector_t * vtokens) {
     return vector_compact(v);
 }
 
-/* ===================================================================
-** NOTE: there is no check parens here, the lexer did the job
-** FIXME: improve the code
-*/
 sexpr_t *parse_as_list(vector_t * tokens) {
     sexpr_t *expr = NULL, *value = NULL;
     sexpr_t *head = NULL, *tail = NULL;

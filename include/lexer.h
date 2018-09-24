@@ -33,8 +33,6 @@ vector_t *read_tokens(string_t code);
  * by first calling stream_as_string() to get the code
  * then, it calls read_tokens() to get each one in a Vector
  *
- * FIXME: implement stream_as_string() and then this one
- *
  * @see @file vector.h
  * @see @file token.h
  * @see @file characters.h

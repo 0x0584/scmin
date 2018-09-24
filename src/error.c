@@ -23,7 +23,7 @@ static error_t errs[] = {
 
     {"NUMBER HAS MULTIPLE SIGNS", ERR_NUM_SIGN},
     {"NUMBER HAS MULTIPLE PERIODS", ERR_NUM_PRD},
-    /* TODO: parse this as symbol */
+    /* FIXME: probably parse this as symbol */
     {"NUMBER HAS ALPHA CHARACTERS", ERR_NUM_DIG},
 
     {"ARGUMENT TYPE IS NOT CORRECT", ERR_ARG_TYPE},

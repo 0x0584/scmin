@@ -204,8 +204,6 @@ bool clean_comments(string_t code) {
 /*
  * ==================================================================
  * the following read functions return NULL if an error occurs
- * FIXME: stop the whole process.
- * this might need to implement an error system
  * ==================================================================
  */
 string_t read_as_string(const string_t code) {
@@ -213,8 +211,6 @@ string_t read_as_string(const string_t code) {
     int i = 0;
     char c;
 
-    /* this loop must end by its condition
-     * otherwise this would count as an error */
     while ((c = getnc(code)) != '\"' && c != EOF) {
 	err_raise(ERR_SIZE_ERR, TOK_LIMIT(i));
 	err_raise(ERR_EOF_ERR, c == EOF);

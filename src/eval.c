@@ -175,7 +175,8 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     err_raise(ERR_RSLT_NULL, !result);
 
-    /* FIXME: after finishing the evaluation you need to clean the memory */
+    /* FIXME: clean memory after the evaluation ends
+     * which would be done using evaluation contexts */
     /* gc_collect(false); */
 
 #if EVALUATOR_DEBUG == DBG_ON
