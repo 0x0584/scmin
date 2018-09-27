@@ -15,6 +15,8 @@
 #include "../include/context.h"
 #include "../include/pair.h"
 
+extern vector_t *errlog;
+
 static vector_t *gc_allocd_sexprs;
 static vector_t *gc_allocd_lambdas;
 static vector_t *gc_allocd_scopes;
@@ -28,6 +30,7 @@ void gc_init(void) {
 				    context_describe, NULL);
 }
 
+
 void gc_clean(void) {
     gc_collect(true);
 
@@ -35,6 +38,8 @@ void gc_clean(void) {
     vector_free(gc_allocd_lambdas);
     vector_free(gc_allocd_sexprs);
     vector_free(gc_allocd_contexts);
+
+    vector_free(errlog);
 }
 
 long gc_allocated_size(void) {

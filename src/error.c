@@ -11,7 +11,8 @@
 #include "../include/main.h"
 #include "../include/vector.h"
 
-static vector_t *errlog = NULL;
+vector_t *errlog = NULL;
+
 static error_t errs[] = {
     {"PARENS ARE NOT BALANCED", ERR_PRNS_BLNC},
     {"STARTING WITH A CLOSING PAREN", ERR_PRNS_CLS},

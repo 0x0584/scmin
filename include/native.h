@@ -47,7 +47,6 @@ sexpr_t *native_set_car(sexpr_t * expr);
 sexpr_t *native_set_cdr(sexpr_t * expr);
 
 sexpr_t *native_print(sexpr_t * expr);
-sexpr_t *native_eval(sexpr_t * expr);
 
 sexpr_t *native_isnil(sexpr_t * expr);
 sexpr_t *native_istrue(sexpr_t * expr);

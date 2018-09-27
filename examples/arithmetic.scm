@@ -6,7 +6,7 @@
 
 ;; all arithmetic operators take n-arguments except
 ;; for division. it takes exactly two arguments.
-(+ 1 2)					; 3
+(+ 1 2 1)				; 4
 (- 1 2 2)				; -3
 (* 1 2 2)				; 4
 (/ 25 5)				; 5
@@ -32,3 +32,16 @@
 ;; using variables in operations
 (+ num-1 num-2)				; 14
 (+ num-1 (* 3 num-2))			; 26
+
+
+(< num-1 num-2)
+(<= num-1 num-2)
+(> num-1 num-2)
+(>= num-1 num-2)
+(= num-1 num-2)
+
+(< num-1 num-1)
+(<= num-1 num-1)
+(> num-1 num-1)
+(>= num-1 num-1)
+(= num-1 num-1)

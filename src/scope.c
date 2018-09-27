@@ -29,11 +29,8 @@ void bond_free(object_t o) {
     if (b == NULL)
 	return;
 
-    /* printf(" >>>> %s <<<< \n", b->key); */
-
     free(b->key);
     free(b);
-    /* b->sexpr is handled by the garbage collector! */
 }
 
 bool bond_cmp(object_t o1, object_t key) {
@@ -147,7 +144,6 @@ scope_t *global_scope_init(void) {
 	{"not", native_not},
 
 	{"print", native_print},
-	{"eval", native_eval},
 
 	{NULL, NULL}
     };
