@@ -25,7 +25,7 @@ bool bond_cmp(object_t o1, object_t o2);
 void bond_describe(object_t b);
 bool isbonded(scope_t *s,sexpr_t *);
 sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr);
-bool bind_lambda_args(scope_t *s,lambda_t *l, sexpr_t *args);
+void bind_lambda_args(scope_t *s,lambda_t *l, sexpr_t *args);
 
 scope_t *scope_init(scope_t * parent);
 void scope_describe(object_t s);

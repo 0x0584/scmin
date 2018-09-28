@@ -29,6 +29,7 @@ static struct {
     string_t keyword;
     k_func func;
 } kwd[] = {
+    {"lambda", eval_lambda},
     {"quote", eval_quote},
     {"define", eval_define},
     {"if", eval_if},
@@ -96,7 +97,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     if (expr == NULL)
 	return sexpr_nil();
 
-    sexpr_t *result = NULL, *operator = NULL;
+    sexpr_t *result = NULL, *op = NULL;	/* operator */
     k_func kwd_func = iskeyword(car(expr));
 
     /* ==================== ==================== ==================== */
@@ -108,7 +109,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     if (kwd_func)		/* symbol was a keyword */
 	result = kwd_func(scope, cdr(expr));
-    else if (isbonded(scope, expr)) /* symbol was bounded  */
+    else if (isbonded(scope, expr))	/* symbol was bounded  */
 	result = resolve_bond(scope, expr);
     else if (isatom(expr))	/* just an atom/nil */
 	result = expr;
@@ -122,12 +123,12 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     if (result)			/* we have a result */
 	goto RET;
-    else if (!(operator = eval_sexpr(scope, car(expr))))
+    else if (!(op = eval_sexpr(scope, car(expr))))
 	goto FAILED;		/* no operator was found */
 
 #if EVALUATOR_DEBUG == DBG_ON
-  puts(operator ? "we have an operator ":"there is no operator");
-    sexpr_print(operator);
+    puts(op ? "we have an operator " : "there is no operator");
+    sexpr_describe(op);
 #endif
 
     /* ==================== ==================== ==================== */
@@ -143,6 +144,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	    args = bar;
 	else
 	    set_cdr(tail, bar);
+
 	tail = bar;
     }
 
@@ -154,23 +156,43 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     /* ==================== ==================== ==================== */
 
-    if (operator-> l->isnative)	/* call the native function */
-	result = operator-> l->native->func(args);
-    else {			/* interprete the lambda */
-	sexpr_t *tmp = operator-> l->body;
+    if (op->l->isnative) {	/* call the native function */
+	result = op->l->native->func(args);
+	puts("-------");
+    } else {			/* interprete the lambda */
 	scope_t *child = scope_init(scope);
 
 	/* TODO: bind lambda args to evaluated args */
+
+	/* sexpr_describe(args); */
+	/* sexpr_describe(op->l->args); */
+	
+        /* printf("%d - %d \n", sexpr_length(args), sexpr_length(op->l->args)); */
+
+	
 	err_raise(ERR_LMBD_ARGS,
-		  !bind_lambda_args(child, operator-> l, args));
+		  sexpr_length(args) != sexpr_length(op->l->args));
 
 	if (err_log())
 	    goto FAILED;
 
-	while (!isnil(tmp)) {
-	    result = eval_sexpr(child, car(tmp));
-	    tmp = cdr(tmp);
-	}
+	bind_lambda_args(child, op->l, args);
+	/* scope_describe(child); */
+	
+	puts("================================================================");
+	/* while (!isnil(tmp)) { */
+	/*     sexpr_print(tmp); */
+	/*     sexpr_print(car(tmp)); */
+	/*     puts(" $$$ "); */
+
+	sexpr_print(op->l->body);
+	result = eval_sexpr(child, op->l->body);
+	sexpr_print(result);
+	
+	/*     puts(" ### "); */
+	/*     tmp = cdr(tmp); */
+	/* } */
+	puts("================================================================");
     }
 
     err_raise(ERR_RSLT_NULL, !result);
@@ -213,6 +235,10 @@ vector_t *eval_sexprs(scope_t * s, vector_t * sexprs) {
     return vector_compact(v);
 }
 
+sexpr_t *eval_lambda(scope_t * s, sexpr_t * expr) {
+    return lambda_new(s, car(expr), cadr(expr));
+}
+
 /* (define symbol 's-expr) */
 sexpr_t *eval_define(scope_t * s, sexpr_t * expr) {
     sexpr_t *tmp = eval_sexpr(s, cadr(expr));
@@ -223,9 +249,9 @@ sexpr_t *eval_define(scope_t * s, sexpr_t * expr) {
 /* (if (condition) (true) (false)) */
 sexpr_t *eval_if(scope_t * s, sexpr_t * expr) {
     if (istrue(eval_sexpr(s, car(expr))))
-	return eval_sexpr(s,cadr(expr));
+	return eval_sexpr(s, cadr(expr));
     else
-	return eval_sexpr(s,caddr(expr));
+	return eval_sexpr(s, caddr(expr));
 }
 
 sexpr_t *eval_quote(scope_t * s, sexpr_t * expr) {
@@ -242,7 +268,7 @@ void eval_testing() {
 
     /* scope_describe(gs); */
 
-    v = read_stream_tokens("examples/arithmetic.scm");
+    v = read_stream_tokens("examples/lambdas.scm");
 
     /* puts("stream of tokens"); */
     /* vector_print(v); */

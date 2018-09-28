@@ -146,9 +146,9 @@ token_t *next_token(const string_t code) {
 	vbuffer = read_as_number(code);
 	break;
 
+    default:
     case EOL:
     case TOK_ERR:
-    default:
 	return NULL;
     };
 

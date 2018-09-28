@@ -23,8 +23,6 @@ enum TOKEN_TYPE {
 
     TOK_QUOTE,
 
-    TOK_LAMBDA,
-
     TOK_SYMBOL,
     TOK_STRING,
     TOK_NUMBER,

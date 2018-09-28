@@ -1,4 +1,5 @@
 #include "../include/scope.h"
+#include "../include/pair.h"
 #include "../include/native.h"
 #include "../include/vector.h"
 
@@ -65,18 +66,27 @@ sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr) {
 
     bond_t *resolved = NULL;
 
-    if (!(resolved = vector_find(s->bonds, expr->s)))
-	return NULL;
-    else
-	return resolved->sexpr;
+    resolved = vector_find(s->bonds, expr->s);
+
+    if (resolved == NULL && s->parent != NULL)
+	resolved = vector_find(s->parent->bonds, expr->s);
+
+    return resolved ? resolved->sexpr : NULL;
 }
 
 bool isbonded(scope_t * s, sexpr_t * expr) {
     return resolve_bond(s, expr) != NULL;
 }
 
-bool bind_lambda_args(scope_t * s, lambda_t * l, sexpr_t * args) {
-    return s && l && args;
+void bind_lambda_args(scope_t * s, lambda_t * l, sexpr_t * args) {
+    sexpr_t *foo = l->args, *bar = NULL; /* lambda's tmp */
+    sexpr_t *fuzz = args, *buzz = NULL;	 /* arg's tmp */
+
+    while (!isnil(foo)) {
+	bar = car(foo), buzz = car(fuzz);
+	vector_push(s->bonds, bond_new(bar->s, buzz));
+	foo = cdr(foo), fuzz = cdr(fuzz);
+    }
 }
 
 scope_t *scope_init(scope_t * parent) {

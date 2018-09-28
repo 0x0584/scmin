@@ -272,7 +272,7 @@ void lambda_print(object_t o) {
 	return;
     }
 
-    printf("[%s] ", l->gci.ismarked ? "X" : " ");
+    /* printf("[%s] ", l->gci.ismarked ? "X" : " "); */
 
     /* if (l->parent != NULL) */
     /*	scope_describe(l->parent); */

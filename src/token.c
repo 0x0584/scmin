@@ -84,9 +84,6 @@ void token_print(object_t t) {
     case TOK_STRING:
 	type_str = "TOK_STRING";
 	break;
-    case TOK_LAMBDA:
-	type_str = "TOK_LAMBDA";
-	break;
     case TOK_SYMBOL:
 	type_str = "TOK_SYMBOL";
 	break;
