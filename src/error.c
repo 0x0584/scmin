@@ -24,6 +24,7 @@ static error_t errs[] = {
 
     {"NUMBER HAS MULTIPLE SIGNS", ERR_NUM_SIGN},
     {"NUMBER HAS MULTIPLE PERIODS", ERR_NUM_PRD},
+    {"DIVIDING BY ZERO", ERR_DIVID_ZERO},
     /* FIXME: probably parse this as symbol */
     {"NUMBER HAS ALPHA CHARACTERS", ERR_NUM_DIG},
 

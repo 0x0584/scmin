@@ -89,7 +89,7 @@ sexpr_t *native_divid(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    err_raise(ERR_ARG_TYPE, !tmp0->n);
+    err_raise(ERR_DIVID_ZERO, !tmp0->n);
 
     if (err_log())
 	return sexpr_err();

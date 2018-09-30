@@ -1,7 +1,17 @@
-;; This is a test file
+;; TODO: implement those functions
+;; string is an elementary datatype, it represents the usual
+;; idea of character sequence, which are stored in a c-array
 
-(define x (+ 5 4))
-(define y (+ 1 (square x)))
-(define z (if (> x y) (list x (+ x 1) (+ x 2)) (* y 2)))
+(string? "this is a string")		; t
+(string? 'a)				; nil
 
-(print z)
+(quote a)
+(define p3 '((A B C D) E F (G H (I J K) (L M)) N) O)
+;; (cdr (cdr (cdr (car (cdr (car p3))))))
+
+(car (cdr (car (cdr (cdr (cdr p3))))))
+
+(print "hahaha")
+(print 1)
+(print 'a)
+(print p3)

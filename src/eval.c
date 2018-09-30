@@ -268,7 +268,7 @@ void eval_testing() {
 
     /* scope_describe(gs); */
 
-    v = read_stream_tokens("examples/lambdas.scm");
+    v = read_stream_tokens("examples/test.scm");
 
     /* puts("stream of tokens"); */
     /* vector_print(v); */

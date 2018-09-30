@@ -7,9 +7,12 @@
 (pair? p0)				; t
 (list? p0)				; nil
 
+(cons 1 2)				; (1 . 2)
+(cons 1 (cons 2 nil))			; (1 2) <-> (1 . (2 . nil))
+
 ;; list are terminated with nil, always
 (define p1 (cons 'A (cons 'B nil)))	; (A B)
-(pair? p1)				; t
+(pair? p1)				; nil
 (list? p1)				; t
 
 ;; another way to create lists
@@ -31,6 +34,8 @@
 
 (set-cdr p2 p1)				; t
 (print p2)				; (1 (2 a b) 3 5 (a b c))
+(define p3 '((1 2 3 4) 5 6 (7 8 (9 10 11) (12 13)) 14) 15)
+(cdr (cdr (cdr (car (cdr (car p3))))))
 
 ;; getting information on a list
 (length p0)				; 2
