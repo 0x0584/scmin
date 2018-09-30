@@ -7,12 +7,13 @@
   + [X] evaluate the parsed s-expression object
   + [X] memory is handled via a garbage collector
   + [-] syntax support
-    + [X] arithmetic operators =+=, =-=, =*= and =/=
+    + [X] arithmetic operators =+=, =-=, =*= and =/= 
+    + [X] arithmetic comparison operators
     + [X] cons-pairs operators =cons=, =car=, =cdr=, =set-car= and =set-cdr=
     + [X] logical operators =and=, =or= and =not=
     + [X] defining variables +and constants+ using =define= +and undefine them using =undef=+ 
-    + [ ] support  =eq?=, =if=, =cond=, ...
-    + [ ] support lambda expressions
+    + [X] conditioning using =if= and logical operatos  =and=, =or=, =not=
+    + [X] support lambda expressions
   + [ ] +support recursion+
   + [ ] +support simple objects+
 
