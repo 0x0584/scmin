@@ -5,6 +5,17 @@
 ;; using define keyword
 (define foo (lambda (x y) (if (< x y) (+ x y) (* x y))))
 
+(while (expr) (exprs))
+(for (i (expr) j) (expr))
+(define j 1)
+
+(for (0 (< i 10) j) (print "test"))
+(for (i (t) j) (if (< i 10) (print "test") (break)))
+
+(let ((i)))
+(define fact (lambda (n) (if (n <= 1) 1 (* n (fact (- n 1))))))
+(fact 4)
+
 ;; and then calling them using as expression
 ;; (bar 3 2)				; 5
 ;; (baz 2 4)				; 6
