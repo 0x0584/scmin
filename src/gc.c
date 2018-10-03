@@ -61,6 +61,11 @@ void gc_collect(bool iscleanup) {
 	printf("%s ", "final");
     else
 	puts("collectng");
+
+    printf("\nsexprs:%d\nscopes:%d\nlambdas:%d\n",
+	   gc_allocd_sexprs->size,
+	   gc_allocd_scopes->size,
+	   gc_allocd_lambdas->size);
 #endif
 
     /* ignore garbage collection in case of not surpassing limit */
@@ -68,24 +73,26 @@ void gc_collect(bool iscleanup) {
 	return;
 
     gc_setmark_scope(get_global_scope(), true);
-
-    #if GC_DEBUG == DBG_ON
-    puts("\n================ sweep sexprs ==================\n");
-    #endif
-
-    gc_sweep_sexprs(gc_allocd_sexprs);
-
     #if GC_DEBUG == DBG_ON
     puts("\n================ sweep scopes ==================\n");
     #endif
 
     gc_sweep_scopes(gc_allocd_scopes);
 
+    gc_setmark_scope(get_global_scope(), true);
     #if GC_DEBUG == DBG_ON
     puts("\n================ sweep lambdas ==================\n");
     #endif
 
     gc_sweep_lambdas(gc_allocd_lambdas);
+
+    gc_setmark_scope(get_global_scope(), true);
+    #if GC_DEBUG == DBG_ON
+    puts("\n================ sweep sexprs ==================\n");
+    #endif
+
+    gc_sweep_sexprs(gc_allocd_sexprs);
+
 
 
 #if GC_DEBUG == DBG_ON
@@ -127,7 +134,7 @@ void gc_sweep_sexprs(vector_t * v) {
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
-	if(!tmp || (islambda(tmp) && tmp->l->isnative))
+	if(!tmp || isnative(tmp))
 	    continue;
 
 	if (!tmp->gci.ismarked) {
@@ -185,11 +192,11 @@ void gc_setmark_lambda(lambda_t * l, bool mark) {
 	return;
 
     l->gci.ismarked = mark;
+
     gc_setmark_sexpr(l->args, mark);
 
-    if (!l->isnative) {
+    if (!l->isnative)
 	gc_setmark_sexpr(l->body, mark);
-    }
 
     gc_setmark_scope(l->parent, mark);
 }
@@ -296,7 +303,7 @@ void gc_sweep_scopes(vector_t * v) {
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
-	if (tmp->parent == NULL) /* global scope */
+	if (!tmp || tmp->parent == NULL) /* global scope */
 	    continue;
 
 	if (!tmp->gci.ismarked) {
@@ -343,9 +350,6 @@ void gc_free_scope(object_t o) {
     scope_t *s = o;
 
     vector_free(s->bonds);
-
-    if (s->parent)
-	gc_free_scope(s->parent);
 
     free(s);
 }

@@ -128,8 +128,6 @@ string_t read_as_number(string_t code);
  */
 string_t read_as_symbol(string_t code);
 
-string_t read_as_lambda(const string_t code);
-
 void lexer_testing(void);
 
 #endif				/* _SCMIN_LEXER_H */

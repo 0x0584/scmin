@@ -185,9 +185,9 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	/*     sexpr_print(car(tmp)); */
 	/*     puts(" $$$ "); */
 
-	sexpr_print(op->l->body);
+	/* sexpr_print(op->l->body); */
 	result = eval_sexpr(child, op->l->body);
-	sexpr_print(result);
+	/* sexpr_print(result); */
 	
 	/*     puts(" ### "); */
 	/*     tmp = cdr(tmp); */
@@ -199,7 +199,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     /* FIXME: clean memory after the evaluation ends
      * which would be done using evaluation contexts */
-    /* gc_collect(false); */
+    /* gc_collect(true); */
 
 #if EVALUATOR_DEBUG == DBG_ON
     puts("result: ");

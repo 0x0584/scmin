@@ -5,7 +5,7 @@
 #include "../include/lexer.h"
 
 bool isnil(sexpr_t * expr) {
-    return !expr ? false : expr->type == T_NIL;
+    return expr == NULL ? false : expr->type == T_NIL;
 }
 
 bool istrue(sexpr_t * expr) {
@@ -17,31 +17,34 @@ bool isatom(sexpr_t * expr) {
 }
 
 bool issymbol(sexpr_t * expr) {
-    return !expr ? false : expr->type == T_SYMBOL;
+    return expr == NULL ? false : expr->type == T_SYMBOL;
 }
 
 bool isnumber(sexpr_t * expr) {
-    return !expr ? false : expr->type == T_NUMBER;
+    return expr == NULL ? false : expr->type == T_NUMBER;
 }
 
 bool isstring(sexpr_t * expr) {
-    return !expr ? false : expr->type == T_STRING;
+    return expr == NULL ? false : expr->type == T_STRING;
 }
 
 bool ispair(sexpr_t * expr) {
-    return !expr ? false : expr->type == T_PAIR;
+    return expr == NULL ? false : expr->type == T_PAIR;
 }
 
 bool islist(sexpr_t * expr) {
-    return !expr ? false : ispair(expr) && expr->c->islist;
+    return expr == NULL ? false : ispair(expr) && expr->c->islist;
 }
 
 bool islambda(sexpr_t * expr) {
-    return !expr ? false : expr->type == T_LAMBDA;
+    return expr == NULL ? false : expr->type == T_LAMBDA;
 }
 
 bool isnative(sexpr_t * expr) {
-    return islambda(expr) && expr->l->isnative;
+    if (islambda(expr))
+	return expr->l->isnative;
+    else
+	return false;
 }
 
 sexpr_t *sexpr_new(type_t type) {
@@ -238,6 +241,8 @@ void _sexpr_print(object_t o) {
 }
 
 void sexpr_print(object_t o) {
+    if (o == NULL)
+	return;
     _sexpr_print(o);
     putchar('\n');
 }
