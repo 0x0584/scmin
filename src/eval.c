@@ -156,10 +156,9 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     /* ==================== ==================== ==================== */
 
-    if (op->l->isnative) {	/* call the native function */
+    if (op->l->isnative) 	/* call the native function */
 	result = op->l->native->func(args);
-	puts("-------");
-    } else {			/* interprete the lambda */
+    else {			/* interprete the lambda */
 	scope_t *child = scope_init(scope);
 
 	/* TODO: bind lambda args to evaluated args */
@@ -179,7 +178,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	bind_lambda_args(child, op->l, args);
 	/* scope_describe(child); */
 	
-	puts("================================================================");
+	/* puts("================================================================"); */
 	/* while (!isnil(tmp)) { */
 	/*     sexpr_print(tmp); */
 	/*     sexpr_print(car(tmp)); */
@@ -192,7 +191,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	/*     puts(" ### "); */
 	/*     tmp = cdr(tmp); */
 	/* } */
-	puts("================================================================");
+	/* puts("================================================================"); */
     }
 
     err_raise(ERR_RSLT_NULL, !result);

@@ -35,7 +35,7 @@
 (set-cdr p2 p1)				; t
 (print p2)				; (1 (2 a b) 3 5 (a b c))
 (define p3 '((1 2 3 4) 5 6 (7 8 (9 10 11) (12 13)) 14) 15)
-(cdr (cdr (cdr (car (cdr (car p3))))))
+;; (cdr (cdr (cdr (car (cdr (car p3))))))
 
 ;; getting information on a list
 (length p0)				; 2

@@ -30,7 +30,6 @@ void gc_init(void) {
 				    context_describe, NULL);
 }
 
-
 void gc_clean(void) {
     gc_collect(true);
 
@@ -64,36 +63,30 @@ void gc_collect(bool iscleanup) {
 
     printf("\nsexprs:%d\nscopes:%d\nlambdas:%d\n",
 	   gc_allocd_sexprs->size,
-	   gc_allocd_scopes->size,
-	   gc_allocd_lambdas->size);
+	   gc_allocd_scopes->size, gc_allocd_lambdas->size);
 #endif
 
     /* ignore garbage collection in case of not surpassing limit */
     if (gc_has_space_left() && !iscleanup)
 	return;
 
-    gc_setmark_scope(get_global_scope(), true);
-    #if GC_DEBUG == DBG_ON
+#if GC_DEBUG == DBG_ON
     puts("\n================ sweep scopes ==================\n");
-    #endif
+#endif
 
     gc_sweep_scopes(gc_allocd_scopes);
 
-    gc_setmark_scope(get_global_scope(), true);
-    #if GC_DEBUG == DBG_ON
+#if GC_DEBUG == DBG_ON
     puts("\n================ sweep lambdas ==================\n");
-    #endif
+#endif
 
     gc_sweep_lambdas(gc_allocd_lambdas);
 
-    gc_setmark_scope(get_global_scope(), true);
-    #if GC_DEBUG == DBG_ON
+#if GC_DEBUG == DBG_ON
     puts("\n================ sweep sexprs ==================\n");
-    #endif
+#endif
 
     gc_sweep_sexprs(gc_allocd_sexprs);
-
-
 
 #if GC_DEBUG == DBG_ON
     puts("================================================\n");
@@ -134,7 +127,7 @@ void gc_sweep_sexprs(vector_t * v) {
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
-	if(!tmp || isnative(tmp))
+	if (!tmp)
 	    continue;
 
 	if (!tmp->gci.ismarked) {
@@ -303,7 +296,7 @@ void gc_sweep_scopes(vector_t * v) {
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
-	if (!tmp || tmp->parent == NULL) /* global scope */
+	if (!tmp || tmp->parent == NULL)	/* global scope */
 	    continue;
 
 	if (!tmp->gci.ismarked) {

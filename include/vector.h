@@ -29,6 +29,7 @@
 /**
  * this is the typical function for vector operation
  */
+typedef void (*debug_t) (FILE*, object_t);
 typedef void (*operation_t) (object_t);
 typedef bool (*compare_t) (object_t, object_t);
 
@@ -46,6 +47,7 @@ struct VECTOR {
     object_t *objs;	       /** array of Objects */
     operation_t free_obj, print_obj;
     compare_t cmp_obj;
+    debug_t dbg_obj;
 };
 
 /**
@@ -161,6 +163,7 @@ object_t vector_peek(vector_t * v);
 object_t vector_find(vector_t *v, object_t o);
 
 void vector_debug(FILE * stream, vector_t * v);
+void vector_set_debug(vector_t *v, debug_t dbg);
 
 void vector_testing(void);
 

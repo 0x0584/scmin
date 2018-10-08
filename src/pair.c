@@ -28,8 +28,6 @@ sexpr_t *cons(sexpr_t * car, sexpr_t * cdr) {
     else
 	expr->c->islist = false;
 
-
-
     return expr;
 }
 

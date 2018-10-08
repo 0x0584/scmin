@@ -36,6 +36,9 @@ vector_t *vector_new(operation_t free_obj, operation_t print_obj,
     v->print_obj = print_obj;
     v->cmp_obj = cmp_obj;
 
+    /* this one is initalized using vector_set_debug() */
+    v->dbg_obj = NULL;
+
     return v;
 }
 
@@ -56,7 +59,7 @@ void vector_free(object_t o) {
 	for (i = 0; i < v->capacity; ++i)
 	    v->free_obj(v->objs[i]);
 
-    if(v->objs)
+    if (v->objs)
 	free(v->objs);
     free(v);
 
@@ -181,7 +184,7 @@ object_t vector_get(vector_t * v, int i) {
 
 /**
  * eliminating the NULL Objects and set the @p v
- * size and capacity to the new counting of the Objects
+ * size and capacity to the new count of the Objects
  *
  * @param v Vector
  */
@@ -191,40 +194,55 @@ vector_t *vector_compact(vector_t * v) {
     else if (v->size == 0)
 	return v;
 
-    int i = 0, j, size = v->size;
-
-    /* this would literaly shift elements in the array
-     * and there'is a case where the first element
-     * maybe be NULL.
+    /*
+     * =====================================================================
+     *   the idea is to keep the NULLs at the end and bringing the objects
+     *        to the front while the initial order is preserved.
+     * =====================================================================
      *
-     * in that scenario, we would leave a pointer allocated
-     * and set the size and capacity to 0 */
-    for (i = 0; i < size; ++i) {
-	if (!(v->objs[i])) {
-	    for (j = i; j < size - 1; ++j) {
-		v->objs[j] = v->objs[j + 1];
-		if (!v->objs[j + 1])
-		    --size;
-	    }
-	    --size;
-	}
+     * 0. remove NULLs from the back while decreasing the size
+     * 1. starting at the front this time
+     * 1.1. look for the first NULL, save the index_A
+     * 1.2. look for first object, save the index_B
+     * 2. do a swap
+     * 3. repeat start again at index_A
+     */
+
+    object_t *o = v->objs;	/* array of objects */
+    int i, j, k, size;
+
+    for (i = j = k = 0, size = v->size; i < size; ++i) {
+
+	/* removing NULLs from the end */
+	while (size && o[size - 1] == NULL)
+	    size--;
+
+	if (size == 0)
+	    break;		/* vector is all NULLs */
+
+	/* getting the first NULL index */
+	for (j = i; j < size; ++j)
+	    if (o[j] == NULL)
+		break;
+
+	if (j == size)
+	    break;		/* reached the end */
+
+	/* getting the first object index */
+	for (k = j; k < size; ++k)
+	    if (o[k] != NULL)
+		break;
+
+	if (k == size)
+	    break;		/* reached the end */
+
+	o[j] = o[k], o[k] = NULL, i = j;
     }
 
-    /* in case the vecy first object was NULL
-     * but not on the first run */
-    if (v->objs[0] == NULL && i != 0 && size > 0) {
-	size = 0;
-    }
-
-    assert(size >= 0);		/* not sure! */
+    assert(size >= 0);
 
     v->size = size;
     v->capacity = size;
-
-    if (size == 0) {
-	++size;			/* keep the pointer alive */
-    }
-
     v->objs = realloc(v->objs, size * sizeof(object_t));
 
     return v;
@@ -268,38 +286,55 @@ void vector_print(object_t o) {
     puts("-----------------------------------");
 }
 
+void vector_set_debug(vector_t * v, debug_t dbg) {
+    v->dbg_obj = dbg;
+}
+
 void vector_debug(FILE * stream, vector_t * v) {
     int i;
+    char *line = "--------------";
 
-    puts("--------------");
-    fprintf(stream, "[size:%d] [capacity:%d]\n", v->size, v->capacity);
-    puts("--------------");
+    fprintf(stream, "%s\n[size:%d] [capacity:%d]\n%s\n",
+	    line, v->size, v->capacity, line);
+
     for (i = 0; i < v->size; ++i) {
-	fprintf(stream, "[%d] - @%p -", i, v->objs[i]);
-	if (v->print_obj) {
-	    v->print_obj(v->objs[i]);
+	fprintf(stream, "[%2.2d] - @%p", i, v->objs[i]);
+	if (v->dbg_obj) {
+	    fputs(" - ", stream);
+	    v->dbg_obj(stream, v->objs[i]);
 	}
-	puts("");
+	fputc('\n', stream);
     }
-    puts("--------------");
+
+    fputs(line, stream);
+}
+
+void debug_int(FILE * stream, object_t o) {
+    if (!o)
+	return;
+
+    int *i = o;
+
+    fprintf(stream, " %d ", *i);
 }
 
 void print_int(object_t o) {
-    if (!o)
-	return;
-    int *i = o;
-
-    printf(" %d \n", *i);
+    debug_int(stdout, o);
 }
 
 void free_int(object_t o) {
     if (o)
-    return;
+	return;
 }
 
 void vector_testing(void) {
+    int i, size = 20, tab[size];
+    FILE *foo = fopen("2.txt", "w"),
+	*bar = fopen("3.txt", "w"), *baz = fopen("1.txt", "w");
+    srand(time(NULL));
+
     vector_t *v = vector_new(free_int, print_int, NULL);
-    int i, size = 15, tab[size];
+    vector_set_debug(v, debug_int);
 
     for (i = 0; i < size; ++i) {
 	tab[i] = i + 1;
@@ -310,21 +345,24 @@ void vector_testing(void) {
     }
 
     puts("after pushing all objects...");
-    vector_debug(stdout, v);
+    vector_debug(baz, v);
 
     for (i = 0; i < v->size; ++i) {
-	if (i % 3 == 0) {
+	if (rand() % 2 == 0)
 	    vector_set(v, i, NULL);
-	}
     }
 
     puts("after removing mod 3 elements");
-    vector_debug(stdout, v);
+    vector_debug(foo, v);
 
     puts("after compacting the vector");
     vector_compact(v);
-    vector_debug(stdout, v);
+    vector_debug(bar, v);
 
     puts("freeing the vector");
     vector_free(v);
+
+    fclose(foo);
+    fclose(bar);
+    fclose(baz);
 }
