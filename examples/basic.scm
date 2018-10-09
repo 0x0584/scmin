@@ -1,6 +1,16 @@
 ;; this
 
-(define fuzz '(1 2 3))
+(define fuzz '(1 2 3))			; (1 2 3)
+
+;; TODO: implement set and setq
+(set 'fuzz '(5 2 4))			; (5 2 4)
+(setq fuzz (3 2 4))			; (3 2 4)
+(set (car fuzz) 7)			; 7
+
+;; TODO: implement undef
+(define here '(a b c d))		; (a b c d)
+(undef here)				; t
+(null? here)				; t
 
 (atom? fuzz)				; nil
 (atom? (car fuzz))			; t
@@ -28,6 +38,5 @@
 ;; FIXME: a bug when inserting comments between expressions
 (if (or t nil)
     (print "yeah")
-    (print "no"))
-
+    (print "no"))			; "yeah"
 (if t nil t)				; nil

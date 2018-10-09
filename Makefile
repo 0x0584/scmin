@@ -1,29 +1,10 @@
-# DEFAULT COMPILER SETUP
-CC = gcc
-CFLAGS = -ggdb -Wall -Wextra
-# -O2 -Werror -pedantic -Wpadded
-LDFLAGS = -I. -lm
+include init.mk
 
 # DEFAULT PROGRAM NAME
 EXEC = scmin
-# DEFAULT DEBUGGING FLAGS
-GDB_FLAGS = -x gdb.txt
+
 # DEFAULT PROGRAM ARGUMENTS
 ARGS = "(+ 4 5)"
-
-# SOURCE OF C FILES
-SRCDIR = src
-# SOURCE OF HEADER FILES
-DEPSDIR = include
-# WHERE TO PUT OBJECT FILES 
-OBJDIR = bin
-
-# GET C AND HEADER FILES INTO SRC, DEPS RECEPTIVELY
-SRC := $(shell find $(SRCDIR) -name '*.c')
-DEPS:= $(shell find $(DEPSDIR) -name '*.h')
-
-# DEDUCT THE OBJECT-FILE NAMES BASED ON C FILES
-OBJ := $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRC))
 
 all: main
 	@echo  "done.\n"
@@ -36,13 +17,6 @@ main: build-dir $(OBJ)
 build-dir:
 	@echo "building objects.."
 	@$(call make-dir)
-
-define make-dir
-	for dir in $(OBJDIR); \
-	do \
-	mkdir -p $$dir; \
-	done
-endef
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $< $(LDFLAGS) 
@@ -62,7 +36,7 @@ valk: build
 	valkyrie ./$(EXEC)
 
 gdb: build
-	gdb $(GDB_FLAGS) $(EXEC)
+	gdb $(GFLAGS) $(EXEC)
 clean:
 	@echo  "cleaning up.."
 	$(RM) $(EXEC)
