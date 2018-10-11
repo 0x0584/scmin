@@ -64,9 +64,7 @@ sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr) {
     if (!issymbol(expr))
 	return NULL;
 
-    bond_t *resolved = NULL;
-
-    resolved = vector_find(s->bonds, expr->s);
+    bond_t *resolved = vector_find(s->bonds, expr->s);
 
     if (resolved == NULL && s->parent != NULL)
 	resolved = vector_find(s->parent->bonds, expr->s);

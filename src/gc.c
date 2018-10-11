@@ -15,12 +15,12 @@
 #include "../include/context.h"
 #include "../include/pair.h"
 
-extern vector_t *errlog;
+extern vector_t *error_log;
 
-static vector_t *gc_allocd_sexprs;
-static vector_t *gc_allocd_lambdas;
-static vector_t *gc_allocd_scopes;
-static vector_t *gc_allocd_contexts;
+vector_t *gc_allocd_sexprs;
+vector_t *gc_allocd_lambdas;
+vector_t *gc_allocd_scopes;
+vector_t *gc_allocd_contexts;
 
 void gc_init(void) {
     gc_allocd_sexprs = vector_new(gc_free_sexpr, sexpr_print, NULL);
@@ -38,7 +38,7 @@ void gc_clean(void) {
     vector_free(gc_allocd_sexprs);
     vector_free(gc_allocd_contexts);
 
-    vector_free(errlog);
+    vector_free(error_log);
 }
 
 long gc_allocated_size(void) {

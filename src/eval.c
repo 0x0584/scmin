@@ -1,17 +1,19 @@
 /**
  * @file eval.c
  *
- * @brief this file contains declarations of the core evaluation methods
- * that would take a parsed s-expression and evaluate it into
- * another s-expression.
+ * @brief declarations of the core evaluation functions, those would take
+ * a parsed s-expressions and evaluate them into another s-expression.
  *
- * the main method here is eval_sexpr(), which takes a parsed s-expression
- * and and it's containing scope and return the result.
+ * the main method here is eval_sexpr() for a single expression, and
+ * eval_sexprs() for a vector of sexprs, both functions require parsed
+ * s-expressions. in addition of the expressions to evaluate, a
+ * containing scope is required, which would basically hold bonded
+ * and/or predefined ones. 
  *
- * @see @file eval.h
- * @see @file scope.h
- * @see @file pair.h
- * @see @file native.h
+ * @see eval.h
+ * @see parser.h
+ * @see scope.h
+ * @see native.h
  */
 
 #include "../include/eval.h"
@@ -21,33 +23,6 @@
 #include "../include/pair.h"
 #include "../include/vector.h"
 #include "../include/characters.h"
-
-/**
- * pairing each keyword with its corespondent function.
- */
-static struct {
-    string_t keyword;
-    k_func func;
-} kwd[] = {
-    {"lambda", eval_lambda},
-    {"quote", eval_quote},
-    {"define", eval_define},
-    {"if", eval_if},
-    {NULL, NULL}
-};
-
-k_func iskeyword(sexpr_t * expr) {
-    int i;
-
-    if (!expr || !issymbol(expr))
-	return NULL;
-
-    for (i = 0; kwd[i].keyword; ++i)
-	if (!strcmp(expr->s, kwd[i].keyword))
-	    return kwd[i].func;
-
-    return NULL;
-}
 
 /**
  * @brief evaluate a @p expr within a given @p scope and return the
@@ -77,14 +52,11 @@ k_func iskeyword(sexpr_t * expr) {
  * cadr() until the cdr() of the expression is nil.
  *
  * next, we look to see if the operator was a native one, then we call the
- * related native function passing the arguments
- *
- *	ELSE
- *	    create a new child-scope;
- *	    bind lambda's args to the child-scope;
- *	    WHILE !isnil(expr->l->body) DO
- *		evaluate each s-expr using child-scope;
- *		return last expression's value;
+ * related native function passing the arguments. or if the the operator was
+ * a bond lambda, we create a new scope (child scope of the current scope)
+ * then bind the lambda arguments to the arguments in the child scope and
+ * evaluate the lambda's body passing the new child scope. finally, the result
+ * is returned
  *
  * @param scope the contaning scope
  * @param expr a s-expreesion to evaluate
@@ -109,7 +81,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     if (kwd_func)		/* symbol was a keyword */
 	result = kwd_func(scope, cdr(expr));
-    else if (isbonded(scope, expr))	/* symbol was bounded  */
+    else if (isbonded(scope, expr)) /* symbol was bounded  */
 	result = resolve_bond(scope, expr);
     else if (isatom(expr))	/* just an atom/nil */
 	result = expr;
@@ -128,15 +100,15 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
 #if EVALUATOR_DEBUG == DBG_ON
     puts(op ? "we have an operator " : "there is no operator");
-    sexpr_describe(op);
+    sexpr_print(op);
 #endif
 
     /* ==================== ==================== ==================== */
 
     sexpr_t *args = NULL, *tail = NULL;
-    sexpr_t *foo = expr, *bar = NULL;
-    sexpr_t *nil = sexpr_nil();
+    sexpr_t *foo = expr, *bar = NULL, *nil = sexpr_nil();
 
+    /* creating a list of arguments */
     while (!isnil(foo = cdr(foo))) {
 	bar = cons(eval_sexpr(scope, car(foo)), nil);
 
@@ -158,40 +130,18 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     if (op->l->isnative) 	/* call the native function */
 	result = op->l->native->func(args);
-    else {			/* interprete the lambda */
-	scope_t *child = scope_init(scope);
-
-	/* TODO: bind lambda args to evaluated args */
-
-	/* sexpr_describe(args); */
-	/* sexpr_describe(op->l->args); */
-	
-        /* printf("%d - %d \n", sexpr_length(args), sexpr_length(op->l->args)); */
-
-	
+    else {			/* evaluate the lambda's body */
+	/* puts("###"); */
 	err_raise(ERR_LMBD_ARGS,
 		  sexpr_length(args) != sexpr_length(op->l->args));
-
+	
 	if (err_log())
 	    goto FAILED;
 
-	bind_lambda_args(child, op->l, args);
-	/* scope_describe(child); */
-	
-	/* puts("================================================================"); */
-	/* while (!isnil(tmp)) { */
-	/*     sexpr_print(tmp); */
-	/*     sexpr_print(car(tmp)); */
-	/*     puts(" $$$ "); */
+	scope_t *child = scope_init(scope);
 
-	/* sexpr_print(op->l->body); */
+	bind_lambda_args(child, op->l, args);
 	result = eval_sexpr(child, op->l->body);
-	/* sexpr_print(result); */
-	
-	/*     puts(" ### "); */
-	/*     tmp = cdr(tmp); */
-	/* } */
-	/* puts("================================================================"); */
     }
 
     err_raise(ERR_RSLT_NULL, !result);
@@ -206,22 +156,34 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 #endif
 
   RET:
+    /* puts("$$$$$$$$$$$$"); */
     return result;
 
   FAILED:
     return NULL;
 }
 
-vector_t *eval_sexprs(scope_t * s, vector_t * sexprs) {
-    int i;
+/**
+ * @brief just like eval_sexpr(), but with a vector of s-expressions
+ * 
+ * @param sexprs a vector of s-expressions
+ * 
+ * @return a vector of the evaluated s-expressions
+ *
+ * @see eval_sexpr()
+ * @see vector.h
+ */
+vector_t *eval_sexprs(vector_t * sexprs) {
     vector_t *v = vector_new(NULL, sexpr_print, NULL);
+    int i;
 
     for (i = 0; i < sexprs->size; ++i) {
 /* #if EVALUATOR_DEBUG == DBG_ON */
 	sexpr_print(vector_get(sexprs, i));
 	sexpr_t *tmp =
 /* #endif */
-	    vector_push(v, eval_sexpr(s, vector_get(sexprs, i)));
+	    vector_push(v, eval_sexpr(get_global_scope(),
+				      vector_get(sexprs, i)));
 
 /* #if EVALUATOR_DEBUG == DBG_ON */
 	printf("> ");
@@ -232,62 +194,4 @@ vector_t *eval_sexprs(scope_t * s, vector_t * sexprs) {
     }
 
     return vector_compact(v);
-}
-
-sexpr_t *eval_lambda(scope_t * s, sexpr_t * expr) {
-    return lambda_new(s, car(expr), cadr(expr));
-}
-
-/* (define symbol 's-expr) */
-sexpr_t *eval_define(scope_t * s, sexpr_t * expr) {
-    sexpr_t *tmp = eval_sexpr(s, cadr(expr));
-    vector_push(s->bonds, bond_new(car(expr)->s, tmp));
-    return tmp;
-}
-
-/* (if (condition) (true) (false)) */
-sexpr_t *eval_if(scope_t * s, sexpr_t * expr) {
-    if (istrue(eval_sexpr(s, car(expr))))
-	return eval_sexpr(s, cadr(expr));
-    else
-	return eval_sexpr(s, caddr(expr));
-}
-
-sexpr_t *eval_quote(scope_t * s, sexpr_t * expr) {
-    if (s || true)
-	return car(expr);
-}
-
-#include "../include/lexer.h"
-#include "../include/parser.h"
-
-void eval_testing() {
-    vector_t *v = NULL, *w = NULL, *x = NULL;
-    scope_t *gs = get_global_scope();
-
-    /* scope_describe(gs); */
-
-    v = read_stream_tokens("examples/test.scm");
-
-    /* puts("stream of tokens"); */
-    /* vector_print(v); */
-    /* puts("-----------\n"); */
-
-    w = parse_sexprs(v);
-    x = eval_sexprs(gs, w);
-
-    /* puts("======================================"); */
-    /* for (int i = 0; i < w->size; ++i) { */
-    /*  puts("================= // ================="); */
-    /*  sexpr_print(vector_get(w, i)); */
-    /*  sexpr_print(vector_get(x, i)); */
-    /*  puts("================= // ================="); */
-    /* } */
-    /* puts("======================================"); */
-
-    vector_free(w);
-    vector_free(x);
-    vector_free(v);
-
-    gc_collect(true);
 }

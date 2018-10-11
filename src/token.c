@@ -1,17 +1,28 @@
 /**
  * @file token.c
  *
- * the main function here is predict_token_type() to guess the type
- * of the token
+ * @brief token functionalites needed by the lexing functions
+ *
+ * @see lexer.h
+ * @see token.h
+ * @see characters.h
  */
 
 #include "../include/token.h"
 #include "../include/characters.h"
 
+/**
+ * @brief predicts the type of a token
+ *
+ * @param code to be passed to getnc()
+ *
+ * @return a token type
+ *
+ * @see characters.h
+ */
 token_type predict_token_type(string_t code) {
     token_type type = TOK_ERR;
     char c;
-    /* printf("\n>>> %c\n", c); */
 
     /* handling lists and literal strings */
     switch (c = getnc(code)) {
@@ -31,15 +42,18 @@ token_type predict_token_type(string_t code) {
 	break;
     };
 
+    /* if we made it up to here, token must be either a number
+     * or a symbol */
+
     if (isdigit(c) || strchr(".-+", c)) {
 	char cc = getnc(code);
 
-	/* next character must be a space/digit
-	 * otherwise it's a symbol */
-	if ((isdigit(cc) || isspace(cc) || cc == ')') && !strchr(".-+", c)) {
-	    type = TOK_NUMBER;
+	/* if next character is a space/digit */
+	if ((isdigit(cc) || isspace(cc) || cc == ')')
+	    && !strchr(".-+", c)) {
+	    type = TOK_NUMBER;	/* it's probably a number  */
 	} else {
-	    type = TOK_SYMBOL;
+	    type = TOK_SYMBOL;	/* otherwise it's a symbol */
 	}
 
 	ungetnc();
@@ -53,6 +67,15 @@ token_type predict_token_type(string_t code) {
     return type;
 }
 
+/**
+ * @brief allocate and inialize a new token
+ *
+ * @param type one of the types in the enum
+ * @param buffer token as text
+ * @param depth how many parens are there
+ *
+ * @return the initialized token
+ */
 token_t *token_new(token_type type, string_t vbuffer, int depth) {
     token_t *token = malloc(sizeof *token);
 
@@ -63,13 +86,24 @@ token_t *token_new(token_type type, string_t vbuffer, int depth) {
     return token;
 }
 
-void token_print(object_t t) {
-#if defined LEXER_DEBUG
-    assert(t != NULL);
-#endif
+/**
+ * @brief display the token to the screen
+ *
+ * diplay the token as DEPTH - TYPE - BUFFER to the stdout using
+ * stdio printf
+ *
+ * @param o the token to print
+ *
+ * @see vector.h
+ * @note the reason why the token's type here is object_t instead of
+ * token is because this is used as printing function by vector_print()
+ */
+void token_print(object_t o) {
+    if(o == NULL)
+	return;
 
     char *type_str = NULL;
-    token_t *token = (token_t *) t;
+    token_t *token = (token_t *) o;
 
     switch (token->type) {
     case TOK_L_PAREN:
@@ -95,7 +129,7 @@ void token_print(object_t t) {
 	break;
     default:
     case TOK_ERR:
-	type_str = "TOK_EOF";
+	type_str = "TOK_ERR";
 	break;
     }
 
@@ -103,18 +137,21 @@ void token_print(object_t t) {
 	   token->depth, type_str, token->vbuffer);
 }
 
+/**
+ * @brief free's the memory occupierd by token
+ *
+ * it frees also the token's buffer if it was not @p NULL
+ *
+ * @param o the token to print
+ *
+ * @see vector.h
+ * @note the reason why the token's type here is object_t instead of
+ * token is because this is used as printing function by vector_print()
+ */
 void token_free(object_t o) {
-#if LEXER_DEBUG
-    token_t *t = o;
-    /* static int i = 0; */
+    token_t *token = o;
 
-    if (t->type != TOK_L_PAREN && t->type != TOK_R_PAREN
-	&& t->type != TOK_QUOTE && t->type != EOL) {
-	assert(t->vbuffer != NULL);
-    }
-#endif
-
-    if (((token_t *) o)->vbuffer != NULL)
-	free(((token_t *) o)->vbuffer);
-    free(o);
+    if (token->vbuffer != NULL)
+	free(token->vbuffer);
+    free(token);
 }

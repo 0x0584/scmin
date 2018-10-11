@@ -36,7 +36,7 @@ valk: build
 	valkyrie ./$(EXEC)
 
 gdb: build
-	gdb $(GFLAGS) $(EXEC)
+	gdb $(GDBFLAGS) $(EXEC)
 clean:
 	@echo  "cleaning up.."
 	$(RM) $(EXEC)

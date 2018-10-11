@@ -9,8 +9,8 @@
  * read_tokes() or read_stream_tokens(), it collects the tokens in a into
  * a Vector
  *
- * @see @file token.h
- * @see @file vector.h
+ * @see token.h
+ * @see vector.h
  */
 
 #  include "main.h"
@@ -21,8 +21,8 @@
  * read and record all the tokens that are in @p code in a Vector
  * by calling next_token() to get each one
  *
- * @see @file vector.h
- * @see @file token.h
+ * @see vector.h
+ * @see token.h
  *
  * @return a vector of tokens found in @p code
  */
@@ -33,9 +33,9 @@ vector_t *read_tokens(string_t code);
  * by first calling stream_as_string() to get the code
  * then, it calls read_tokens() to get each one in a Vector
  *
- * @see @file vector.h
- * @see @file token.h
- * @see @file characters.h
+ * @see vector.h
+ * @see token.h
+ * @see characters.h
  *
  * @return a vector of tokens found in @p code
  */
@@ -52,8 +52,8 @@ vector_t *read_stream_tokens(const char *filename);
  *
  * @return a Token
  *
- * @see getnc() in @file characters.c
- * @see @file token.h
+ * @see getnc()
+ * @see token.h
  *
  * @note this function modifies the static values in of getnc()
  */
@@ -93,8 +93,8 @@ bool clean_whitespaces(string_t code);
  *
  * @return value of the token if type matches, or NULL otherwise
  *
- * @see @file token.h
- * @see getnc() in @file characters.c
+ * @see getnc()
+ * @see token.h
  *
  * @note this function modifies the static values in of getnc()
  */
@@ -107,8 +107,8 @@ string_t read_as_string(string_t code);
  *
  * @return value of the token if type matches, or NULL otherwise
  *
- * @see @file token.h
- * @see getnc() in @file characters.c
+ * @see getnc()
+ * @see token.h
  *
  * @note this function modifies the static values in of getnc()
  */
@@ -121,8 +121,8 @@ string_t read_as_number(string_t code);
  *
  * @return value of the token if type matches, or NULL otherwise
  *
- * @see @file token.h
- * @see getnc() in @file characters.c
+ * @see getnc()
+ * @see token.h
  *
  * @note this function modifies the static values in of getnc()
  */

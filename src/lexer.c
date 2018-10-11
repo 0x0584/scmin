@@ -1,7 +1,7 @@
 /**
  * @file lexer.c
  *
- * @brief this file contains declarations of functionalities to verify
+ * @brief contains declarations of functionalities to verify
  * the grammar of a Scheme-like code and get all tokens in there
  *
  * read_tokens() and read_stream_tokens() are the top level functions
@@ -17,10 +17,10 @@
  * and the those tokens would be used by the parser to convert that
  * set of tokens into a s-expression
  *
- * @see @file lexer.h about further documentation for each function
- * @see @file token.h information about Tokens
- * @see @file vector.h for information about Vectors
- * @see @file characters.h for information about getting strings
+ * @see lexer.h about further documentation for each function
+ * @see token.h information about Tokens
+ * @see vector.h for information about Vectors
+ * @see characters.h for information about getting strings
  *
  */
 
@@ -159,6 +159,7 @@ token_t *next_token(const string_t code) {
 
   RET:
 
+    /* depth is initalized outside */
     return token_new(type, vbuffer, 0);
 }
 
@@ -240,6 +241,7 @@ string_t read_as_number(const string_t code) {
     char c;
 
     while ((c = getnc(code)) != ' ' && c != ')') {
+	/* FIXME: this is better be parsed as symbol instead */
 	err_raise(ERR_NUM_DIG, !isdigit(c) && !strchr("+-.", c));
 	err_raise(ERR_NUM_SIGN, strchr("+-", c) && i);
 	err_raise(ERR_NUM_PRD, c == '.' && period_found);
@@ -292,42 +294,4 @@ string_t read_as_symbol(const string_t code) {
   FAILED:
 
     return free(vbuffer), NULL;
-}
-
-void lexer_testing(void) {
-    /* FILE *stream = stdout; */
-
-    char *exprs[] = {
-	"(\"this is a string\")	 ",
-	"(+ 4512 (* 45 2054))",
-	"(car \'((foo bar) (fuzz buzz)))",
-	"    ; this is cool\n(bar baz)"
-    };
-
-    int i, size = sizeof(exprs) / sizeof(exprs[0]);
-
-    /* for (int i = 0, c; i < size; ++i) { */
-    /*	fprintf(stream, "expression: {\n%s\n}\n", exprs[i]); */
-    /*	fputs("expression using getnc():\n", stream); */
-    /*	while ((c = getnc(exprs[i])) != EOF) { */
-    /*	    fputc(c, stream); */
-    /*	} */
-    /*	fputs("\n\n", stream); */
-    /* } */
-
-    vector_t *tokens;
-
-    for (i = 0; i < size; ++i) {
-	printf("\n-------------\n%s\n-------------\n", exprs[i]);
-	puts("get the tokens");
-	tokens = read_tokens(exprs[i]);
-
-	puts("printing the tokens");
-	vector_debug(stdout, tokens);
-
-	puts("free the tokens");
-	vector_free(tokens);
-	puts("%");
-	/* getchar(); */
-    }
 }

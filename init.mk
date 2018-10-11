@@ -5,7 +5,9 @@ CFLAGS = -ggdb -Wall -Wextra # -O2 -Werror -pedantic -Wpadded
 # LIBRARY FLAGS
 LDFLAGS = -I. -lm
 # DEFAULT DEBUGGING FLAGS
-GFLAGS = -x gdb.txt
+GDBFLAGS = -x gdb.txt
+
+RM = rm -f
 
 # SOURCE OF C FILES
 SRCDIR = src

@@ -1,5 +1,9 @@
-/*
- * this is the main entery point, basically would intialize the
+/**
+ * @mainpage A Minimal Lisp/Scheme Interpreter
+ */
+
+/**
+ * @brief this is the main entery point, basically would intialize the
  * environment, then check if there are any sent-arguments to process.
  *
  *   + if so, it would evaluate them then quit with success (or failure
@@ -12,9 +16,7 @@
 #include "../include/main.h"
 #include "../include/gc.h"
 #include "../include/vector.h"
-
 #include "../include/sexpr.h"
-
 #include "../include/lexer.h"
 #include "../include/parser.h"
 #include "../include/eval.h"

@@ -1,57 +1,147 @@
 #ifndef _SCMIN_SEXPR_H
 #  define _SCMIN_SEXPR_H
 
+/**
+ * @file sexpr.h
+ *
+ * @brief definitions of s-expression and its types, lambda
+ *
+ * provides functionalities to create and identify s-expression of any type
+ *
+ * @see types.h
+ */
+
 #  include "main.h"
 #  include "gc.h"
 
 /**
- * Possible types for an expression to be
+ * @brief possible types of a s-expression
  */
-enum S_EXPR_TYPE {
-    T_PAIR,			/* car, cdr */
+enum SYMBOLIC_EXPRESSION_TYPE {
+    /**
+     * @brief a cons-cell pair; car, cdr
+     */
+    T_PAIR,
 
-    T_NUMBER,			/* 0 -100 0.25 */
-    T_STRING,			/* "string" */
-    T_SYMBOL,			/* foo foo-bar */
+    /**
+     * @brief a number 0 -100 0.25
+     */
+    T_NUMBER,
 
-    T_LAMBDA,			/* (lambda (args) ...) */
+    /**
+     * @brief a "string"
+     */
+    T_STRING,
 
-    T_NIL,			/* like NULL */
-    T_ERR			/* ERROR */
+    /**
+     * @brief a symbol, such as foo or foo-bar
+     */
+    T_SYMBOL,
+
+    /**
+     * @brief (lambda (args) (body))
+     */
+    T_LAMBDA,
+
+    /**
+     * @brief like NULL
+     */
+    T_NIL,
+
+    /**
+     * @brief ERROR flag
+     */
+    T_ERR
 };
 
 /**
- * the lambda expression is an expression that takes
+ * @brief the lambda expression is an expression that takes
  * expressions as arguments, i.e. a function
  *
- * (lambda (args) s-exprs)
+ * @note lambdas are defined as (lambda (args) (body))
+ * @note union is used to manage memory efficiently
  */
 struct LAMBDA {
+    /**
+     * @brief garbage collector information
+     */
     gc_info gci;
+
+    /**
+     * @brief the parent scope of the lambda
+     * @note this would be used if some symbole was bonded to the
+     * `parent` and was used within the lambda
+     */
     scope_t *parent;
-    sexpr_t *args;		/* cadr */
+
+    /**
+     * @brief the lambdas arguments (un-bonded symbols only)
+     */
+    sexpr_t *args;
+
+    /**
+     * @brief true if the lambda is defined nativly in C
+     */
     bool isnative;
 
+
+    /**
+     * @brief the lambda could be either native or a body as s-expression
+     */
     union {
-	native_t *native;	/* native lambda */
-	sexpr_t *body;		/* cddr */
+	/**
+	 * @brief native lambda defined in C
+	 */
+	native_t *native;
+
+	/**
+	 * @brief the lambda's body
+	 */
+	sexpr_t *body;
     };
 };
 
 /**
- * A Lisp token sexpr must contain it's type and then one of
- *   the possible sexprs based on that type
+ * @brief a Lisp/Scheme s-expression contain it's type and the correspondant
+ * field
+ *
+ * @note the usage of union is to use memory efficiently
  */
-struct S_EXPR {
+struct SYMBOLIC_EXPRESSION {
+    /**
+     * @brief garbage collector information
+     */
     gc_info gci;
-    type_t type;		/** which TYPE this is */
 
-    /* possible sexprs */
+    /**
+     * @brief s-expression type
+     */
+    type_t type;
+
+    /**
+     * @brief possible s-expression since each type require a differnt
+     * data type to hold data
+     */
     union {
-	string_t s;		/** STRING - ATOM */
-	number_t n;		/** NUMBER */
-	pair_t *c;		/** car - cdr */
-	lambda_t *l;		/* lambda expression */
+	/**
+	 * @brief string/atom
+	 */
+	string_t s;
+
+	/**
+	 * @brief number
+	 */
+	number_t n;
+
+	/**
+	 * @berif cons cell pair car/cdr
+	 */
+	pair_t *c;
+
+	/**
+	 * @brief lambda expression
+	 */
+	lambda_t *l;
     };
 };
 
@@ -67,14 +157,14 @@ bool islist(sexpr_t * expr);
 bool isnative(sexpr_t * expr);
 
 sexpr_t *sexpr_new(type_t type);
+void sexpr_describe(object_t expr);
+void sexpr_print(object_t expr);
+int sexpr_length(sexpr_t * expr);
+
 sexpr_t *sexpr_err(void);
 sexpr_t *sexpr_nil(void);
 sexpr_t *sexpr_true(void);
 
-void sexpr_describe(object_t expr);
-void sexpr_print(object_t expr);
-int sexpr_length(sexpr_t * expr);
-sexpr_t *sexpr_tostr(sexpr_t * expr);
 sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
 			   native_t * func);
 sexpr_t *lambda_new(scope_t * parent, sexpr_t * args, sexpr_t * body);

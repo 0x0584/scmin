@@ -1,27 +1,34 @@
 /**
  * @file characters.c
  *
- * this file contains declarations of useful character handling functionalities
- * to help simulating string as a stream of characters so that we can keep an
- * eye on the last character we have been on last time.
+ * @brief contains declarations of useful character handling functionalities.
+ *
+ * the essence of those functions is to help simulating string as a stream of
+ * characters so that we can keep an eye on the last character we have
+ * been on last time.
  */
 
 #include "../include/characters.h"
 
 /**
- * stream_string() holds two static variables, one for the old string and one
- * for the current index. if oldstr == @p str that means that the string is
- * the same as the previous time and  we return	 the current character and
- * then increment index. otherwise, we set the oldstr to str, and we return
- * the first character. if false, we return than this is the old string, we
- * look for the isget. if @p isget was true, * return the current character,
- * otherwise, resent the character to the stream by --index
+ * @brief when it's called, if the same parameter `str` was passed, it
+ * would return the characters of `str` succesivly each time.
+ *
+ * holds two static variables, one for the old string and one for the
+ * current index. if `oldstr == str` that means that the string is the
+ * same as the previous time and  we return the current character and
+ * then increment index. otherwise, we set the `oldstr` to `str`, and
+ * we return the first character. if `false`, we return than this is the
+ * old string, we look for the `isget`. if `isget` was `true`, return
+ * the current character, otherwise, resent the character to the stream
+ * by decrementing the index
  *
  * @param str a string to keep track on
  * @param isget take or push back current character
  *
  * @return the desired character
- * @note string must not be NULL
+ *
+ * @note string must not be `NULL`
  */
 char stream_string(const string_t str, bool isget) {
     static int index = 0;
@@ -55,7 +62,14 @@ char stream_string(const string_t str, bool isget) {
     }
 }
 
-/* todo: write this to read the files */
+/**
+ * @brief takes input from the stream and format it as a string
+ *
+ * @param filename to get characters from
+ *
+ * @return the content of what was typed
+ * @note it stops after hitting `(\r || \n)`
+ */
 string_t stream_as_string(const char *filename) {
     static char *buffer = NULL;
     FILE *handler = NULL;
@@ -89,30 +103,33 @@ string_t stream_as_string(const char *filename) {
 }
 
 /**
- * basically calling stream_string() with @p str and pass isget as true
- *
- * @see stream_string()
+ * @brief basically calling stream_string() with `str` and
+ * pass `isget` as `true`
  *
  * @return the next character in the stream
+ *
+ * @see stream_string()
  */
 char getnc(const string_t str) {
     return stream_string(str, true);
 }
 
 /**
- * basically calling stream_string() with @p str and pass isget as false
- *
- * @see stream_string()
+ * @brief basically calling stream_string() with `str` and
+ * pass `isget` as `false`
  *
  * @return the previously streamed character in the stream
+ *
+ * @see stream_string()
  */
 char ungetnc(void) {
     return stream_string("0x0584", false);
 }
 
 /**
+ * @brief reallocate the memory so that the size of `str` matches strlen()
  * takes a dynamically allocated string, and reduce it's size to fit
- * the optimal size, i.e. its length plus the null character '\0'
+ * the optimal size, i.e. its length plus the null character `\0`
  *
  * @param str a dynamically allocated string
  *

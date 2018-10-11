@@ -1,45 +1,129 @@
+/**
+ * @file sexpr.c
+ *
+ * @brief declataions of s-expression and lambda functions
+ *
+ * functions are devided functions to determine the type such as isnil() or
+ * isatom() and also functions to create a s-expression such as sexpr_new()
+ * and some handy functions like sexpr_nil() or sexpr_true().
+ *
+ * and ducntions to handle lambdas such as lambda_new(), lambda_print()
+ */
+
 #include "../include/sexpr.h"
 #include "../include/pair.h"
 #include "../include/scope.h"
 #include "../include/native.h"
 #include "../include/lexer.h"
 
+/**
+ * @brief test if `expr` is `nil`
+ *
+ * @param expr s-expression
+ * @return `true` if `expr` was of type #T_NIL
+ */
 bool isnil(sexpr_t * expr) {
     return expr == NULL ? false : expr->type == T_NIL;
 }
 
+/**
+ * @brief test if `expr` is **not** `nil`
+ *
+ * @param expr s-expression
+ * @return `true` if `expr` was of **not** type #T_NIL
+ *
+ * @note only #T_NIL is considered as `false` anything else is `true`
+ */
 bool istrue(sexpr_t * expr) {
     return !isnil(expr);
 }
 
+/**
+ * @brief test if `expr` is an atom such as `1412` or `"string"` or
+ * `foo-bar`
+ *
+ * @param expr s-expression
+ * @return `true` if `expr` was of type either #T_NUMBER, #T_STRING
+ * or #T_SYMBOL
+ *
+ * @note #T_NIL is **not** an atom
+ */
 bool isatom(sexpr_t * expr) {
     return !ispair(expr) && !islambda(expr);
 }
 
+/**
+ * @brief test if `expr` is a symbol
+ *
+ * @param expr s-expression
+ * @return `true` if `expr` was #T_SYMBOL
+ *
+ * @note #T_NIL is **not** a symbol
+ */
 bool issymbol(sexpr_t * expr) {
     return expr == NULL ? false : expr->type == T_SYMBOL;
 }
 
+/**
+ * @brief test if `expr` is a number
+ *
+ * @param expr s-expression
+ * @return `true` if `expr` was of type #T_NUMBER
+ */
 bool isnumber(sexpr_t * expr) {
     return expr == NULL ? false : expr->type == T_NUMBER;
 }
 
+/**
+ * @brief test if `expr` is a string
+ *
+ * @param expr s-expression
+ * @return `true` if `expr` was of type #T_STRING
+ */
 bool isstring(sexpr_t * expr) {
     return expr == NULL ? false : expr->type == T_STRING;
 }
 
+/**
+ * @param expr s-expression
+ * @return `true` if `expr` was of type #T_PAIR
+ *
+ * @see pair.h
+ */
 bool ispair(sexpr_t * expr) {
     return expr == NULL ? false : expr->type == T_PAIR;
 }
 
+/**
+ * @brief lists is a chain of #T_PAIR of s-expression with a #T_NIL
+ *
+ * @param expr s-expression
+ * @return `true` if `expr` was a list
+ *
+ * @see pair.h
+ */
 bool islist(sexpr_t * expr) {
     return expr == NULL ? false : ispair(expr) && expr->c->islist;
 }
 
+/**
+ * @brief test if `expr` is a lambda
+ *
+ * @param expr s-expression
+ * @return `true` if `expr` was of type #T_LAMBDA
+ *
+ * @see sexpr.h
+ */
 bool islambda(sexpr_t * expr) {
     return expr == NULL ? false : expr->type == T_LAMBDA;
 }
 
+/**
+ * @param expr s-expression
+ * @return `true` if `expr` was a native lambda
+ *
+ * @see sexpr.h
+ */
 bool isnative(sexpr_t * expr) {
     if (islambda(expr))
 	return expr->l->isnative;

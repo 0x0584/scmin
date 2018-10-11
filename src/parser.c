@@ -1,13 +1,12 @@
 /**
  * @file parser.c
- * this file contains the declaration of parsing functionailties, the
- * main method here is parse_sexpr()
  *
- * @see @file vector.h
- * @see @file token.h
+ * @brief contains the declaration of parsing functionailties
  *
- * @todo this would take a set of tokens and then creates a parse-tree
- * the process of parsing has duplication in it!
+ * the main method here is parse_sexpr()
+ *
+ * @see vector.h
+ * @see token.h
  */
 
 #include "../include/parser.h"
@@ -253,50 +252,4 @@ sexpr_t *parse_as_symbol(string_t value) {
     expr = parse_as_string(value);
     expr->type = !strcmp(value, "nil") ? T_NIL : T_SYMBOL;
     return expr;
-}
-
-#include "../include/lexer.h"
-
-void parser_testing(void) {
-    string_t exprs[] = {
-	"(+ 11111 (* 22222 33333))",
-	/* "(define bar '(* 22222 33333))", */
-	/* "(define bar 'b)", */
-	"(quote (a b c))" "(quote a)"
-	    /* "    ; this is cool\n(bar baz)", */
-	    /* "(define square (lambda (n) (* n n)))", */
-	    /* "(\"this is a string\")	     " */
-    };
-
-    /* vector_t *tmp = read_tokens("(quote (a b c))"); */
-    /* sexpr_t *q = parse_sexpr(tmp); */
-
-    /* sexpr_describe(q); */
-    /* puts("----------"); */
-    /* sexpr_describe(car(q)); */
-    /* puts("----------"); */
-    /* sexpr_describe(car(cdr(q))); */
-    /* puts("----------"); */
-    /* vector_free(tmp); */
-
-    int i, size = sizeof(exprs) / sizeof(exprs[0]);
-    vector_t *v = NULL;
-    sexpr_t *expr = NULL;
-
-    for (i = 0; i < size; ++i) {
-	printf("\n + parsing %s\n", exprs[i]);
-
-	v = read_tokens(exprs[i]);
-
-	puts("\n + list of tokens");
-	vector_print(v);
-	puts("-----------\n");
-
-	expr = parse_sexpr(v);
-	puts("\n + parsed expression");
-	sexpr_print(expr);
-	puts(" ================== ================= ================= ");
-
-	vector_free(v);
-    }
 }
