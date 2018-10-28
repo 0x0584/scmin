@@ -8,13 +8,15 @@
  * and some handy functions like sexpr_nil() or sexpr_true().
  *
  * and ducntions to handle lambdas such as lambda_new(), lambda_print()
+ *
+ * @see sexpr.h
+ * @see pair.h
+ * @see native.h
  */
 
 #include "../include/sexpr.h"
 #include "../include/pair.h"
-#include "../include/scope.h"
 #include "../include/native.h"
-#include "../include/lexer.h"
 
 /**
  * @brief test if `expr` is `nil`
@@ -122,7 +124,10 @@ bool islambda(sexpr_t * expr) {
  * @param expr s-expression
  * @return `true` if `expr` was a native lambda
  *
+ * wgat's wrinbg with moroccan common sense
+ *
  * @see sexpr.h
+ * @see native.h
  */
 bool isnative(sexpr_t * expr) {
     if (islambda(expr))
@@ -131,6 +136,19 @@ bool isnative(sexpr_t * expr) {
 	return false;
 }
 
+/**
+ * @brief allocates memory for a new s-expression
+ *
+ * basically, this is the way to allocate memory for a new s-expression
+ * because this function allocates memory using the built-in GC allocation
+ *
+ * @param type s-expression type like #T_NUMBER or #T_SYMBOL
+ *
+ * @see #SYMBOLIC_EXPRESSION_TYPE
+ * @see #SYMBOLIC_EXPRESSION
+ *
+ * @note if `type` was #T_LAMBDA, it allocates memory for the lambda as well
+ */
 sexpr_t *sexpr_new(type_t type) {
     sexpr_t *expr = gc_alloc_sexpr();
 
@@ -142,6 +160,15 @@ sexpr_t *sexpr_new(type_t type) {
     return expr;
 }
 
+/**
+ * @brief determines the length of `expr`
+ *
+ * @param expr s-expression
+ *
+ * @return the length of `expr`
+ *
+ * @note `(1 2 (3 4) 6)` is of size `4`
+ */
 int sexpr_length(sexpr_t * expr) {
     sexpr_t *tmp = expr;
     int length = 0;
@@ -149,33 +176,72 @@ int sexpr_length(sexpr_t * expr) {
     if (expr == NULL || isatom(expr))
 	return length;
 
-    while (ispair(tmp)) {
-	++length;
-	tmp = cdr(tmp);
-    }
+    while (ispair(tmp))
+	++length, tmp = cdr(tmp);
 
     if (!isnil(tmp))
-	++length;		/* this is a pair i.e. no nil at the end */
+	++length;	   /* this is a pair i.e. no nil at the end */
 
     return length;
 }
 
+/**
+ * @brief creates an error s-expression
+ *
+ * basically calling sexpr_new() passing #T_ERR
+ *
+ * @return error s-expression
+ *
+ * @see error.c
+ * @note error s-expression is returned after error occurence
+ */
 sexpr_t *sexpr_err(void) {
     return sexpr_new(T_ERR);
 }
 
+/**
+ * @brief creating a `nil` s-expression
+ *
+ * basically calling sexpr_new() passing #T_NIL and initializing its text
+ *
+ * @return `nil` s-expression
+ */
 sexpr_t *sexpr_nil(void) {
     sexpr_t *t = sexpr_new(T_NIL);
     t->s = strdup("nil");
     return t;
 }
 
+/**
+ * @brief creating a symbol s-expresion of `t`
+ *
+ * basically calling sexpr_new() passing #T_SYMBOL and initializing its
+ * text with `"t"`
+ *
+ * @return error s-expression
+ */
 sexpr_t *sexpr_true(void) {
     sexpr_t *t = sexpr_new(T_SYMBOL);
     t->s = strdup("t");
     return t;
 }
 
+/**
+ * @brief allocates memory and initilize a new **native** lambda after
+ * calling sexpr_new()
+ *
+ * @param parent the scope containing the lambda
+ * @param args a list of lambda's arguments
+ * @param native a native C function
+ *
+ * @return a s-expression of type #T_LAMBDA
+ *
+ * @see #LAMBDA_EXPRESSION
+ * @see #SYMBOLIC_EXPRESSION
+ * @see #NATIVE_LAMBDA
+ *
+ * @note initializing `isnative` to `true`
+ */
 sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
 			   native_t * func) {
     sexpr_t *lambda = sexpr_new(T_LAMBDA);
@@ -188,6 +254,21 @@ sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
     return lambda;
 }
 
+/**
+ * @brief allocates memory and initilize a new lambda after calling
+ * sexpr_new()
+ *
+ * @param parent the scope containing the lambda
+ * @param args a list of lambda's arguments
+ * @param body a s-expression to interpete when calling this lambda
+ *
+ * @return a s-expression of type #T_LAMBDA
+ *
+ * @see #LAMBDA_EXPRESSION
+ * @see #SYMBOLIC_EXPRESSION
+ *
+ * @note initializing `isnative` to `false`
+ */
 sexpr_t *lambda_new(scope_t * parent, sexpr_t * args, sexpr_t * body) {
     sexpr_t *lambda = sexpr_new(T_LAMBDA);
 
@@ -199,14 +280,21 @@ sexpr_t *lambda_new(scope_t * parent, sexpr_t * args, sexpr_t * body) {
     return lambda;
 }
 
+/**
+ * @brief a helper function used by sexpr_describe()
+ * @param ntabs number of tabs to print
+ */
 void print_tabs(int ntabs) {
-    int i, j, tab_size = 4;
+    int i, j, tab_size = 2;
 
     for (i = 0; i < ntabs; ++i)
 	for (j = 0; j < tab_size; ++j)
 	    putchar(' ');
-};
+}
 
+/**
+ *
+ */
 void sexpr_describe(object_t o) {
     sexpr_t *expr = (sexpr_t *) o;
     static int ntabs = 0;

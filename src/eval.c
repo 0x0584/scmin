@@ -25,13 +25,12 @@
 #include "../include/characters.h"
 
 /**
- * @brief evaluate a @p expr within a given @p scope and return the
- * evaluated s-expression, this function may call it self recursively
- * in order to evaluate inner s-expressions.
+ * @brief evaluate an expression `expr` within a given `scope` 
  *
- * before evaluating each expression we need to determine it's type, there
+ * before evaluating each expression, we need to determine its type, there
  * are native/predefined expression that would be executed directly using
- * a defined function, and other expressions that need evaluation.
+ * a predefined C function. and other expressions that are written in need
+ * evaluation.
  *
  * the first thing to do is to determine the type whether it's a normal
  * s-expression or does it has an operator:
@@ -73,6 +72,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     k_func kwd_func = iskeyword(car(expr));
 
     /* ==================== ==================== ==================== */
+
 #if EVALUATOR_DEBUG == DBG_ON
     puts("================ eval start ================");
     sexpr_print(expr);
@@ -81,7 +81,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     if (kwd_func)		/* symbol was a keyword */
 	result = kwd_func(scope, cdr(expr));
-    else if (isbonded(scope, expr)) /* symbol was bounded  */
+    else if (isbonded(scope, expr))	/* symbol was bounded  */
 	result = resolve_bond(scope, expr);
     else if (isatom(expr))	/* just an atom/nil */
 	result = expr;
@@ -128,13 +128,13 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     /* ==================== ==================== ==================== */
 
-    if (op->l->isnative) 	/* call the native function */
+    if (op->l->isnative)	/* call the native function */
 	result = op->l->native->func(args);
     else {			/* evaluate the lambda's body */
 	/* puts("###"); */
 	err_raise(ERR_LMBD_ARGS,
 		  sexpr_length(args) != sexpr_length(op->l->args));
-	
+
 	if (err_log())
 	    goto FAILED;
 

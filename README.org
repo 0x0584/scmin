@@ -1,6 +1,6 @@
 * About
 
-  This is a basic Lisp (technically Scheme) interpreter that was written in C with the following features:
+  This is a basic Lisp (technically Scheme) interpreter that was written in C for educational purposes with the following features:
 
   + [X] read and split text contaning lisp syntax into tokens
   + [X] parse the tokens into a s-expression object
@@ -63,6 +63,8 @@
   + Lexing :: /source code/ \to /vector of tokens/
   + Parsing :: /vector of tokens/ \to /parsed s-expression/
   + Evaluation :: /s-expression/ \to /result/
+
+
 
 ** Lexing
 

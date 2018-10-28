@@ -44,6 +44,20 @@ sexpr_t *eval_sexpr(scope_t * s, sexpr_t * expr);
  */
 vector_t *eval_sexprs(vector_t * exprs);
 
+/**
+ * @brief keyword function prototype
+ *
+ * keywords need a scope that holds data, and also a s-expression
+ * to operate on
+ *
+ * @param s a container scope
+ * @param expr expression to operate on
+ *
+ * @return return of the keyword operation as s-expression
+ *
+ * @note keywords may need to evaluate expr and
+ */
+typedef sexpr_t *(*k_func) (scope_t * s, sexpr_t * expr);
 
 /**
  * @brief pairing keywords with their corespondent C functions.

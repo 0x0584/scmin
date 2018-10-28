@@ -21,9 +21,12 @@
 
 #  define GC_RATIO		(GC_STACK_LIMIT_SIZE / GC_FREQUENCY)
 
-struct GC_INFO {
-    bool ismarked;		/** is marked as reachable! */
-};
+typedef struct GC_INFO {
+   /**
+    * @brief is marked as reachable!
+    */
+    bool ismarked;
+} gc_info;;
 
 /**
  * initialize the GC

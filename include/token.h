@@ -26,7 +26,7 @@
 /**
  * @brief set of token types
  */
-enum TOKEN_TYPE {
+typedef enum TOKEN_TYPE {
     /**
      * @brief left parenthesis `(`
      */
@@ -66,13 +66,13 @@ enum TOKEN_TYPE {
      * @brief END OF LEXING
      */
     EOL
-};
+} token_type;
 
 /**
  * @brief a token is composed from a type and a value stored in the buffer
  * with a depth in the s-expr
  */
-struct TOKEN {
+typedef struct TOKEN {
     /**
      * @brief the token type
      */
@@ -87,7 +87,7 @@ struct TOKEN {
      * @brief depth of the token within the expression
      */
     int depth;
-};
+} token_t;
 
 /* ================ function prototypes ================ */
 

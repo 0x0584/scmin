@@ -21,7 +21,7 @@ typedef enum TOKEN_TYPE token_type;
 
 typedef enum SYMBOLIC_EXPRESSION_TYPE type_t;
 typedef struct PAIR pair_t;
-typedef struct LAMBDA lambda_t;
+typedef struct LAMBDA_EXPRESSION lambda_t;
 typedef struct NATIVE_LAMBDA native_t;
 typedef struct SYMBOLIC_EXPRESSION sexpr_t;
 

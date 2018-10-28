@@ -6,18 +6,18 @@
 
 /* this might be used as HashMap also as Strings too, have a
  * Global String context, since a HashMap has O(1) complexity */
-struct BOND {
+typedef struct BOND {
     string_t key;
     sexpr_t *sexpr;
     /* if a bond was constant, it would be unchangeable */
     bool isconst;
-};
+} bond_t;
 
-struct SCOPE {
+typedef struct SCOPE {
     gc_info gci;
     vector_t *bonds;
     scope_t *parent;
-};
+} scope_t;
 
 bond_t *bond_new(string_t key, sexpr_t * expr);
 void bond_free(object_t b);

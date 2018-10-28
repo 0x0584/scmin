@@ -14,10 +14,13 @@
 #  include "main.h"
 #  include "gc.h"
 
+typedef double number_t;
+typedef char *string_t;
+
 /**
  * @brief possible types of a s-expression
  */
-enum SYMBOLIC_EXPRESSION_TYPE {
+typedef enum SYMBOLIC_EXPRESSION_TYPE {
     /**
      * @brief a cons-cell pair; car, cdr
      */
@@ -52,7 +55,7 @@ enum SYMBOLIC_EXPRESSION_TYPE {
      * @brief ERROR flag
      */
     T_ERR
-};
+} type_t;
 
 /**
  * @brief the lambda expression is an expression that takes
@@ -61,7 +64,7 @@ enum SYMBOLIC_EXPRESSION_TYPE {
  * @note lambdas are defined as (lambda (args) (body))
  * @note union is used to manage memory efficiently
  */
-struct LAMBDA {
+typedef struct LAMBDA_EXPRESSION {
     /**
      * @brief garbage collector information
      */
@@ -99,7 +102,7 @@ struct LAMBDA {
 	 */
 	sexpr_t *body;
     };
-};
+} lambda_t;
 
 /**
  * @brief a Lisp/Scheme s-expression contain it's type and the correspondant
@@ -107,7 +110,7 @@ struct LAMBDA {
  *
  * @note the usage of union is to use memory efficiently
  */
-struct SYMBOLIC_EXPRESSION {
+typedef struct SYMBOLIC_EXPRESSION {
     /**
      * @brief garbage collector information
      */
@@ -143,7 +146,7 @@ struct SYMBOLIC_EXPRESSION {
 	 */
 	lambda_t *l;
     };
-};
+} sexpr_t;
 
 bool isnil(sexpr_t * expr);
 bool istrue(sexpr_t * expr);

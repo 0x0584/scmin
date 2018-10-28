@@ -4,10 +4,13 @@
 #  include "types.h"
 #  include "main.h"
 
-struct NATIVE_LAMBDA {
+/**
+ *
+ */
+typedef struct NATIVE_LAMBDA {
     string_t symbol;
     sexpr_t *(*func) (sexpr_t *);	/* native lambda */
-};
+} native_t;
 
 sexpr_t *native_add(sexpr_t * expr);
 sexpr_t *native_minus(sexpr_t * expr);

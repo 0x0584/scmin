@@ -19,6 +19,11 @@
 #  define VECTOR_DEFAULT_CAPACITY	(2<<4)
 
 /**
+ * @brief defining objects by a generic pointer
+ */
+typedef void *object_t;
+
+/**
  * @brief any operation to apply on a vector member
  *
  * @param o the object
@@ -49,7 +54,7 @@ typedef void (*debug_t) (FILE * stream, object_t o);
  * each vector has a capacity and a size, as well as own printing
  * function and free
  */
-struct VECTOR {
+typedef struct VECTOR {
     /**
      * @brief maximum size before reallocating new space
      */
@@ -84,7 +89,7 @@ struct VECTOR {
      * @brief function pointer to a comparison function
      */
     compare_t cmp_obj;
-};
+} vector_t;
 
 vector_t *vector_new(operation_t free_obj, operation_t print_obj,
 		     compare_t cmp_obj);

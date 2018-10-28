@@ -105,7 +105,6 @@ enum SCHEME_ERROR {
      */
     ERR_SYM_ERR,
 
-
     /**
      * @brief number contains multiple signs
      * @see lexer.c
@@ -129,7 +128,6 @@ enum SCHEME_ERROR {
      * @see lexer.c
      */
     ERR_DIVID_ZERO,
-
 
     /**
      * @brief the argument type is not correct
