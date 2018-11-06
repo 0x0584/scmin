@@ -30,7 +30,7 @@ vector_t *read_tokens(string_t code);
 
 /**
  * read and record all the tokens that are coming from @p stream
- * by first calling stream_as_string() to get the code
+ * by first calling file_as_string() to get the code
  * then, it calls read_tokens() to get each one in a Vector
  *
  * @see vector.h

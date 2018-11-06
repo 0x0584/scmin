@@ -1,5 +1,5 @@
-#include "../include/pair.h"
-#include "../include/sexpr.h"
+#include "pair.h"
+#include "sexpr.h"
 
 /* ==========================================================================
  * NOTES ON CONS: THIS IS WHAT THIS IS SUPPOSED TO SOLVE

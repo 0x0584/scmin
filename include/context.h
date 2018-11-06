@@ -3,12 +3,12 @@
 
 #  include "sexpr.h"
 
-struct CONTEXT {
+typedef struct CONTEXT {
     gc_info gci;
     scope_t *scope;
     sexpr_t *sexpr, *childresult;
     vector_t *reg;
-};
+} context_t;
 
 context_t *context_init(scope_t * s, sexpr_t * expr);
 void context_reset(context_t c, scope_t * s, sexpr_t * expr);

@@ -63,6 +63,12 @@
 #  define EVALUATOR_DEBUG	DBG_OFF
 
 /**
+ * @brief eval debugging information
+ * @see eval.c
+ */
+#  define REPL_DEBUG		DBG_OFF
+
+/**
  * @brief different errors that would occur during te process of evaluating
  * a s-expression
  */

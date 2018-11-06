@@ -6,7 +6,7 @@
  *
  * read_tokens() and read_stream_tokens() are the top level functions
  * in this process. matter of fact, read_stream_tokens() calls
- * read_tokens() it collects after calling stream_as_string()
+ * read_tokens() it collects after calling file_as_string()
  * to get the actual code.
  *
  * next_token() is used as a stepping function over the possible
@@ -24,24 +24,24 @@
  *
  */
 
-#include "../include/lexer.h"
-#include "../include/characters.h"
+#include "lexer.h"
 
-#include "../include/main.h"
-#include "../include/vector.h"
+#include "characters.h"
+#include "vector.h"
 
 /**
- * this function reads a @p code string, i.e. source code
+ * this function reads a `code` string, i.e. source code
  *
  * @param code a string containing Scheme-like syntax
  *
  * @return a Vector of tokens
  */
-vector_t *read_tokens(const string_t code) {
+vector_t *read_tokens(const string_t src) {
     vector_t *tokens = vector_new(token_free, token_print, NULL);
     token_t *token = NULL;
     int depth = 0;
     bool islastloop = false;
+    string_t code = src;
 
     while ((token = next_token(code))) {
 	switch (token->type) {
@@ -95,12 +95,10 @@ vector_t *read_tokens(const string_t code) {
  */
 vector_t *read_stream_tokens(const char *filename) {
     vector_t *vv = vector_new(vector_free, vector_print, NULL);
-    string_t tmp = stream_as_string(filename);
+    string_t tmp = file_as_string(filename);
 
     while (getnc(tmp) != EOF)
-	if (!clean_whitespaces(tmp))
-	    break;
-	else if (!clean_comments(tmp))
+	if (!clean_whitespaces(tmp) || !clean_comments(tmp))
 	    break;
 	else
 	    vector_push(vv, read_tokens(tmp));

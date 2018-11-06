@@ -13,9 +13,12 @@
 #  include "main.h"
 
 char stream_string(const string_t str, bool isget);
-string_t stream_as_string(const char *filename);
+string_t file_as_string(const char *filename);
+string_t stdin_as_string(void);
+
 char ungetnc(void);
 char getnc(const string_t str);
+
 string_t reduce_string_size(string_t str);
 
 #endif

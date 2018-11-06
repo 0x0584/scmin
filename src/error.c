@@ -8,8 +8,8 @@
  * occurent errors.
  */
 
-#include "../include/main.h"
-#include "../include/vector.h"
+#include "main.h"
+#include "vector.h"
 
 /**
  * @brief the error log of the occured errors
@@ -82,11 +82,14 @@ void err_raise(serror_t err, bool cond) {
  * @note #error_log is free'd after calling this function
  */
 int err_log(void) {
-    int size = error_log->size;
-    if(!error_log || error_log->size == 0)
+    if (!error_log)
 	return 0;
+
+    int size = error_log->size;
+
     vector_print(error_log);
     err_clean();
+
     return size;
 }
 

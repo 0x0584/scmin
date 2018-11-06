@@ -9,13 +9,13 @@
  * @see token.h
  */
 
-#include "../include/parser.h"
+#include "parser.h"
 
-#include "../include/vector.h"
-#include "../include/token.h"
+#include "vector.h"
+#include "token.h"
 
-#include "../include/pair.h"
-#include "../include/sexpr.h"
+#include "pair.h"
+#include "sexpr.h"
 
 /**
  * @brief this function is resposible of turning a set of tokens into a

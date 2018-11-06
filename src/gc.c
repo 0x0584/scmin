@@ -4,30 +4,27 @@
  *
  * FIXME: figure out how to eliminate code-redundancy
  */
-#include "../include/gc.h"
+#include "gc.h"
 
-#include "../include/vector.h"
-#include "../include/sexpr.h"
-#include "../include/native.h"
+#include "vector.h"
+#include "sexpr.h"
+#include "native.h"
 
-#include "../include/scope.h"
+#include "scope.h"
 
-#include "../include/context.h"
-#include "../include/pair.h"
+#include "context.h"
+#include "pair.h"
 
 extern vector_t *error_log;
 
 vector_t *gc_allocd_sexprs;
 vector_t *gc_allocd_lambdas;
 vector_t *gc_allocd_scopes;
-vector_t *gc_allocd_contexts;
 
 void gc_init(void) {
     gc_allocd_sexprs = vector_new(gc_free_sexpr, sexpr_print, NULL);
     gc_allocd_lambdas = vector_new(gc_free_lambda, lambda_print, NULL);
     gc_allocd_scopes = vector_new(gc_free_scope, scope_describe, NULL);
-    gc_allocd_contexts = vector_new(gc_free_context,
-				    context_describe, NULL);
 }
 
 void gc_clean(void) {
@@ -36,14 +33,12 @@ void gc_clean(void) {
     vector_free(gc_allocd_scopes);
     vector_free(gc_allocd_lambdas);
     vector_free(gc_allocd_sexprs);
-    vector_free(gc_allocd_contexts);
 
     vector_free(error_log);
 }
 
 long gc_allocated_size(void) {
     return (gc_allocd_sexprs->size * sizeof(sexpr_t))
-	+ (gc_allocd_contexts->size * sizeof(context_t))
 	+ (gc_allocd_scopes->size * sizeof(scope_t))
 	+ (gc_allocd_lambdas->size * sizeof(lambda_t));
 }
@@ -347,35 +342,8 @@ void gc_free_scope(object_t o) {
     free(s);
 }
 
-/* ==============================================================
- *		      context memory management
- * ==============================================================
- */
-
-context_t *gc_alloc_context() {
-    context_t *ctx = malloc(sizeof *ctx);
-
-    vector_push(gc_allocd_contexts, ctx);
-
-    return ctx;
-}
-
-void gc_free_context(object_t o) {
-    if (o == NULL)
-	return;
-
-    context_t *c = o;
-
-    gc_free_scope(c->scope);
-    gc_free_sexpr(c->sexpr);
-    gc_free_sexpr(c->childresult);
-
-    vector_free(c->reg);
-}
-
 void gc_debug_memory(void) {
     vector_print(gc_allocd_scopes);
     vector_print(gc_allocd_sexprs);
     vector_print(gc_allocd_lambdas);
-    vector_print(gc_allocd_contexts);
 }

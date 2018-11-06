@@ -16,13 +16,13 @@
  * @see native.h
  */
 
-#include "../include/eval.h"
-#include "../include/scope.h"
-#include "../include/native.h"
+#include "eval.h"
+#include "scope.h"
+#include "native.h"
 
-#include "../include/pair.h"
-#include "../include/vector.h"
-#include "../include/characters.h"
+#include "pair.h"
+#include "vector.h"
+#include "characters.h"
 
 /**
  * @brief evaluate an expression `expr` within a given `scope` 

@@ -8,7 +8,7 @@
  * been on last time.
  */
 
-#include "../include/characters.h"
+#include "characters.h"
 
 /**
  * @brief when it's called, if the same parameter `str` was passed, it
@@ -40,14 +40,12 @@ char stream_string(const string_t str, bool isget) {
 
     /* if this is a different string, use the new string */
     if (str != oldstr && isget) {
-	index = 0;
-	oldstr = str;
+	index = 0, oldstr = str;
     }
 
     if (isget) {		/* getnc() stream forward */
 	if (!oldstr[index]) {	/* set everything back again after '\0' */
-	    index = 0;
-	    oldstr = NULL;
+	    index = 0, oldstr = NULL;
 	    return EOF;
 	}
 
@@ -70,7 +68,7 @@ char stream_string(const string_t str, bool isget) {
  * @return the content of what was typed
  * @note it stops after hitting `(\r || \n)`
  */
-string_t stream_as_string(const char *filename) {
+string_t file_as_string(const char *filename) {
     static char *buffer = NULL;
     FILE *handler = NULL;
 
@@ -81,17 +79,17 @@ string_t stream_as_string(const char *filename) {
 
     int string_size, read_size;
 
-    fseek(handler, 0, SEEK_END); /* Beginning of the stream */
-    string_size = ftell(handler); /* Size of the stream */
+    fseek(handler, 0, SEEK_END);	/* Beginning of the stream */
+    string_size = ftell(handler);	/* Size of the stream */
     rewind(handler);
 
-    buffer = (char*) malloc( sizeof(char) * (string_size + 1) );
+    buffer = (char *) malloc(sizeof(char) * (string_size + 1));
 
-    /* Binary size of the stream */
+    /* binary size of the stream */
     read_size = fread(buffer, sizeof(char), string_size, handler);
     buffer[string_size] = '\0';
 
-    /* The readied size is != to stream size */
+    /* the readied size is != to stream size */
     if (string_size != read_size) {
 	free(buffer);
 	buffer = NULL;
@@ -100,6 +98,22 @@ string_t stream_as_string(const char *filename) {
     fclose(handler);
 
     return buffer;
+}
+
+string_t stdin_as_string(void) {
+    const size_t INPUT_SIZE_LIMIT = (2 << 10);
+    string_t buffer = malloc(INPUT_SIZE_LIMIT * sizeof(char));
+    short index = 0, c;
+
+    while ((c = getchar())) {
+	if (c == '\n' || c == '\r') {
+	    buffer[index] = '\0'; break;
+	} else {
+	    buffer[index++] = c;
+	}
+    }
+
+    return reduce_string_size(buffer);
 }
 
 /**

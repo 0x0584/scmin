@@ -8,8 +8,7 @@ void parser_testing(void) {
 	"(+ 11111 (* 22222 33333))",
 	"(define bar '(* 22222 33333))",
 	"(define bar 'b)",
-	"(quote (a b c))" "(quote a)"
-	"	 ; this is cool\n(bar baz)",
+	"(quote (a b c))" "(quote a)" "	 ; this is cool\n(bar baz)",
 	"(define square (lambda (n) (* n n)))",
 	"(\"this is a string\")	     "
     };

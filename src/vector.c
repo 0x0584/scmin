@@ -14,7 +14,7 @@
  * @see vector.h
  */
 
-#include "../include/vector.h"
+#include "vector.h"
 
 /**
  * @brief allocates the memory for the new vector and its members
@@ -151,8 +151,8 @@ vector_t *vector_compact(vector_t * v) {
 void vector_set(vector_t * v, int i, object_t o) {
     if (v == NULL || i < 0 || i > v->size)
 	return;
-    else
-	v->objs[i] = o;
+
+    v->objs[i] = o;
 }
 
 /**
@@ -167,10 +167,7 @@ void vector_set(vector_t * v, int i, object_t o) {
  * i.e. out of range
  */
 object_t vector_get(vector_t * v, int i) {
-    if (v == NULL || i < 0 || i > v->size)
-	return NULL;
-    else
-	return v->objs[i];
+    return v == NULL || i < 0 || i > v->size ? NULL : v->objs[i];
 }
 
 /**
@@ -199,8 +196,7 @@ object_t vector_add(vector_t * v, object_t o, int i) {
 	const int oc = v->capacity;	/* old capacity */
 
 	v->objs = realloc(v->objs, (oc + dc) * sizeof(object_t));
-	/* wipe the new memory */
-	memset(v->objs + oc, 0, dc * sizeof(object_t));
+	memset(v->objs + oc, 0x00, dc * sizeof(object_t));
 	v->capacity = oc + dc;
     }
 
@@ -225,11 +221,10 @@ void vector_del(vector_t * v, int i) {
     if (v == NULL || i < 0 || i > v->size)
 	return;
 
-    if (v->objs[i] != NULL && v->free_obj != NULL) {
+    if (v->free_obj != NULL)
 	v->free_obj(v->objs[i]);
-	v->objs[i] = NULL;
-    }
 
+    v->objs[i] = NULL;
     v->size--;
 }
 
@@ -243,10 +238,7 @@ void vector_del(vector_t * v, int i) {
  * adding method
  */
 object_t vector_push(vector_t * v, object_t o) {
-    if (v == NULL)
-	return NULL;
-    else
-	return vector_add(v, o, v->size);
+    return v == NULL ? NULL : vector_add(v, o, v->size);
 }
 
 /**
@@ -262,8 +254,8 @@ object_t vector_pop(vector_t * v) {
 
     int index = (v->size == 0) ? v->size : v->size - 1;
     object_t o = v->objs[index];
-    v->objs[index] = NULL;
 
+    v->objs[index] = NULL;
     vector_compact(v);
 
     return o;
@@ -281,8 +273,8 @@ object_t vector_peek(vector_t * v) {
 	return NULL;
 
     object_t o = vector_get(v, 0);
-    vector_set(v, 0, NULL);
 
+    vector_set(v, 0, NULL);
     vector_compact(v);
 
     return o;
@@ -336,12 +328,15 @@ void vector_print(object_t o) {
 	    continue;
 
 	puts("-----------------------------------");
+
 	if (v->print_obj)
 	    v->print_obj(v->objs[i]);
 	else
 	    printf("%p -- %d\n", v->objs[i], i);
+
+	if (i == v->size - 1)
+	    puts("-----------------------------------");
     }
-    puts("-----------------------------------");
 }
 
 /**
@@ -377,10 +372,12 @@ void vector_debug(FILE * stream, vector_t * v) {
 
     for (i = 0; i < v->size; ++i) {
 	fprintf(stream, "[%2.2d] - @%p", i, v->objs[i]);
+
 	if (v->dbg_obj) {
 	    fputs(" - ", stream);
 	    v->dbg_obj(stream, v->objs[i]);
 	}
+
 	fputc('\n', stream);
     }
 

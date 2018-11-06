@@ -8,8 +8,8 @@
  * @see characters.h
  */
 
-#include "../include/token.h"
-#include "../include/characters.h"
+#include "token.h"
+#include "characters.h"
 
 /**
  * @brief predicts the type of a token
@@ -99,7 +99,7 @@ token_t *token_new(token_type type, string_t vbuffer, int depth) {
  * token is because this is used as printing function by vector_print()
  */
 void token_print(object_t o) {
-    if(o == NULL)
+    if (o == NULL)
 	return;
 
     char *type_str = NULL;

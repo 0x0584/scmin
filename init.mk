@@ -3,7 +3,7 @@ CC = gcc
 # COMPILATION FLAGS
 CFLAGS = -ggdb -Wall -Wextra # -O2 -Werror -pedantic -Wpadded
 # LIBRARY FLAGS
-LDFLAGS = -I. -lm
+LDFLAGS = -Iinclude -lm
 # DEFAULT DEBUGGING FLAGS
 GDBFLAGS = -x gdb.txt
 

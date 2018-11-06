@@ -13,13 +13,14 @@
  *     loop (until EOF is sent by the user)
  */
 
-#include "../include/main.h"
-#include "../include/gc.h"
-#include "../include/vector.h"
-#include "../include/sexpr.h"
-#include "../include/lexer.h"
-#include "../include/parser.h"
-#include "../include/eval.h"
+#include "main.h"
+#include "gc.h"
+#include "vector.h"
+#include "sexpr.h"
+#include "lexer.h"
+#include "parser.h"
+#include "eval.h"
+#include "repl.h"
 
 int main(int argc, char **argv) {
     if (argc == 1 && argv[0]) {
@@ -31,7 +32,8 @@ int main(int argc, char **argv) {
     /* vector_testing(); */
     /* lexer_testing(); */
     /* parser_testing(); */
-    eval_testing();
+    /* eval_testing(); */
+    repl_testing();
     /* gc_debug_memory(); */
 
     gc_clean();

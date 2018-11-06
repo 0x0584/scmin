@@ -1,7 +1,7 @@
-#include "../include/scope.h"
-#include "../include/pair.h"
-#include "../include/native.h"
-#include "../include/vector.h"
+#include "scope.h"
+#include "pair.h"
+#include "native.h"
+#include "vector.h"
 
 static scope_t *global_scope = NULL;
 
@@ -77,8 +77,8 @@ bool isbonded(scope_t * s, sexpr_t * expr) {
 }
 
 void bind_lambda_args(scope_t * s, lambda_t * l, sexpr_t * args) {
-    sexpr_t *foo = l->args, *bar = NULL; /* lambda's tmp */
-    sexpr_t *fuzz = args, *buzz = NULL;	 /* arg's tmp */
+    sexpr_t *foo = l->args, *bar = NULL;	/* lambda's tmp */
+    sexpr_t *fuzz = args, *buzz = NULL;	/* arg's tmp */
 
     while (!isnil(foo)) {
 	bar = car(foo), buzz = car(fuzz);
@@ -162,8 +162,7 @@ scope_t *global_scope_init(void) {
     for (i = 0; stdlib[i].symbol; ++i) {
 	native_t *tmp = &stdlib[i];
 	sexpr_t *lambda = lambda_new_native(gs, NULL, tmp);
-	vector_push(gs->bonds,
-		    bond_new(tmp->symbol, lambda));
+	vector_push(gs->bonds, bond_new(tmp->symbol, lambda));
     }
 
     /* vector_compact(gs->bonds); */

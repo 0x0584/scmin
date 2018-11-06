@@ -14,9 +14,9 @@
  * @see native.h
  */
 
-#include "../include/sexpr.h"
-#include "../include/pair.h"
-#include "../include/native.h"
+#include "sexpr.h"
+#include "pair.h"
+#include "native.h"
 
 /**
  * @brief test if `expr` is `nil`
@@ -180,7 +180,7 @@ int sexpr_length(sexpr_t * expr) {
 	++length, tmp = cdr(tmp);
 
     if (!isnil(tmp))
-	++length;	   /* this is a pair i.e. no nil at the end */
+	++length;		/* this is a pair i.e. no nil at the end */
 
     return length;
 }
