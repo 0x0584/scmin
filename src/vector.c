@@ -16,6 +16,8 @@
 
 #include "vector.h"
 
+const string_t separator = "\n-----------------------------------";
+
 /**
  * @brief allocates the memory for the new vector and its members
  *
@@ -327,7 +329,7 @@ void vector_print(object_t o) {
 	if (v->objs[i] == NULL)
 	    continue;
 
-	puts("-----------------------------------");
+	puts(separator);
 
 	if (v->print_obj)
 	    v->print_obj(v->objs[i]);
@@ -335,7 +337,7 @@ void vector_print(object_t o) {
 	    printf("%p -- %d\n", v->objs[i], i);
 
 	if (i == v->size - 1)
-	    puts("-----------------------------------");
+	    puts(separator);
     }
 }
 
@@ -365,10 +367,9 @@ void vector_set_debug(vector_t * v, debug_t dbg) {
  */
 void vector_debug(FILE * stream, vector_t * v) {
     int i;
-    char *line = "--------------";
 
     fprintf(stream, "%s\n[size:%d] [capacity:%d]\n%s\n",
-	    line, v->size, v->capacity, line);
+	    separator, v->size, v->capacity, separator);
 
     for (i = 0; i < v->size; ++i) {
 	fprintf(stream, "[%2.2d] - @%p", i, v->objs[i]);
@@ -381,5 +382,5 @@ void vector_debug(FILE * stream, vector_t * v) {
 	fputc('\n', stream);
     }
 
-    fputs(line, stream);
+    fputs(separator, stream);
 }

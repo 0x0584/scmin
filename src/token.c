@@ -38,6 +38,7 @@ token_type predict_token_type(string_t code) {
     case '\"':			/* literal string */
 	type = TOK_STRING;
 	goto RET;
+
     default:
 	break;
     };

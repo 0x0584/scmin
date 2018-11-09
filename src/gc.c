@@ -56,7 +56,7 @@ void gc_collect(bool iscleanup) {
     else
 	puts("collectng");
 
-    printf("\nsexprs:%d\nscopes:%d\nlambdas:%d\n",
+    printf("\nsexprs:%d\tscopes:%d\tlambdas:%d\n",
 	   gc_allocd_sexprs->size,
 	   gc_allocd_scopes->size, gc_allocd_lambdas->size);
 #endif
@@ -122,7 +122,8 @@ void gc_sweep_sexprs(vector_t * v) {
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
-	if (!tmp)
+	/* lambdas handled elsewhere */
+	if (!tmp || islambda(tmp))
 	    continue;
 
 	if (!tmp->gci.ismarked) {
@@ -185,8 +186,6 @@ void gc_setmark_lambda(lambda_t * l, bool mark) {
 
     if (!l->isnative)
 	gc_setmark_sexpr(l->body, mark);
-
-    gc_setmark_scope(l->parent, mark);
 }
 
 void gc_sweep_lambdas(vector_t * v) {

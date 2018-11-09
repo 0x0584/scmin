@@ -415,8 +415,8 @@ void _sexpr_print(object_t o) {
 void sexpr_print(object_t o) {
     if (o == NULL)
 	return;
-    _sexpr_print(o);
-    putchar('\n');
+    else
+	_sexpr_print(o), putchar('\n');
 }
 
 void lambda_describe(object_t o) {
@@ -428,9 +428,6 @@ void lambda_describe(object_t o) {
     }
 
     printf("[%s]", l->gci.ismarked ? "X" : " ");
-
-    /* if (l->parent != NULL) */
-    /*	scope_describe(l->parent); */
 
     if (l->isnative)
 	printf("%s - %p\n", l->native->symbol, l->native->func);
@@ -449,16 +446,11 @@ void lambda_print(object_t o) {
 	return;
     }
 
-    /* printf("[%s] ", l->gci.ismarked ? "X" : " "); */
-
-    /* if (l->parent != NULL) */
-    /*	scope_describe(l->parent); */
+    if (l->args != NULL)
+	printf("%s: ", "args"), sexpr_print(l->args);
 
     if (l->isnative)
-	printf("%s @%p\n", l->native->symbol, l->native->func);
+	printf("%s @%p", l->native->symbol, l->native->func);
     else
-	sexpr_print(l->body);
-
-    if (l->args != NULL)
-	sexpr_print(l->args);
+	printf("%s: ", "body"), sexpr_print(l->body);
 }

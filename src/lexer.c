@@ -158,7 +158,7 @@ token_t *next_token(const string_t code) {
   RET:
 
     /* depth is initalized outside */
-    return token_new(type, vbuffer, 0);
+    return token_new(type, vbuffer, 0x0584);
 }
 
 /**

@@ -7,9 +7,10 @@
 #include "characters.h"
 
 void print_head(void) {
-    puts("scmin Minimal Scheme Interpreter, v0.1");
-    puts("Written by 0x0584, licenced under GPL v2");
-    putchar('\n');
+    puts("scmin, Minimal Scheme/Lisp Interpreter\n"
+	 "Licenced under GPL v2 by 0x0584\n"
+	 "\nstart typing Scheme/Lisp syntax "
+	 "or press [RETURN] to exit\n");
 }
 
 void repl(scope_t * scope) {
@@ -52,12 +53,13 @@ void repl(scope_t * scope) {
 	puts("eval done");
 #endif
 
-	sexpr_print(tmp);
+	printf(" -> "), sexpr_print(tmp);
 
 	vector_free(tokens);
 
       CLEAN:
 	free(buffer);
+	gc_setmark_scope(get_global_scope(), true);
 	gc_collect(true);
     }
 }

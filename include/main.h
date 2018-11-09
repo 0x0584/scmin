@@ -42,13 +42,13 @@
  * @brief vector debugging information
  * @see vector.c
  */
-#  define VECTOR_DEBUG		DBG_ON
+#  define VECTOR_DEBUG		DBG_OFF
 
 /**
  * @brief lexer debugging information
  * @see lexer.c
  */
-#  define LEXER_DEBUG		DBG_ON
+#  define LEXER_DEBUG		DBG_OFF
 
 /**
  * @brief parser debugging information
@@ -63,8 +63,8 @@
 #  define EVALUATOR_DEBUG	DBG_OFF
 
 /**
- * @brief eval debugging information
- * @see eval.c
+ * @brief repl debugging information
+ * @see repl.c
  */
 #  define REPL_DEBUG		DBG_OFF
 

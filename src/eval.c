@@ -131,7 +131,6 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     if (op->l->isnative)	/* call the native function */
 	result = op->l->native->func(args);
     else {			/* evaluate the lambda's body */
-	/* puts("###"); */
 	err_raise(ERR_LMBD_ARGS,
 		  sexpr_length(args) != sexpr_length(op->l->args));
 
@@ -156,7 +155,6 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 #endif
 
   RET:
-    /* puts("$$$$$$$$$$$$"); */
     return result;
 
   FAILED:
@@ -175,22 +173,15 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
  */
 vector_t *eval_sexprs(vector_t * sexprs) {
     vector_t *v = vector_new(NULL, sexpr_print, NULL);
+    sexpr_t *tmp = NULL;
+    scope_t *gs = get_global_scope();
     int i;
-
+    
     for (i = 0; i < sexprs->size; ++i) {
-/* #if EVALUATOR_DEBUG == DBG_ON */
 	sexpr_print(vector_get(sexprs, i));
-	sexpr_t *tmp =
-/* #endif */
-	    vector_push(v, eval_sexpr(get_global_scope(),
-				      vector_get(sexprs, i)));
-
-/* #if EVALUATOR_DEBUG == DBG_ON */
-	printf("> ");
-	sexpr_print(tmp);
-	puts("");
-/* #endif */
-
+	tmp = eval_sexpr(gs, vector_get(sexprs, i));
+	tmp = vector_push(v, tmp);
+	printf("> "), sexpr_print(tmp), putchar('\n');
     }
 
     return vector_compact(v);

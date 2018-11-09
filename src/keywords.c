@@ -27,11 +27,11 @@ static keyword_t kwd[] = {
 };
 
 /**
- * @brief determines whether a @p expr s-expression is a keyword or not
+ * @brief determines whether a `expr` s-expression is a keyword or not
  *
  * @param expr s-expression
  *
- * @return NULL if the s-expression is not a keyword, or the keyword's
+ * @return `NULL` if the `expr` is not a keyword, or the keyword's
  * correspondant function otherwise
  */
 k_func iskeyword(sexpr_t * expr) {
@@ -53,28 +53,33 @@ k_func iskeyword(sexpr_t * expr) {
  * @brief returns the expression as it is
  *
  * quote gives the ability to just pass s-expression without
- * evaluating them, and since @p expr must be the cdr() of (quote expr),
+ * evaluating them, and since `expr` must be the cdr() of `'expr`,
  * we need tu return the car() which is what we really want, and not
- * @p expr directly because we'll return the terminating nil as well.
+ * `expr` directly because we'll return the terminating nil as well.
  *
- * @param s the contaning scope
+ * @param scope the contaning scope
  * @param expr the expression to evaluate
  *
  * @return expr without evaluation
  * @note quote is defined as (quote expr)
  */
-sexpr_t *eval_quote(scope_t * s, sexpr_t * expr) {
-    if (s || true)
+sexpr_t *eval_quote(scope_t * scope, sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, !sexpr_length(expr));
+
+    if (err_log())
+	return sexpr_err();
+
+    if (scope || true)
 	return car(expr);
 }
 
 /**
  * @brief define a symbol to hold a sexpr
  *
- * evaluates the cadr() @p expr and then creates a new bind
- * with the result and the symbol in the car() of @p expr
+ * evaluates the cadr() `expr` and then creates a new bind
+ * with the result and the symbol in the car() of `expr`
  *
- * @param s the contaning scope
+ * @param scope the contaning scope
  * @param expr the expression to evaluate
  *
  * @return the defined s-expression
@@ -82,49 +87,70 @@ sexpr_t *eval_quote(scope_t * s, sexpr_t * expr) {
  * @see scope.h
  * @note `defines` are defined as (define symbol expr)
  */
-sexpr_t *eval_define(scope_t * s, sexpr_t * expr) {
-    sexpr_t *tmp = eval_sexpr(s, cadr(expr));
-    vector_push(s->bonds, bond_new(car(expr)->s, tmp));
-    return tmp;
+sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
+    err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
+
+    if (err_log())
+	return sexpr_err();
+
+    sexpr_t *evaled = eval_sexpr(scope, cadr(expr));
+    sexpr_t *symbol = car(expr);
+
+    /* vector_print(scope->bonds); */
+    scope_push_bond(scope, bond_new(symbol->s, evaled));
+
+    return symbol;
 }
 
 /**
- * @brief performes a condtional based on the car() of @p expr
+ * @brief performes a condtional based on the car() of `expr`
  *
- * the condition is the car() of @p expr, if it was true, checked using
+ * the condition is the car() of `expr`, if it was `true`, checked using
  * istrue(), then cadr() is ecaluated, otherwise the caddr() if evalutaed
  * instead.
  *
- * @param s the contaning scope
+ * @param scope the contaning scope
  * @param expr the expression to evaluate
  *
  * @return the evaluate of expression that satisfies the condition
  *
  * @see sexpr.h
- * @note conditions are done as (if (expr) (true) (false))
+ * @note conditions are done as `(if (expr) (foo) (bar))`. `foo` is
+ * evaluated when `expr` is not `nil`, otherwise egvaluate `bar`
  */
-sexpr_t *eval_if(scope_t * s, sexpr_t * expr) {
-    if (istrue(eval_sexpr(s, car(expr))))
-	return eval_sexpr(s, cadr(expr));
+sexpr_t *eval_if(scope_t * scope, sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 3);
+
+    if (err_log())
+	return sexpr_err();
+
+    if (istrue(eval_sexpr(scope, car(expr))))
+	return eval_sexpr(scope, cadr(expr));
     else
-	return eval_sexpr(s, caddr(expr));
+	return eval_sexpr(scope, caddr(expr));
 }
 
 
 /**
- * @brief creates lambda from @p expr
+ * @brief creates lambda from `expr`
  *
- * initialize a non native lambda, car() are the args
- * and cadr() is the body
+ * initialize a non native lambda, car() are the args and cadr() is
+ * the body
  *
- * @param s the contaning scope
+ * @param scope the contaning scope
  * @param expr the expression to evaluate
  *
  * @return a lambda s-expression
  *
  * @see sexpr.h
- * @note `lambdas` are defined as (lambda (args) (body))
+ * @note `lambdas` are defined as `(lambda (args) (body))`
  */
-sexpr_t *eval_lambda(scope_t * s, sexpr_t * expr) {
-    return lambda_new(s, car(expr), cadr(expr));
+sexpr_t *eval_lambda(scope_t * scope, sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, !sexpr_length(expr));
+
+    if (err_log())
+	return sexpr_err();
+
+    return lambda_new(scope, car(expr), cadr(expr));
 }

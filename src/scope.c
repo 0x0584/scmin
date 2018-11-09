@@ -1,9 +1,79 @@
+/**
+ * @file scope.c
+ *
+ * @brief contains definitions of scope functionalities including bonds
+ *
+ * @todo find a way to remap multiple symbols to the same value, much
+ * like pointers
+ */
+
 #include "scope.h"
 #include "pair.h"
 #include "native.h"
 #include "vector.h"
 
-static scope_t *global_scope = NULL;
+/**
+ * @brief the global scope of the interpreter
+ *
+ * @details this global scope cotains predefined lambdas and constants
+ * that are essential for the interpreter to function. It's intialized
+ * in the first call to get_global_scope()
+ */
+static scope_t *gs = NULL;
+
+/**
+ * @brief this is a remapping of Scheme/Lisp keywords and native C functions
+ *
+ * @details those functions are impl;emeted in native C because they could
+ * not be described in Lisp or Scheme.
+ *
+ * @see native.c
+ * @todo try to replace some of these function using Scheme/Lisp syntax
+ */
+static native_t stdlib[] = {
+    {"+", native_add}, {"add", native_add},
+    {"-", native_minus}, {"sub", native_minus},
+    {"*", native_times}, {"mul", native_times},
+    {"/", native_divid}, {"div", native_divid},
+
+    /* numerical equivalence require numbers */
+    {"=", native_eq}, {"eq", native_eq},
+    {"<", native_less}, {"less", native_less},
+    {">", native_greater}, {"greater", native_greater},
+    {"<=", native_less_eq}, {"less-or-eq", native_less_eq},
+    {">=", native_greater_eq}, {"greater-or-eq", native_greater_eq},
+
+    {"sqrt", native_sqrt},
+    {"square", native_square},
+
+    {"list", native_list},
+    {"length", native_length},
+    {"cons", native_cons},
+    {"car", native_car},
+    {"cdr", native_cdr},
+    {"set-car", native_set_car},
+    {"set-cdr", native_set_cdr},
+
+    /* eq? would return true if only the type matches */
+    {"eq?", native_iseq},
+    {"nil?", native_isnil},
+    {"true?", native_istrue},
+    {"string?", native_isstring},
+    {"number?", native_isnumber},
+    {"symbol?", native_issymbol},
+    {"lambda?", native_islambda},
+    {"list?", native_islist},
+    {"atom?", native_isatom},
+    {"pair?", native_ispair},
+
+    {"and", native_and},
+    {"or", native_or},
+    {"not", native_not},
+
+    {"print", native_print},
+
+    {NULL, NULL}
+};
 
 bond_t *bond_new(string_t key, sexpr_t * expr) {
     assert(key != NULL);
@@ -29,9 +99,8 @@ void bond_free(object_t o) {
 
     if (b == NULL)
 	return;
-
-    free(b->key);
-    free(b);
+    else
+	free(b->key), free(b);
 }
 
 bool bond_cmp(object_t o1, object_t key) {
@@ -56,15 +125,16 @@ void bond_describe(object_t o) {
     sexpr_print(b->sexpr);
 }
 
-/*
- * resolving bonds has some serious bugs, you may need to
- * rewrite bond_cmp() and vector find()
- */
 sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr) {
     if (!issymbol(expr))
 	return NULL;
 
     bond_t *resolved = vector_find(s->bonds, expr->s);
+
+    /*
+       bond_describe(resolved);
+       assert(resolved != NULL);
+    */
 
     if (resolved == NULL && s->parent != NULL)
 	resolved = vector_find(s->parent->bonds, expr->s);
@@ -94,80 +164,26 @@ scope_t *scope_init(scope_t * parent) {
 }
 
 scope_t *get_global_scope(void) {
-    scope_t *global_scope_init(void);
+    scope_t *global_scope_init(void);	/* private header */
+
     return global_scope_init();
 }
 
 scope_t *global_scope_init(void) {
-    if (global_scope != NULL)
-	return global_scope;
+    if (gs != NULL)
+	return gs;
 
-    static native_t stdlib[] = {
-	{"+", native_add},
-	{"-", native_minus},
-	{"*", native_times},
-	{"/", native_divid},
-	{"=", native_eq},
-	{"<", native_less},
-	{">", native_greater},
-	{"<=", native_less_eq},
-	{">=", native_greater_eq},
+    int i;
 
-	{"sqrt", native_sqrt},
-	{"square", native_square},
+    for (i = 0, gs = scope_init(NULL); stdlib[i].symbol; ++i) {
+	native_t *n = &stdlib[i];
+	sexpr_t *l = lambda_new_native(gs, NULL, n);
+	bond_t *b = bond_new(n->symbol, l);
 
-	/* remapping */
-	{"add", native_add},
-	{"subtract", native_minus},
-	{"multiply", native_times},
-	{"divid", native_divid},
-	{"eq", native_eq},	/* require numbers */
-	{"less", native_less},
-	{"greater", native_greater},
-	{"less-or-eq", native_less_eq},
-	{"greater-or-eq", native_greater_eq},
-
-	{"list", native_list},
-	{"length", native_length},
-	{"cons", native_cons},
-	{"car", native_car},
-	{"cdr", native_cdr},
-	{"set-car", native_set_car},
-	{"set-cdr", native_set_cdr},
-
-	/* eq? would return true if only the type matches */
-	{"eq?", native_iseq},
-	{"nil?", native_isnil},
-	{"true?", native_istrue},
-	{"string?", native_isstring},
-	{"number?", native_isnumber},
-	{"symbol?", native_issymbol},
-	{"lambda?", native_islambda},
-	{"list?", native_islist},
-	{"atom?", native_isatom},
-	{"pair?", native_ispair},
-
-	{"and", native_and},
-	{"or", native_or},
-	{"not", native_not},
-
-	{"print", native_print},
-
-	{NULL, NULL}
-    };
-    static int i;
-
-    scope_t *gs = scope_init(NULL);
-
-    for (i = 0; stdlib[i].symbol; ++i) {
-	native_t *tmp = &stdlib[i];
-	sexpr_t *lambda = lambda_new_native(gs, NULL, tmp);
-	vector_push(gs->bonds, bond_new(tmp->symbol, lambda));
+	vector_push(gs->bonds, b);
     }
 
-    /* vector_compact(gs->bonds); */
-
-    return global_scope = gs;
+    return gs;
 }
 
 void scope_describe(object_t o) {
