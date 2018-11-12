@@ -167,6 +167,11 @@ enum SCHEME_ERROR {
     ERR_FILE_ERR,
 
     /**
+     * @brief using set on an unbonded symbol
+     */
+    ERR_CANNOT_SET,
+
+    /**
      * @brief this indicates that there is no error; everything is fine
      */
     ERR_NO_ERROR = -1

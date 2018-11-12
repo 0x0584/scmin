@@ -24,12 +24,14 @@ void bond_free(object_t b);
 bool bond_cmp(object_t o1, object_t o2);
 void bond_describe(object_t b);
 bool isbonded(scope_t *s,sexpr_t *);
-sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr);
+bond_t *resolve_bond(scope_t * s, sexpr_t * expr);
 void bind_lambda_args(scope_t *s,lambda_t *l, sexpr_t *args);
 
 scope_t *scope_init(scope_t * parent);
 void scope_describe(object_t s);
 scope_t *get_global_scope(void);
 void scope_push_bond(scope_t * s, bond_t * b);
+
+void setglobal(sexpr_t * sexpr, bool isglobal);
 
 #endif				/* _SCMIN_SCOPE_H */

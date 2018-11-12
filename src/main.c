@@ -36,11 +36,12 @@ void scmin_init(void) {
     w = parse_sexprs(v);
     x = eval_sexprs(w);
 
-    gc_setmark_scope(get_global_scope(), true);
-
     vector_free(x);
     vector_free(w);
     vector_free(v);
+
+    gc_setmark_scope(get_global_scope(), true);
+    gc_collect(true);
 }
 
 int main(int argc, char **argv) {
@@ -49,7 +50,7 @@ int main(int argc, char **argv) {
     }
 
     gc_init();
-    /* scmin_init(); */
+    scmin_init();
 
     /* vector_testing(); */
     /* lexer_testing(); */

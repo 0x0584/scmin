@@ -25,6 +25,19 @@
 #include "characters.h"
 
 /**
+ * @brief static array of predefined Scheme keywords
+ */
+static keyword_t kwd[] = {
+    {"quote", eval_quote},
+    {"define", eval_define},
+    {"set", eval_set},
+    {"setq", eval_setq},
+    {"if", eval_if},
+    {"lambda", eval_lambda},
+    {NULL, NULL}
+};
+
+/**
  * @brief evaluate an expression `expr` within a given `scope`
  *
  * before evaluating each expression, we need to determine its type, there
@@ -69,6 +82,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	return sexpr_nil();
 
     sexpr_t *result = NULL, *op = NULL;	/* operator */
+    bond_t *b = NULL;
     k_func kwd_func = eval_keyword(car(expr));
 
     /* ==================== ==================== ==================== */
@@ -81,10 +95,10 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     if (kwd_func)		/* symbol was a keyword */
 	result = kwd_func(scope, cdr(expr));
-    else if (isbonded(scope, expr))	/* symbol was bounded  */
-	result = resolve_bond(scope, expr);
-    else if (isatom(expr))	/* just an atom/nil */
-	result = expr;
+    else if ((b = resolve_bond(scope, expr)))
+	result = b->sexpr;	/* symbol was bounded  */
+    else if (isatom(expr))
+	result = expr;		/* just an atom/nil */
 
     /* ==================== ==================== ==================== */
 
@@ -192,18 +206,6 @@ vector_t *eval_sexprs(vector_t * sexprs) {
     return vector_compact(v);
 }
 
-
-/**
- * @brief static array of predefined Scheme keywords
- */
-static keyword_t kwd[] = {
-    {"quote", eval_quote},
-    {"define", eval_define},
-    {"if", eval_if},
-    {"lambda", eval_lambda},
-    {NULL, NULL}
-};
-
 /**
  * @brief determines whether a `expr` s-expression is a keyword or not
  *
@@ -271,13 +273,14 @@ sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    sexpr_t *evaled = eval_sexpr(scope, cadr(expr));
-    sexpr_t *symbol = car(expr);
+    sexpr_t *evaled = NULL, *symbol = car(expr);
+    bond_t *bond = vector_find(scope->bonds, &(bond_t){
+	    symbol->s, NULL, false});
 
-    /* sexpr_print(evaled); */
-    /* sexpr_print(symbol); */
+    /* if (bond != NULL) */
+    /*	return eval_set(scope, expr); */
 
-    /* vector_print(scope->bonds); */
+    evaled = eval_sexpr(scope, cadr(expr));
     scope_push_bond(scope, bond_new(symbol->s, evaled));
 
     return symbol;
@@ -311,7 +314,6 @@ sexpr_t *eval_if(scope_t * scope, sexpr_t * expr) {
 	return eval_sexpr(scope, caddr(expr));
 }
 
-
 /**
  * @brief creates lambda from `expr`
  *
@@ -334,4 +336,43 @@ sexpr_t *eval_lambda(scope_t * scope, sexpr_t * expr) {
 	return sexpr_err();
 
     return lambda_new(scope, car(expr), cadr(expr));
+}
+
+sexpr_t *eval_set(scope_t * scope, sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
+    err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
+
+    if (err_log())
+	return sexpr_err();
+
+    bond_t *bond = resolve_bond(scope, car(expr));
+
+    if (bond == NULL)
+	return eval_define(scope, expr);
+    else {
+	setglobal(bond->sexpr, false);
+	bond->sexpr = eval_sexpr(scope, cadr(expr));
+	setglobal(bond->sexpr, true);
+    }
+
+    return bond->sexpr;
+}
+
+sexpr_t *eval_setq(scope_t * scope, sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
+    err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
+
+    if (err_log())
+	return sexpr_err();
+
+    bond_t *bond = resolve_bond(scope, car(expr));
+
+    if (bond == NULL)
+	return eval_define(scope, expr);
+
+    setglobal(bond->sexpr, false);
+    bond->sexpr = cadr(expr);
+    setglobal(bond->sexpr, true);
+
+    return bond->sexpr;
 }

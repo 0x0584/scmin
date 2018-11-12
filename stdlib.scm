@@ -7,8 +7,9 @@
 (define cddr (lambda (foo) (cdr (cdr foo))))
 
 (define caddr (lambda (foo) (car (cddr foo))))
-(define caadr (lambda (foo) (car (cadr foo))))
-
-(define cdaar (lambda (foo) (cdr (caar foo))))
 (define cddar (lambda (foo) (cddr (car foo))))
-(define caar (lambda (foo) (car (car foo))))
+
+(define caadr (lambda (foo) (car (cadr foo))))
+(define cdaar (lambda (foo) (cdr (caar foo))))
+
+;; (define square (lambda (x) (* x x)))

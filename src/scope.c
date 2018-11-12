@@ -12,9 +12,6 @@
 #include "native.h"
 #include "vector.h"
 
-void setglobal(sexpr_t * sexpr, bool isglobal);
-bool setglobalbond(scope_t * scope, bond_t * bond, bool isglobal);
-
 /**
  * @brief the global scope of the interpreter
  *
@@ -34,6 +31,20 @@ static scope_t *gs = NULL;
  * @todo try to replace some of these function using Scheme/Lisp syntax
  */
 static native_t stdlib[] = {
+    {"list", native_list},
+    {"length", native_length},
+    {"cons", native_cons},
+    {"car", native_car},
+    {"cdr", native_cdr},
+    {"set-car", native_set_car},
+    {"set-cdr", native_set_cdr},
+
+    {"and", native_and},
+    {"or", native_or},
+    {"not", native_not},
+
+    {"print", native_print},
+
     {"+", native_add},
     {"-", native_minus},
     {"*", native_times},
@@ -57,14 +68,6 @@ static native_t stdlib[] = {
     {"sqrt", native_sqrt},
     {"square", native_square},
 
-    {"list", native_list},
-    {"length", native_length},
-    {"cons", native_cons},
-    {"car", native_car},
-    {"cdr", native_cdr},
-    {"set-car", native_set_car},
-    {"set-cdr", native_set_cdr},
-
     {"eq?", native_iseq},
     {"nil?", native_isnil},
     {"true?", native_istrue},
@@ -75,12 +78,6 @@ static native_t stdlib[] = {
     {"list?", native_islist},
     {"atom?", native_isatom},
     {"pair?", native_ispair},
-
-    {"and", native_and},
-    {"or", native_or},
-    {"not", native_not},
-
-    {"print", native_print},
 
     {NULL, NULL}
 };
@@ -140,43 +137,42 @@ void bond_describe(object_t o) {
     sexpr_print(b->sexpr);
 }
 
-sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr) {
+bond_t *resolve_bond(scope_t * scope, sexpr_t * expr) {
     if (!issymbol(expr))
 	return NULL;
 
     bond_t bond = { expr->s, NULL, false };
-    bond_t *resolved = vector_find(s->bonds, &bond);
+    bond_t *resolved = NULL;
+    scope_t *tscope = scope;
 
-    /*
-       bond_describe(resolved);
-       assert(resolved != NULL);
-     */
+    while (tscope != NULL)
+	if ((resolved = vector_find(tscope->bonds, &bond)))
+	    break;
+	else
+	    tscope = tscope->parent;
 
-    if (resolved == NULL && s->parent != NULL)
-	resolved = vector_find(s->parent->bonds, &bond);
-
-    return resolved ? resolved->sexpr : NULL;
+    return resolved;
 }
 
-bool isbonded(scope_t * s, sexpr_t * expr) {
-    return resolve_bond(s, expr) != NULL;
+bool isbonded(scope_t * scope, sexpr_t * expr) {
+    return resolve_bond(scope, expr) != NULL;
 }
 
-void bind_lambda_args(scope_t * s, lambda_t * l, sexpr_t * args) {
+void bind_lambda_args(scope_t * scope, lambda_t * l, sexpr_t * args) {
     sexpr_t *foo = l->args, *bar = NULL;	/* lambda's tmp */
     sexpr_t *fuzz = args, *buzz = NULL;	/* arg's tmp */
 
     while (!isnil(foo)) {
 	bar = car(foo), buzz = car(fuzz);
-	vector_push(s->bonds, bond_new(bar->s, buzz));
+	vector_push(scope->bonds, bond_new(bar->s, buzz));
 	foo = cdr(foo), fuzz = cdr(fuzz);
     }
 }
 
 scope_t *scope_init(scope_t * parent) {
-    scope_t *s = gc_alloc_scope();
-    s->parent = parent;
-    return s;
+    scope_t *scope = gc_alloc_scope();
+    scope->parent = parent;
+    return scope;
 }
 
 scope_t *get_global_scope(void) {
@@ -208,14 +204,14 @@ void scope_describe(object_t o) {
 	return;
     }
 
-    scope_t *s = o;
+    scope_t *scope = o;
 
-    printf("is marked? [%s]\n", s->gci.ismarked ? "X" : " ");
-    vector_print(s->bonds);
+    printf("is marked? [%s]\n", scope->gci.ismarked ? "X" : " ");
+    vector_print(scope->bonds);
 
-    if (s->parent) {
+    if (scope->parent) {
 	puts(" parent");
-	scope_describe(s->parent);
+	scope_describe(scope->parent);
     }
 }
 

@@ -29,19 +29,18 @@ extern vector_t *error_log;
 /**
  * @brief a vector of allocated s-expressions in the garbage collector
  */
-vector_t *gc_allocd_sexprs;
+static vector_t *gc_allocd_sexprs;
 
 /**
  * @brief a vector of allocated lambdas in the garbage collector
  */
-vector_t *gc_allocd_lambdas;
+static vector_t *gc_allocd_lambdas;
 
 
 /**
  * @brief a vector of allocated scopes in the garbage collector
  */
-vector_t *gc_allocd_scopes;
-
+static vector_t *gc_allocd_scopes;
 
 /**
  * @brief initialize the Garbage Collector's vectors

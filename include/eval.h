@@ -131,5 +131,8 @@ sexpr_t *eval_if(scope_t *, sexpr_t * expr);
  */
 sexpr_t *eval_lambda(scope_t * s, sexpr_t * expr);
 
+sexpr_t *eval_set(scope_t * scope, sexpr_t * expr);
+sexpr_t *eval_setq(scope_t * scope, sexpr_t * expr);
+
 void eval_testing();
 #endif				/* _SCMIN_EVAL_H */

@@ -1,4 +1,4 @@
-;; TODO: implement lambdas andtheir functions
+;; XXX: implement lambdas andtheir functions
 
 ((lambda (x y) (* x y)) 3 2)		; 6
 
