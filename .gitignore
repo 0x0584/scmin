@@ -1,5 +1,8 @@
+# Project ignore list
 TAGS
 scmin
+*.txt
+massif.*
 doc/*
 
 ### C ###
