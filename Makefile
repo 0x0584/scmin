@@ -22,8 +22,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 	$(CC) $(CFLAGS) -c -o $@ $< $(LDFLAGS) 
 
 run: build
-	@echo "Passed Arguments:\t \033[0;32m" $(ARGS)
-	@echo "\033[0m"
+	@echo "Passed Arguments:\t \033[0;32m" $(ARGS) "\033[0m"
 	./$(EXEC) $(ARGS)
 	@echo " "
 

@@ -59,33 +59,6 @@ vector_t *read_stream_tokens(const char *filename);
  */
 token_t *next_token(char *code);
 
-
-/**
- * takes any lisp comments away, it reads characters
- * using getnc()
- *
- * @param code a Scheme-like syntax
- *
- * @return false if it reaches EOF
- *
- * @see getnc() in @file characters.c
- * @note this function modifies the static values in of getnc()
- */
-bool clean_comments(string_t code);
-
-/**
- * takes any whitespaces away, it reads characters
- * using getnc()
- *
- * @param code a Scheme-like syntax
- *
- * @return false if it reaches EOF
- *
- * @see getnc() in @file characters.c
- * @note this function modifies the static values in of getnc()
- */
-bool clean_whitespaces(string_t code);
-
 /**
  * reads the token value from @p code as string
  *
@@ -98,7 +71,7 @@ bool clean_whitespaces(string_t code);
  *
  * @note this function modifies the static values in of getnc()
  */
-string_t read_as_string(string_t code);
+string_t read_string(string_t code);
 
 /**
  * reads the token value from @p code as number
@@ -112,7 +85,7 @@ string_t read_as_string(string_t code);
  *
  * @note this function modifies the static values in of getnc()
  */
-string_t read_as_number(string_t code);
+string_t read_number(string_t code);
 
 /**
  * reads the token value from @p code as symbol
@@ -126,7 +99,7 @@ string_t read_as_number(string_t code);
  *
  * @note this function modifies the static values in of getnc()
  */
-string_t read_as_symbol(string_t code);
+string_t read_symbol(string_t code);
 
 void lexer_testing(void);
 

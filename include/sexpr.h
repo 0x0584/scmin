@@ -6,7 +6,8 @@
  *
  * @brief definitions of s-expression and its types, lambda
  *
- * provides functionalities to create and identify s-expression of any type
+ * @details provides functionalities to create and identify
+ * s-expression of any type
  *
  * @see types.h
  */
@@ -14,7 +15,15 @@
 #  include "main.h"
 #  include "gc.h"
 
+/**
+ * @brief all numbers are hundled as 32-bit float
+ */
 typedef double number_t;
+
+/**
+ * @brief srtings are just array of characters terminated
+ * with null character
+ */
 typedef char *string_t;
 
 /**
@@ -62,7 +71,6 @@ typedef enum SYMBOLIC_EXPRESSION_TYPE {
  * expressions as arguments, i.e. a function
  *
  * @note lambdas are defined as (lambda (args) (body))
- * @note union is used to manage memory efficiently
  */
 typedef struct LAMBDA_EXPRESSION {
     /**

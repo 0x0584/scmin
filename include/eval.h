@@ -30,7 +30,6 @@
  */
 sexpr_t *eval_sexpr(scope_t * s, sexpr_t * expr);
 
-
 /**
  * @brief just like eval_sexpr(), but with a vector of s-expressions
  * instead of a single one
@@ -76,15 +75,14 @@ struct KEYWORD {
 };
 
 /**
- * @brief determines whether a @p expr s-expression is a keyword or not
+ * @brief determines whether a `expr` s-expression is a keyword or not
  *
  * @param expr s-expression
  *
- * @return NULL if the s-expression is not a keyword, or the keyword's
+ * @return `NULL` if the s-expression is not a keyword, or the keyword's
  * correspondant function otherwise
  */
-k_func iskeyword(sexpr_t * expr);
-
+k_func eval_keyword(sexpr_t * expr);
 
 /**
  * @brief returns the expression as it is
@@ -93,7 +91,7 @@ k_func iskeyword(sexpr_t * expr);
  * @param expr the expression to evaluate
  *
  * @return expr without evaluation
- * @note `quote` is defined as (quote expr)
+ * @note `quote` is defined as `(quote expr)`
  */
 sexpr_t *eval_quote(scope_t * s, sexpr_t * expr);
 
@@ -106,12 +104,12 @@ sexpr_t *eval_quote(scope_t * s, sexpr_t * expr);
  * @return the defined s-expression
  *
  * @see scope.h
- * @note `defines` are defined as (define symbol expr)
+ * @note `defines` are defined as `(define symbol expr)`
  */
 sexpr_t *eval_define(scope_t *, sexpr_t * expr);
 
 /**
- * @brief performes a condtional based on the car() of @p expr
+ * @brief performes a condtional based on the car() of `expr`
  *
  * @return the evaluate of expression that satisfies the condition
  *
@@ -120,9 +118,8 @@ sexpr_t *eval_define(scope_t *, sexpr_t * expr);
  */
 sexpr_t *eval_if(scope_t *, sexpr_t * expr);
 
-
 /**
- * @brief creates lambda from @p expr
+ * @brief creates lambda from `expr`
  *
  * @param s the contaning scope
  * @param expr the expression to evaluate
@@ -130,7 +127,7 @@ sexpr_t *eval_if(scope_t *, sexpr_t * expr);
  * @return a lambda s-expression
  *
  * @see sexpr.h
- * @note `lambdas` are defined as (lambda (args) (body))
+ * @note `lambdas` are defined as `(lambda (args) (body))`
  */
 sexpr_t *eval_lambda(scope_t * s, sexpr_t * expr);
 

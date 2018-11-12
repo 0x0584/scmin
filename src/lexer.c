@@ -133,15 +133,15 @@ token_t *next_token(const string_t code) {
 	break;
 
     case TOK_STRING:
-	vbuffer = read_as_string(code);
+	vbuffer = read_string(code);
 	break;
 
     case TOK_SYMBOL:
-	vbuffer = read_as_symbol(code);
+	vbuffer = read_symbol(code);
 	break;
 
     case TOK_NUMBER:
-	vbuffer = read_as_number(code);
+	vbuffer = read_number(code);
 	break;
 
     default:
@@ -161,51 +161,12 @@ token_t *next_token(const string_t code) {
     return token_new(type, vbuffer, 0x0584);
 }
 
-/**
- * takes any possible white-spaces from the @p code string
- *
- * @param code a string containing Scheme-like syntax
- *
- * @return false if we reach the EOF
- */
-bool clean_whitespaces(string_t code) {
-    char c;
-
-    while ((c = getnc(code)) != EOF && isspace(c));
-
-    if (c != EOF)
-	ungetnc();
-
-    return c != EOF;
-}
-
-/**
- * takes any possible comments from the @p code string
- *
- * @param code a string containing Scheme-like syntax
- *
- * @return false if we reach the EOF
- */
-bool clean_comments(string_t code) {
-    char c;
-
-    while ((c = getnc(code)) == ';')
-	do
-	    c = getnc(code);
-	while (c != '\n' && c != '\r' && c != EOF);
-
-    if (c != EOF)
-	ungetnc();
-
-    return c != EOF;
-}
-
 /*
  * ==================================================================
  * the following read functions return NULL if an error occurs
  * ==================================================================
  */
-string_t read_as_string(const string_t code) {
+string_t read_string(const string_t code) {
     string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
     int i = 0;
     char c;
@@ -232,7 +193,7 @@ string_t read_as_string(const string_t code) {
     return free(vbuffer), NULL;
 }
 
-string_t read_as_number(const string_t code) {
+string_t read_number(const string_t code) {
     string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
     int i = 0;
     bool period_found = false;
@@ -265,7 +226,7 @@ string_t read_as_number(const string_t code) {
     return free(vbuffer), NULL;
 }
 
-string_t read_as_symbol(const string_t code) {
+string_t read_symbol(const string_t code) {
     string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
     string_t not_allowed = "()\'\"\\";
     char c;

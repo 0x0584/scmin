@@ -1,16 +1,36 @@
-#include "repl.h"
+/**
+ * @file repl.c
+ *
+ * @brief contains definitions of Read Eval Print Loop functionalities
+ *
+ * @details takes input from stdin and then pass it through the evaluation
+ * process mainly read_token() to READ the tokens out of the string and
+ * then parse_sexpr() passing the collected tokens. after that we get a
+ * parsed s-expression, and then call eval_sexpr() to EVALuate it, PRINTing
+ * the result and LOOP.
+ *
+ * @see lexer.c
+ * @see parser.c
+ * @see eval.c
+ *
+ * @todo stop the loop after hitting ^D not RETURN after finishing
+ * the debugging process
+ */
+
+#include "characters.h"
+#include "vector.h"
+#include "scope.h"
+
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"
-#include "scope.h"
-#include "vector.h"
-#include "characters.h"
+#include "repl.h"
 
 void print_head(void) {
     puts("scmin, Minimal Scheme/Lisp Interpreter\n"
 	 "Licenced under GPL v2 by 0x0584\n"
 	 "\nstart typing Scheme/Lisp syntax "
-	 "or press [RETURN] to exit\n");
+	 "or press ^D to exit\n");
 }
 
 void repl(scope_t * scope) {
@@ -26,9 +46,12 @@ void repl(scope_t * scope) {
 
 	buffer = stdin_as_string();
 
-	if (buffer == NULL || *buffer == '\0') {
+	if (buffer == NULL){
 	    isfinished = true;
 	    goto CLEAN;
+	} else if (*buffer == '\0') {
+	    putchar('\n');
+	    continue;
 	}
 
 	tokens = read_tokens(buffer);
@@ -45,7 +68,6 @@ void repl(scope_t * scope) {
 	puts("parse done");
 #endif
 
-
 	tmp = eval_sexpr(scope, tmp);
 
 #if REPL_DEBUG == DBG_ON
@@ -53,7 +75,7 @@ void repl(scope_t * scope) {
 	puts("eval done");
 #endif
 
-	printf(" -> "), sexpr_print(tmp);
+	printf(" -> "), sexpr_print(tmp), putchar('\n');
 
 	vector_free(tokens);
 

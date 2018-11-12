@@ -416,7 +416,7 @@ void sexpr_print(object_t o) {
     if (o == NULL)
 	return;
     else
-	_sexpr_print(o), putchar('\n');
+	_sexpr_print(o);
 }
 
 void lambda_describe(object_t o) {

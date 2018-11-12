@@ -3,24 +3,45 @@
  */
 
 /**
+ * @file main.c
+ *
  * @brief this is the main entery point, basically would intialize the
  * environment, then check if there are any sent-arguments to process.
  *
  *   + if so, it would evaluate them then quit with success (or failure
- *     if there was an error while the evaluation).
+ *     if an error occurs while evaluating).
  *
  *   + if no argument was sent, a repl-system would set up on infinity
- *     loop (until EOF is sent by the user)
+ *     loop
  */
 
 #include "main.h"
 #include "gc.h"
+
 #include "vector.h"
 #include "sexpr.h"
+#include "scope.h"
+
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"
 #include "repl.h"
+
+#define STD_SCHEME_LIB "stdlib.scm"
+
+void scmin_init(void) {
+    vector_t *v = NULL, *w = NULL, *x = NULL;
+
+    v = read_stream_tokens(STD_SCHEME_LIB);
+    w = parse_sexprs(v);
+    x = eval_sexprs(w);
+
+    gc_setmark_scope(get_global_scope(), true);
+
+    vector_free(x);
+    vector_free(w);
+    vector_free(v);
+}
 
 int main(int argc, char **argv) {
     if (argc == 1 && argv[0]) {
@@ -28,16 +49,18 @@ int main(int argc, char **argv) {
     }
 
     gc_init();
+    /* scmin_init(); */
 
     /* vector_testing(); */
     /* lexer_testing(); */
     /* parser_testing(); */
     /* eval_testing(); */
+
     repl_testing();
+
     /* gc_debug_memory(); */
 
     gc_clean();
-    /* err_clean(); */
 
     return EXIT_SUCCESS;
 }

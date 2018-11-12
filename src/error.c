@@ -122,5 +122,5 @@ void err_print(object_t o) {
 	return;
 
     error_t *r = o;
-    fprintf(stdout, "ERROR%d: %s\n", r->err, r->errmsg);
+    fprintf(stdout, "ERROR%d: %s", r->err, r->errmsg);
 }

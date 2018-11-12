@@ -31,17 +31,25 @@ static scope_t *gs = NULL;
  * @todo try to replace some of these function using Scheme/Lisp syntax
  */
 static native_t stdlib[] = {
-    {"+", native_add}, {"add", native_add},
-    {"-", native_minus}, {"sub", native_minus},
-    {"*", native_times}, {"mul", native_times},
-    {"/", native_divid}, {"div", native_divid},
+    {"+", native_add},
+    {"-", native_minus},
+    {"*", native_times},
+    {"/", native_divid},
+    {"=", native_eq},
+    {"<", native_less},
+    {">", native_greater},
+    {"<=", native_less_eq},
+    {">=", native_greater_eq},
 
-    /* numerical equivalence require numbers */
-    {"=", native_eq}, {"eq", native_eq},
-    {"<", native_less}, {"less", native_less},
-    {">", native_greater}, {"greater", native_greater},
-    {"<=", native_less_eq}, {"less-or-eq", native_less_eq},
-    {">=", native_greater_eq}, {"greater-or-eq", native_greater_eq},
+    {"add", native_add},
+    {"sub", native_minus},
+    {"mul", native_times},
+    {"div", native_divid},
+    {"eq", native_eq},
+    {"less", native_less},
+    {"greater", native_greater},
+    {"less-or-eq", native_less_eq},
+    {"greater-or-eq", native_greater_eq},
 
     {"sqrt", native_sqrt},
     {"square", native_square},
@@ -54,7 +62,6 @@ static native_t stdlib[] = {
     {"set-car", native_set_car},
     {"set-cdr", native_set_cdr},
 
-    /* eq? would return true if only the type matches */
     {"eq?", native_iseq},
     {"nil?", native_isnil},
     {"true?", native_istrue},
@@ -99,17 +106,19 @@ void bond_free(object_t o) {
 
     if (b == NULL)
 	return;
-    else
-	free(b->key), free(b);
+
+    free(b->key);
+    gc_free_sexpr(b->sexpr);
+    free(b);
 }
 
-bool bond_cmp(object_t o1, object_t key) {
-    assert(o1 != NULL);
-    assert(key != NULL);
+bool bond_cmp(object_t o1, object_t o2) {
+    if (o1 == NULL || o2 == NULL)
+	return false;
 
-    bond_t *b1 = o1;
+    bond_t *b1 = o1, *b2 = o2;
 
-    return !strcmp(b1->key, (string_t) key);
+    return !strcmp((string_t) b1->key, (string_t) b2->key);
 }
 
 void bond_describe(object_t o) {
@@ -129,15 +138,16 @@ sexpr_t *resolve_bond(scope_t * s, sexpr_t * expr) {
     if (!issymbol(expr))
 	return NULL;
 
-    bond_t *resolved = vector_find(s->bonds, expr->s);
+    bond_t bond = { expr->s, NULL, false };
+    bond_t *resolved = vector_find(s->bonds, &bond);
 
     /*
        bond_describe(resolved);
        assert(resolved != NULL);
-    */
+     */
 
     if (resolved == NULL && s->parent != NULL)
-	resolved = vector_find(s->parent->bonds, expr->s);
+	resolved = vector_find(s->parent->bonds, &bond);
 
     return resolved ? resolved->sexpr : NULL;
 }
@@ -203,13 +213,50 @@ void scope_describe(object_t o) {
     }
 }
 
-void scope_push_bond(scope_t * s, bond_t * b) {
-    bond_t *tmp = vector_find(s->bonds, b);
+void setglobal(sexpr_t * sexpr, bool isglobal) {
+    sexpr->gci.isglobal = isglobal;
+
+    if (ispair(sexpr)) {
+	setglobal(car(sexpr), isglobal);
+	setglobal(cdr(sexpr), isglobal);
+    }
+}
+
+bool setglobalbond(scope_t * scope, bond_t * bond, bool isglobal) {
+    /* this is applied only to the global scope */
+    if (scope->parent == NULL) {
+	sexpr_t *s = bond->sexpr;
+
+	setglobal(s, isglobal);
+
+	if (islambda(s)) {
+	    s->l->gci.isglobal = isglobal;
+	    setglobal(s->l->args, isglobal);
+	    setglobal(s->l->body, isglobal);
+	}
+    }
+
+    return scope->parent == NULL;
+}
+
+/**
+ * @brief push new bonds or replace old ones
+ *
+ * @details here we set global scope bond members as global so
+ * that they won't be cleaned up while cleaning
+ *
+ * @param scope the scope to push into
+ * @param bond a bond to push
+ */
+void scope_push_bond(scope_t * scope, bond_t * bond) {
+    setglobalbond(scope, bond, true);
+
+    bond_t *tmp = vector_find(scope->bonds, bond);
 
     if (!tmp) {
-	vector_push(s->bonds, b);
+	vector_push(scope->bonds, bond);
     } else {
-	tmp->sexpr = b->sexpr;
-	bond_free(b);
+	tmp->sexpr = bond->sexpr;
+	bond_free(bond);
     }
 }

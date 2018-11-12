@@ -1,9 +1,14 @@
-/*
- * this would contain methods to handle memory using
- * mark-and-sweep garbage collection algorithm
+/**
+ * @file gc.c
  *
- * FIXME: figure out how to eliminate code-redundancy
+ * @brief a simple Garbage Collector implemebntation of teh mark-and-sweep
+ * algorithm
+ *
+ * @details contains definitions to handle scopes, lambdas and s-expressions
+ *
+ * @todo: figure out how to eliminate code-redundancy
  */
+
 #include "gc.h"
 
 #include "vector.h"
@@ -15,18 +20,50 @@
 #include "context.h"
 #include "pair.h"
 
+/**
+ * @brief the error log
+ * @see error.c
+ */
 extern vector_t *error_log;
 
+/**
+ * @brief a vector of allocated s-expressions in the garbage collector
+ */
 vector_t *gc_allocd_sexprs;
+
+/**
+ * @brief a vector of allocated lambdas in the garbage collector
+ */
 vector_t *gc_allocd_lambdas;
+
+
+/**
+ * @brief a vector of allocated scopes in the garbage collector
+ */
 vector_t *gc_allocd_scopes;
 
+
+/**
+ * @brief initialize the Garbage Collector's vectors
+ *
+ * @see #gc_allocd_sexprs
+ * @see #gc_allocd_lambdas
+ * @see #gc_allocd_scopes
+ */
 void gc_init(void) {
     gc_allocd_sexprs = vector_new(gc_free_sexpr, sexpr_print, NULL);
     gc_allocd_lambdas = vector_new(gc_free_lambda, lambda_print, NULL);
     gc_allocd_scopes = vector_new(gc_free_scope, scope_describe, NULL);
 }
 
+/**
+ * @brief free's the Garbage Collect vectors from the memory, also free's
+ * the error log
+ *
+ * @see #gc_allocd_sexprs
+ * @see #gc_allocd_lambdas
+ * @see #gc_allocd_scopes
+ */
 void gc_clean(void) {
     gc_collect(true);
 
@@ -37,26 +74,51 @@ void gc_clean(void) {
     vector_free(error_log);
 }
 
+/**
+ * @brief returns the size of currently allocated memory in Bytes
+ *
+ * @details sum of all bytes allocated by the global vectors
+ *
+ * @return size of allocated memory by the GC
+ *
+ * @see #gc_allocd_sexprs
+ * @see #gc_allocd_lambdas
+ * @see #gc_allocd_scopes
+ */
 long gc_allocated_size(void) {
     return (gc_allocd_sexprs->size * sizeof(sexpr_t))
 	+ (gc_allocd_scopes->size * sizeof(scope_t))
 	+ (gc_allocd_lambdas->size * sizeof(lambda_t));
 }
 
-bool gc_has_space_left() {
+/**
+ * @brief test whether there is some space left
+ *
+ * @details this is basically a test if the currently allocated space is
+ * less than #GC_RATIO
+ *
+ * @return `true` if there is some space left
+ */
+bool gc_has_space_left(void) {
     assert(GC_FREQUENCY > 0);
     return gc_allocated_size() < GC_RATIO;
 }
 
+/**
+ * @brief collects the objects in teh garbae collector by calling sweeping
+ * functions
+ *
+ * @details calls the following functions, gc_sweep_sexprs(),
+ * gc_sweep_lambdas() and gc_sweep_scopes()
+ *
+ * @param iscleanup whether to collect directly of see if there is some
+ * space left
+ */
 void gc_collect(bool iscleanup) {
 #if GC_DEBUG == DBG_ON
     puts("================================================");
-    if (iscleanup)
-	printf("%s ", "final");
-    else
-	puts("collectng");
-
-    printf("\nsexprs:%d\tscopes:%d\tlambdas:%d\n",
+    printf("%s \n", iscleanup ? "final" : "collecting");
+    printf("sexprs:%d\tscopes:%d\tlambdas:%d\n",
 	   gc_allocd_sexprs->size,
 	   gc_allocd_scopes->size, gc_allocd_lambdas->size);
 #endif
@@ -86,7 +148,6 @@ void gc_collect(bool iscleanup) {
 #if GC_DEBUG == DBG_ON
     puts("================================================\n");
 #endif
-
 }
 
 /* ==============================================================
@@ -123,7 +184,7 @@ void gc_sweep_sexprs(vector_t * v) {
 	tmp = vector_get(v, i);
 
 	/* lambdas handled elsewhere */
-	if (!tmp || islambda(tmp))
+	if (!tmp || islambda(tmp) || tmp->gci.isglobal)
 	    continue;
 
 	if (!tmp->gci.ismarked) {
@@ -145,7 +206,7 @@ void gc_sweep_sexprs(vector_t * v) {
     puts("\n -*- final sexprs stack -*- ");
     vector_print(v);
 
-    printf("previous: %d - current: %d - freed: %d \n",
+    printf("previous:%d\tcurrent:%d\tfreed:%d\n",
 	   size, v->size, freed);
 #endif
 }
@@ -153,6 +214,7 @@ void gc_sweep_sexprs(vector_t * v) {
 sexpr_t *gc_alloc_sexpr(void) {
     sexpr_t *s = malloc(sizeof *s);
     s->gci.ismarked = false;
+    s->gci.isglobal = false;
     return vector_push(gc_allocd_sexprs, s);
 }
 
@@ -233,6 +295,7 @@ lambda_t *gc_alloc_lambda(void) {
     lambda_t *l = malloc(sizeof *l);
 
     l->gci.ismarked = false;
+    l->gci.isglobal = false;
     l->parent = NULL;
     l->args = NULL;
     l->body = NULL;
@@ -324,6 +387,7 @@ scope_t *gc_alloc_scope(void) {
     s->bonds = vector_new(bond_free, bond_describe, bond_cmp);
     s->parent = NULL;
     s->gci.ismarked = false;
+    s->gci.isglobal = false;
 
     vector_push(gc_allocd_scopes, s);
 

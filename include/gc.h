@@ -15,17 +15,35 @@
 
 #  include "main.h"
 
+/**
+ * @brief maximum size of the Garbage Collector's stack
+ */
 #  define GC_STACK_LIMIT_SIZE	(2 << 15)
 
+/**
+ * @brief a number ranging between 1 and 10 indicating the frequency of
+ * the process of garbage collection
+ */
 #  define GC_FREQUENCY		 4
 
+/**
+ * @brief a value that we would execute the garbage collector after
+ */
 #  define GC_RATIO		(GC_STACK_LIMIT_SIZE / GC_FREQUENCY)
 
+/**
+ *  @brief information about the garbage collection
+ */
 typedef struct GC_INFO {
    /**
     * @brief is marked as reachable!
     */
     bool ismarked;
+
+    /**
+     * @brief is it defined in the global scope
+     */
+    bool isglobal;
 } gc_info;;
 
 /**
@@ -59,11 +77,6 @@ scope_t *gc_alloc_scope(void);
 void gc_free_scope(object_t o);
 void gc_setmark_scope(scope_t * scope, bool mark);
 void gc_sweep_scopes(vector_t * v);
-
-context_t *gc_alloc_context();
-void gc_free_context(object_t o);
-void gc_setmark_context(context_t * scope, bool mark);
-void gc_sweep_context(vector_t * v);
 
 void gc_debug_memory(void);
 #endif				/* _SCMIN_GC_H */

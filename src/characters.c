@@ -106,8 +106,17 @@ string_t stdin_as_string(void) {
     short index = 0, c;
 
     while ((c = getchar())) {
-	if (c == '\n' || c == '\r') {
-	    buffer[index] = '\0'; break;
+	if (c == EOF && index == 0) {
+	    free(buffer);
+	    return NULL;
+	} else if (c == EOF && index != 0) {
+	    free(buffer);
+	    buffer = malloc(sizeof(char));
+	    *buffer = '\0';
+	    return buffer;
+	} else if (c == '\n' || c == '\r') {
+	    buffer[index] = '\0';
+	    break;
 	} else {
 	    buffer[index++] = c;
 	}
@@ -151,4 +160,43 @@ char ungetnc(void) {
  */
 string_t reduce_string_size(string_t str) {
     return realloc(str, (1 + strlen(str)) * sizeof(char));
+}
+
+/**
+ * takes any possible white-spaces from the @p code string
+ *
+ * @param code a string containing Scheme-like syntax
+ *
+ * @return false if we reach the EOF
+ */
+bool clean_whitespaces(string_t code) {
+    char c;
+
+    while ((c = getnc(code)) != EOF && isspace(c));
+
+    if (c != EOF)
+	ungetnc();
+
+    return c != EOF;
+}
+
+/**
+ * takes any possible comments from the @p code string
+ *
+ * @param code a string containing Scheme-like syntax
+ *
+ * @return false if we reach the EOF
+ */
+bool clean_comments(string_t code) {
+    char c;
+
+    while ((c = getnc(code)) == ';')
+	do
+	    c = getnc(code);
+	while (c != '\n' && c != '\r' && c != EOF);
+
+    if (c != EOF)
+	ungetnc();
+
+    return c != EOF;
 }
