@@ -184,7 +184,7 @@ void gc_sweep_sexprs(vector_t * v) {
 	tmp = vector_get(v, i);
 
 	/* lambdas handled elsewhere */
-	if (!tmp || islambda(tmp) || tmp->gci.isglobal)
+	if (islambda(tmp) || tmp->gci.isglobal)
 	    continue;
 
 	if (!tmp->gci.ismarked) {
@@ -206,8 +206,7 @@ void gc_sweep_sexprs(vector_t * v) {
     puts("\n -*- final sexprs stack -*- ");
     vector_print(v);
 
-    printf("previous:%d\tcurrent:%d\tfreed:%d\n",
-	   size, v->size, freed);
+    printf("previous:%d\tcurrent:%d\tfreed:%d\n", size, v->size, freed);
 #endif
 }
 
@@ -264,7 +263,7 @@ void gc_sweep_lambdas(vector_t * v) {
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
-	if (tmp->isnative)
+	if (tmp->isnative || tmp->gci.isglobal)
 	    continue;
 
 	if (!tmp->gci.ismarked) {
@@ -353,7 +352,7 @@ void gc_sweep_scopes(vector_t * v) {
     for (i = 0; i < v->size; ++i) {
 	tmp = vector_get(v, i);
 
-	if (!tmp || tmp->parent == NULL)	/* global scope */
+	if (tmp->parent == NULL)	/* global scope */
 	    continue;
 
 	if (!tmp->gci.ismarked) {

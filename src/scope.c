@@ -12,6 +12,9 @@
 #include "native.h"
 #include "vector.h"
 
+void setglobal(sexpr_t * sexpr, bool isglobal);
+bool setglobalbond(scope_t * scope, bond_t * bond, bool isglobal);
+
 /**
  * @brief the global scope of the interpreter
  *
@@ -108,7 +111,10 @@ void bond_free(object_t o) {
 	return;
 
     free(b->key);
-    gc_free_sexpr(b->sexpr);
+
+    if (b->sexpr->gci.isglobal)
+	setglobal(b->sexpr, false);
+
     free(b);
 }
 
@@ -219,21 +225,17 @@ void setglobal(sexpr_t * sexpr, bool isglobal) {
     if (ispair(sexpr)) {
 	setglobal(car(sexpr), isglobal);
 	setglobal(cdr(sexpr), isglobal);
+    } else if (islambda(sexpr)) {
+	sexpr->l->gci.isglobal = isglobal;
+	setglobal(sexpr->l->args, isglobal);
+	setglobal(sexpr->l->body, isglobal);
     }
 }
 
 bool setglobalbond(scope_t * scope, bond_t * bond, bool isglobal) {
     /* this is applied only to the global scope */
     if (scope->parent == NULL) {
-	sexpr_t *s = bond->sexpr;
-
-	setglobal(s, isglobal);
-
-	if (islambda(s)) {
-	    s->l->gci.isglobal = isglobal;
-	    setglobal(s->l->args, isglobal);
-	    setglobal(s->l->body, isglobal);
-	}
+	setglobal(bond->sexpr, isglobal);
     }
 
     return scope->parent == NULL;
@@ -249,7 +251,8 @@ bool setglobalbond(scope_t * scope, bond_t * bond, bool isglobal) {
  * @param bond a bond to push
  */
 void scope_push_bond(scope_t * scope, bond_t * bond) {
-    setglobalbond(scope, bond, true);
+    if (scope->parent == NULL)
+	setglobal(bond->sexpr, true);
 
     bond_t *tmp = vector_find(scope->bonds, bond);
 
