@@ -30,6 +30,7 @@
 static keyword_t kwd[] = {
     {"quote", eval_quote},
     {"define", eval_define},
+    {"undef", eval_undef},
     {"set", eval_set},
     {"setq", eval_setq},
     {"if", eval_if},
@@ -117,6 +118,11 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     sexpr_print(op);
 #endif
 
+    /* err_raise(ERR_OP_NOT_FOUND, !resolve_bond(scope, op)); */
+
+    /* if (err_log()) */
+    /*	goto FAILED; */
+
     /* ==================== ==================== ==================== */
 
     sexpr_t *args = NULL, *tail = NULL;
@@ -159,9 +165,10 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     err_raise(ERR_RSLT_NULL, !result);
 
-    /* FIXME: clean memory after the evaluation ends
-     * which would be done using evaluation contexts */
-    /* gc_collect(true); */
+    /* XXX: clean memory after the evaluation ends
+     * which would be done using evaluation contexts
+     *
+     * done outside in the repl or eval_sexprs */
 
 #if EVALUATOR_DEBUG == DBG_ON
     puts("result: ");
@@ -199,7 +206,7 @@ vector_t *eval_sexprs(vector_t * sexprs) {
 	tmp = vector_push(v, tmp);
 
 #if EVALUATOR_DEBUG == DBG_ON
-	printf("> "), sexpr_print(tmp), putchar('\n');
+	printf(" > "), sexpr_print(tmp), putchar('\n');
 #endif
     }
 
@@ -277,8 +284,8 @@ sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
     bond_t *bond = vector_find(scope->bonds, &(bond_t){
 	    symbol->s, NULL, false});
 
-    /* if (bond != NULL) */
-    /*	return eval_set(scope, expr); */
+    if (bond != NULL)
+	return eval_set(scope, expr);
 
     evaled = eval_sexpr(scope, cadr(expr));
     scope_push_bond(scope, bond_new(symbol->s, evaled));
@@ -338,6 +345,9 @@ sexpr_t *eval_lambda(scope_t * scope, sexpr_t * expr) {
     return lambda_new(scope, car(expr), cadr(expr));
 }
 
+/*
+ * TODO: remove code redundancy between set and setq
+ */
 sexpr_t *eval_set(scope_t * scope, sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
     err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
@@ -375,4 +385,24 @@ sexpr_t *eval_setq(scope_t * scope, sexpr_t * expr) {
     setglobal(bond->sexpr, true);
 
     return bond->sexpr;
+}
+
+sexpr_t *eval_undef(scope_t * scope, sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+    err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
+
+    if (err_log())
+	return sexpr_err();
+
+    bond_t *bond = resolve_bond(scope, car(expr));
+
+    if (bond == NULL)
+	return sexpr_nil();
+
+    /* for the moment undef just sets the symbol to nil */
+    setglobal(bond->sexpr, false);
+    bond->sexpr = sexpr_nil();
+    setglobal(bond->sexpr, true);
+
+    return sexpr_true();
 }

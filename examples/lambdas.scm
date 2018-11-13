@@ -14,7 +14,7 @@
 ;; (defun (buzz x y) (- x y))		; bar
 ;; (define (baz x y) (+ x y))		; baz
 
-;; FIXME: the factorial is not working
+;; XXX: the factorial is not working
 ;; due to some scope binding issues
 (define fact (lambda (n)
 	       (if (n <= 1) 1 (* n (fact (- n 1))))))

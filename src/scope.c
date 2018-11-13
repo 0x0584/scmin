@@ -41,7 +41,6 @@ static native_t stdlib[] = {
 
     {"and", native_and},
     {"or", native_or},
-    {"not", native_not},
 
     {"print", native_print},
 
@@ -66,7 +65,6 @@ static native_t stdlib[] = {
     {"greater-or-eq", native_greater_eq},
 
     {"sqrt", native_sqrt},
-    {"square", native_square},
 
     {"eq?", native_iseq},
     {"nil?", native_isnil},
@@ -77,7 +75,6 @@ static native_t stdlib[] = {
     {"lambda?", native_islambda},
     {"list?", native_islist},
     {"atom?", native_isatom},
-    {"pair?", native_ispair},
 
     {NULL, NULL}
 };

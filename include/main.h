@@ -156,7 +156,8 @@ enum SCHEME_ERROR {
     /**
      * @brief result should not be `NULL`
      * @see eval.c
-     * @note not sure if this would ever be raised but, better have it than not
+     * @note not sure if this would ever be raised but, better
+     * have it than not
      */
     ERR_RSLT_NULL,
 
@@ -170,6 +171,8 @@ enum SCHEME_ERROR {
      * @brief using set on an unbonded symbol
      */
     ERR_CANNOT_SET,
+
+    ERR_OP_NOT_FOUND,
 
     /**
      * @brief this indicates that there is no error; everything is fine

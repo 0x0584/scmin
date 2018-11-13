@@ -44,6 +44,8 @@ error_t errs[] = {
     {"FILE NOT FOUND", ERR_FILE_ERR},
 
     {"CANNOT SET SYMBOL", ERR_CANNOT_SET},
+    {"OPERATOR NOT FOUND", ERR_OP_NOT_FOUND},
+
     {NULL, ERR_NO_ERROR}
 };
 

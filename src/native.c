@@ -118,16 +118,6 @@ sexpr_t *native_or(sexpr_t * expr) {
     return tmp;
 }
 
-/* (not s-expr) */
-sexpr_t *native_not(sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
-
-    if (err_log())
-	return sexpr_err();
-
-    return isnil(car(expr)) ? sexpr_true() : sexpr_nil();
-}
-
 /* (and s-exprs) */
 sexpr_t *native_and(sexpr_t * expr) {
     sexpr_t *tmp = expr;
@@ -411,19 +401,6 @@ sexpr_t *native_sqrt(sexpr_t * expr) {
 
     sexpr_t *number = sexpr_new(T_NUMBER);
     number->n = sqrt(car(expr)->n);
-
-    return number;
-}
-
-sexpr_t *native_square(sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
-    err_raise(ERR_ARG_TYPE, !isnumber(car(expr)));
-
-    if (err_log())
-	return sexpr_err();
-
-    sexpr_t *number = sexpr_new(T_NUMBER);
-    number->n = car(expr)->n * car(expr)->n;
 
     return number;
 }

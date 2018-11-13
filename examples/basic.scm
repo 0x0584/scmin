@@ -2,12 +2,12 @@
 
 (define fuzz '(1 2 3))			; (1 2 3)
 
-;; TODO: implement set and setq
+;; XXX: implement set and setq
 (set 'fuzz '(5 2 4))			; (5 2 4)
 (setq fuzz (3 2 4))			; (3 2 4)
 (set (car fuzz) 7)			; 7
 
-;; TODO: implement undef
+;; XXX: implement undef
 (define here '(a b c d))		; (a b c d)
 (undef here)				; t
 (null? here)				; t
