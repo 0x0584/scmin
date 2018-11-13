@@ -27,10 +27,10 @@
 #include "repl.h"
 
 void print_head(void) {
-    puts("scmin, Minimal Scheme/Lisp Interpreter\n"
-	 "Licenced under GPL v2 by 0x0584\n"
-	 "\nstart typing Scheme/Lisp syntax "
-	 "or press ^D to exit\n");
+    puts("scmin, Minimal Scheme/Lisp Interpreter (0x0584)\n"
+	 "scmin comes with ABSOLUTELY NO WARRANTY; it is free software\n"
+	 "you can modify it under terms of GNU GPL (v2) (see LICENCE)\n"
+	 "\nstart typing Scheme/Lisp syntax or press ^D to exit\n");
 }
 
 void repl(scope_t * scope) {

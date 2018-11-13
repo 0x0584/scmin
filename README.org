@@ -2,24 +2,25 @@
 
   This is a basic Lisp (technically Scheme) interpreter that was written in C for educational purposes with the following features:
 
-  + [X] read and split text contaning lisp syntax into tokens
+  + [X] read and split text containing lisp syntax into tokens
   + [X] parse the tokens into a s-expression object
   + [X] evaluate the parsed s-expression object
   + [X] memory is handled via a garbage collector
-  + [-] syntax support
+  + [X] syntax support
     + [X] arithmetic operators =+=, =-=, =*= and =/= 
     + [X] arithmetic comparison operators
     + [X] cons-pairs operators =cons=, =car=, =cdr=, =set-car= and =set-cdr=
     + [X] logical operators =and=, =or= and =not=
-    + [X] defining variables +and constants+ using =define= +and undefine them using =undef=+ 
-    + [X] conditioning using =if= and logical operatos  =and=, =or=, =not=
+    + [X] defining symbols that hold values using =define= and remove them using =undef=
+    + [X] modify their values using =set= and =setq=
+    + [X] conditioning using =if= and logical operators  =and=, =or=, =not=
     + [X] support lambda expressions
-  + [ ] +support recursion+
+  + [X] support recursion
   + [ ] +support simple objects+
 
 * Lisp as a programming language
 
-  LISP is a really old /functional programming language/ that stands for literaly for /LISt Processing/ because it is based on a data structure called /List/. It was invented by Mr. /John McCarthy/ (a genius) and the first time lisp was mentioned was in a paper published in 1959 called [[http://www-formal.stanford.edu/jmc/recursive.pdf][Recursive Functions of Symbolic Expressions and Their Computation by Machine]]. Also, a nice paper published in 2002 by Mr. /Paul Graham/ called [[http://www.paulgraham.com/rootsoflisp.html][Roots of Lisp]] contain some useful information based on what Lisp did while being around since the first appearance in tha 1959's paper as well as basic lisp functionalities and syntax
+  LISP is a really old /functional programming language/ that stands for literally for /LISt Processing/ because it is based on a data structure called /List/. It was invented by Mr. /John McCarthy/ (a genius) and the first time lisp was mentioned was in a paper published in 1959 called [[http://www-formal.stanford.edu/jmc/recursive.pdf][Recursive Functions of Symbolic Expressions and Their Computation by Machine]]. Also, a nice paper published in 2002 by Mr. /Paul Graham/ called [[http://www.paulgraham.com/rootsoflisp.html][Roots of Lisp]] contain some useful information based on what Lisp did while being around since the first appearance in the 1959's paper as well as basic lisp functionalities and syntax
 
   #+BEGIN_QUOTE
   Generally, Lisp is based on s-exps i.e. /symbolic expressions/. An expression is either an /atom/ -- sequence of characters, or a /list of more expressions/
@@ -35,12 +36,12 @@
     ;; build a list using cons
     (cons 'a (cons 'b (cons 'c nil)))	    ; (a b c)
 
-    ;; appliying car/cdr
+    ;; applying car/cdr
     (car (cons 'a (cons 'b (cons 'c nil)))) ; a
     (cdr (cons 'a (cons 'b (cons 'c nil)))) ; (b c)
 
     ;; Recursion with factorial
-    (define factorial
+    (define fact
       (lambda (n)
 	(if (<= n 1) 1
 	    (* n (fact (- n 1))))))
@@ -52,7 +53,7 @@
 	(if (= n 0) 1
 	    (if (= n 1) 1
 		(+ (fib (- n 2)) (fib (- n 1)))))))
-    (fib (* 2 5))			    ; >> 55
+    (fib (- 1 (* 2 5)))			    ; >> 55
   #+END_SRC
   #+END_QUOTE
 
@@ -68,7 +69,7 @@
 
 ** Lexing
 
-   The process of lexing is where the input, i.e. source code, is /splited into a Vector of tokens/. Each token have an assosiated value-buffer that holds additional information about the token, e.g. the content of a string.
+   The process of lexing is where the input, i.e. source code, is /splited into a Vector of tokens/. Each token have an associated value-buffer that holds additional information about the token, e.g. the content of a string.
 
    #+BEGIN_QUOTE
    /NOTE:/ See [[file:include/README.org][=lexer.h=]] for additional information on possible token types and their meaning. While [[file:src/README.org][=lexer.c=]] holds the declaration of lexing functions, the main function called =lexer()=.
@@ -84,13 +85,13 @@
 
 ** Evaluation
 
-   The process of evaluating a s-expression is basically a recursive process. Starts by indetifiying the operator and pass the arguments so that we could apply the operator on those arguments. a typical s-expression would look like this:
+   The process of evaluating a s-expression is basically a recursive process. Starts by identifying the operator and pass the arguments so that we could apply the operator on those arguments. a typical s-expression would look like this:
 
    #+BEGIN_SRC lisp
      (operator s-exprs...)
    #+END_SRC
 
-   while the s-exprs could range from aa single /atom/ to another s-expr with it's own operator..
+   while the s-exprs could range from a single /atom/ to another s-expr with it's own operator..
 
    #+BEGIN_QUOTE
    /NOTE:/ See [[file:include/README.org][=eval.h=]] for additional information on the evaluation process and related function definitions. [[file:src/README.org][=eval.c=]] holds the main evaluation function, called =eval()=, as well as other eval-related function declarations.
