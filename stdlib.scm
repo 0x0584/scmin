@@ -27,7 +27,9 @@
 		  (cons (callback (car lis))
 			(map callback (cdr lis))))))
 
-(define fib (lambda (n) (if (= n 0) 1 (if (= n 1) 1 (+ (fib (- n 2)) (fib (- n 1)))))))
+(define fib (lambda (n)
+	      (if (= n 0) 1 (if (= n 1) 1 (+ (fib (- n 2)) (fib (- n 1)))))))
+
 (define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))
 
 (define add-five (lambda (a) (+ a 7)))	; not really

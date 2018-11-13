@@ -48,7 +48,7 @@
  * @brief lexer debugging information
  * @see lexer.c
  */
-#  define LEXER_DEBUG		DBG_OFF
+#  define LEXER_DEBUG		DBG_ON
 
 /**
  * @brief parser debugging information

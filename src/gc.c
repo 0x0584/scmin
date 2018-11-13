@@ -36,7 +36,6 @@ static vector_t *gc_allocd_sexprs;
  */
 static vector_t *gc_allocd_lambdas;
 
-
 /**
  * @brief a vector of allocated scopes in the garbage collector
  */
@@ -114,14 +113,6 @@ bool gc_has_space_left(void) {
  * space left
  */
 void gc_collect(bool iscleanup) {
-#if GC_DEBUG == DBG_ON
-    puts("================================================");
-    printf("%s \n", iscleanup ? "final" : "collecting");
-    printf("sexprs:%d\tscopes:%d\tlambdas:%d\n",
-	   gc_allocd_sexprs->size,
-	   gc_allocd_scopes->size, gc_allocd_lambdas->size);
-#endif
-
     /* ignore garbage collection in case of not surpassing limit */
     if (gc_has_space_left() && !iscleanup)
 	return;
@@ -145,8 +136,13 @@ void gc_collect(bool iscleanup) {
     gc_sweep_sexprs(gc_allocd_sexprs);
 
 #if GC_DEBUG == DBG_ON
-    puts("================================================\n");
+    puts("================================================");
+    printf("%s \n", iscleanup ? "final" : "collecting");
+    printf("sexprs:%d\tscopes:%d\tlambdas:%d\n",
+	   gc_allocd_sexprs->size,
+	   gc_allocd_scopes->size, gc_allocd_lambdas->size);
 #endif
+
 }
 
 /* ==============================================================

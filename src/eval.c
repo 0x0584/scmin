@@ -29,6 +29,7 @@
  */
 static keyword_t kwd[] = {
     {"quote", eval_quote},
+    {"eval", eval_eval},
     {"define", eval_define},
     {"undef", eval_undef},
     {"set", eval_set},
@@ -110,18 +111,18 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     if (result)
 	goto RET;		/* we have a result */
-    else if (!(op = eval_sexpr(scope, car(expr))))
+
+    err_raise(ERR_OP_NOT_FOUND, !resolve_bond(scope, car(expr)));
+
+    if (err_log())
 	goto FAILED;		/* no operator was found */
+
+    op = eval_sexpr(scope, car(expr));
 
 #if EVALUATOR_DEBUG == DBG_ON
     puts(op ? "we have an operator " : "there is no operator");
     sexpr_print(op);
 #endif
-
-    /* err_raise(ERR_OP_NOT_FOUND, !resolve_bond(scope, op)); */
-
-    /* if (err_log()) */
-    /*	goto FAILED; */
 
     /* ==================== ==================== ==================== */
 
@@ -337,7 +338,6 @@ sexpr_t *eval_if(scope_t * scope, sexpr_t * expr) {
  */
 sexpr_t *eval_lambda(scope_t * scope, sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, !sexpr_length(expr));
-    err_raise(ERR_ARG_TYPE, isnil(car(expr)));
 
     if (err_log())
 	return sexpr_err();
@@ -405,4 +405,16 @@ sexpr_t *eval_undef(scope_t * scope, sexpr_t * expr) {
     setglobal(bond->sexpr, true);
 
     return sexpr_true();
+}
+
+/*
+ * TODO: recreate this function in pure lisp
+ */
+sexpr_t *eval_eval(scope_t * scope, sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+
+    if (err_log())
+	return sexpr_err();
+
+    return eval_sexpr(scope, eval_sexpr(scope, car(expr)));
 }
