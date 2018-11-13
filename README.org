@@ -2,21 +2,41 @@
 
   This is a basic Lisp (technically Scheme) interpreter that was written in C for educational purposes with the following features:
 
-  + [X] read and split text containing lisp syntax into tokens
-  + [X] parse the tokens into a s-expression object
-  + [X] evaluate the parsed s-expression object
-  + [X] memory is handled via a garbage collector
+  + [X] Lexing Phase
+    + [X] read and split text containing Scheme/Lisp syntax into tokens
+    + [X] extract values like strings and numerical literals
+
+  + [-] Parsing Phase
+    + [X] parse the tokens into a s-expression object
+    + [-] replace some syntactic sugar while parsing
+      + [X] =(quote expr)= and ='expr=
+      + [ ] =(define f (lambda (args) (body)))= and =(define (f args) (body))=
+      + [ ] =(define f (lambda (args) (body)))= and =(defun f (args) (body))=
+
+  + [X] Evaluation Phase
+    + [X] evaluate the parsed s-expression object
+    + [X] support recursion
+
   + [X] syntax support
-    + [X] arithmetic operators =+=, =-=, =*= and =/= 
+    + [X] arithmetic operators =+=, =-=, =*= and =/=
     + [X] arithmetic comparison operators
     + [X] cons-pairs operators =cons=, =car=, =cdr=, =set-car= and =set-cdr=
     + [X] logical operators =and=, =or= and =not=
-    + [X] defining symbols that hold values using =define= and remove them using =undef=
-    + [X] modify their values using =set= and =setq=
+    + [X] defining symbols that hold values using =define=
+      + [X] remove them using =undef=
+      + [X] modify their values using =set= and =setq=
     + [X] conditioning using =if= and logical operators  =and=, =or=, =not=
     + [X] support lambda expressions
-  + [X] support recursion
+  + [X] memory is handled via a garbage collector
   + [ ] +support simple objects+
+
+** NOTES
+
+   + programming for me is a passion, sort of art, thus; this is just for fun and learning new stuff. and what could be more wonderful than writing your own lisp interpreter.
+
+   + for the purpure learning more, Lisp and Scheme are the same for the moment, so the code written in here is a mix between teh two languages
+
+   + there might be an undefined number of *bugs* in here, i'm aware of some and some remain unknown.
 
 * Lisp as a programming language
 
@@ -24,6 +44,7 @@
 
   #+BEGIN_QUOTE
   Generally, Lisp is based on s-exps i.e. /symbolic expressions/. An expression is either an /atom/ -- sequence of characters, or a /list of more expressions/
+  #+END_QUOTE
 
   #+BEGIN_SRC scheme
     ;;; Comments start with ';'.
@@ -55,7 +76,6 @@
 		(+ (fib (- n 2)) (fib (- n 1)))))))
     (fib (- 1 (* 2 5)))			    ; >> 55
   #+END_SRC
-  #+END_QUOTE
 
 * A basic Lisp Interpreter
 
@@ -65,14 +85,12 @@
   + Parsing :: /vector of tokens/ \to /parsed s-expression/
   + Evaluation :: /s-expression/ \to /result/
 
-
-
 ** Lexing
 
    The process of lexing is where the input, i.e. source code, is /splited into a Vector of tokens/. Each token have an associated value-buffer that holds additional information about the token, e.g. the content of a string.
 
    #+BEGIN_QUOTE
-   /NOTE:/ See [[file:include/README.org][=lexer.h=]] for additional information on possible token types and their meaning. While [[file:src/README.org][=lexer.c=]] holds the declaration of lexing functions, the main function called =lexer()=.
+   /NOTE:/ See =lexer.{h,c}= for additional information on possible token types and their meaning.=.
    #+END_QUOTE
 
 ** Parsing
@@ -80,19 +98,25 @@
    The process of parsing is where the tokens get converted into a s-expression. This is done by checking token, one after the other and based on the /token type/ we create the correspondent s-expression until we reach the last token.
 
    #+BEGIN_QUOTE
-   /NOTE:/ See [[file:include/README.org][=parser.h=]] for additional information on the parsing process and related function definitions. [[file:src/README.org][=parser.c=]] holds the main parsing function, called =parse_sexpr()=, as well as other parsing-related function declarations.
+   /NOTE:/ See =parser.{h,c}= for additional information on the parsing process and related functions.
    #+END_QUOTE
 
 ** Evaluation
 
    The process of evaluating a s-expression is basically a recursive process. Starts by identifying the operator and pass the arguments so that we could apply the operator on those arguments. a typical s-expression would look like this:
 
-   #+BEGIN_SRC lisp
+   #+BEGIN_SRC scheme
      (operator s-exprs...)
+
+     ;; examples
+     (define expr '(* 7 8))
+     (eval expr)
+     ((lambda (n) (* n n)) 5)
+     (lambda (a b) (+ a b))
    #+END_SRC
 
    while the s-exprs could range from a single /atom/ to another s-expr with it's own operator..
 
    #+BEGIN_QUOTE
-   /NOTE:/ See [[file:include/README.org][=eval.h=]] for additional information on the evaluation process and related function definitions. [[file:src/README.org][=eval.c=]] holds the main evaluation function, called =eval()=, as well as other eval-related function declarations.
+   /NOTE:/ See =eval.{h,c}= for additional information on the evaluation process and related function definitions.
    #+END_QUOTE

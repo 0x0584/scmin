@@ -12,7 +12,7 @@
 
 /**
  * @brief when it's called, if the same parameter `str` was passed, it
- * would return the characters of `str` succesivly each time.
+ * would return the characters of `str` successively each time.
  *
  * holds two static variables, one for the old string and one for the
  * current index. if `oldstr == str` that means that the string is the
@@ -20,8 +20,7 @@
  * then increment index. otherwise, we set the `oldstr` to `str`, and
  * we return the first character. if `false`, we return than this is the
  * old string, we look for the `isget`. if `isget` was `true`, return
- * the current character, otherwise, resent the character to the stream
- * by decrementing the index
+ * the current character, otherwise, decrement the index
  *
  * @param str a string to keep track on
  * @param isget take or push back current character
@@ -163,11 +162,11 @@ string_t reduce_string_size(string_t str) {
 }
 
 /**
- * takes any possible white-spaces from the @p code string
+ * takes any possible white-spaces from the `code` string
  *
  * @param code a string containing Scheme-like syntax
  *
- * @return false if we reach the EOF
+ * @return false if we reach the `EOF`
  */
 bool clean_whitespaces(string_t code) {
     char c;
@@ -181,11 +180,11 @@ bool clean_whitespaces(string_t code) {
 }
 
 /**
- * takes any possible comments from the @p code string
+ * takes any possible comments from the `code` string
  *
  * @param code a string containing Scheme-like syntax
  *
- * @return false if we reach the EOF
+ * @return false if we reach the `EOF`
  */
 bool clean_comments(string_t code) {
     char c;

@@ -54,11 +54,11 @@ vector_t *read_tokens(const string_t src) {
 	    islastloop = true;
 	    break;
 
-	case TOK_L_PAREN:	/* left paren */
+	case TOK_L_PAREN:	/* left parenthesis */
 	    token->depth = depth++;
 	    break;
 
-	case TOK_R_PAREN:	/* right paren */
+	case TOK_R_PAREN:	/* right parenthesis */
 	    token->depth = --depth;
 	    err_raise(ERR_PRNS_CLS, depth < 0);
 	    islastloop = depth ? false : true;
@@ -93,7 +93,7 @@ vector_t *read_tokens(const string_t src) {
  *
  * @return a Vector of tokens
  */
-vector_t *read_stream_tokens(const char *filename) {
+vector_t *read_stream_tokens(const string_t filename) {
     vector_t *vv = vector_new(vector_free, vector_print, NULL);
     string_t tmp = file_as_string(filename);
 
@@ -109,11 +109,20 @@ vector_t *read_stream_tokens(const char *filename) {
 }
 
 /**
- * get the next possible token from the @p code string
+ * @berief move through all the tokens in a giving @p code.
  *
- * @param code a string containing Scheme-like syntax
+ * first, it calls clean_comments() and clean_whitespaces() to
+ * clean the @p code. after that, using getnc() to keep track on
+ * the stream, it gets a character. it calls predict_token_type()
+ * to determine the type of the next token. the it calls one of the
+ * read functions based on the result.
  *
  * @return a Token
+ *
+ * @see getnc()
+ * @see token.h
+ *
+ * @note this function modifies the static values in of getnc()
  */
 token_t *next_token(const string_t code) {
     token_type type;
@@ -155,7 +164,7 @@ token_t *next_token(const string_t code) {
 
   RET:
 
-    /* depth is initalized outside */
+    /* depth is initialized outside */
     return token_new(type, vbuffer, 0x0584);
 }
 
@@ -163,6 +172,19 @@ token_t *next_token(const string_t code) {
  * ==================================================================
  * the following read functions return NULL if an error occurs
  * ==================================================================
+ */
+
+/**
+ * reads the token value from @p code as string
+ *
+ * @param code a Scheme-like syntax
+ *
+ * @return value of the token if type matches, or NULL otherwise
+ *
+ * @see getnc()
+ * @see token.h
+ *
+ * @note this function modifies the static values in of getnc()
  */
 string_t read_string(const string_t code) {
     string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
@@ -191,6 +213,18 @@ string_t read_string(const string_t code) {
     return free(vbuffer), NULL;
 }
 
+/**
+ * reads the token value from @p code as number
+ *
+ * @param code a Scheme-like syntax
+ *
+ * @return value of the token if type matches, or NULL otherwise
+ *
+ * @see getnc()
+ * @see token.h
+ *
+ * @note this function modifies the static values in of getnc()
+ */
 string_t read_number(const string_t code) {
     string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
     int i = 0;
@@ -198,7 +232,6 @@ string_t read_number(const string_t code) {
     char c;
 
     while ((c = getnc(code)) != ' ' && c != ')') {
-	/* FIXME: this is better be parsed as symbol instead */
 	err_raise(ERR_NUM_DIG, !isdigit(c) && !strchr("+-.", c));
 	err_raise(ERR_NUM_SIGN, strchr("+-", c) && i);
 	err_raise(ERR_NUM_PRD, c == '.' && period_found);
@@ -224,6 +257,18 @@ string_t read_number(const string_t code) {
     return free(vbuffer), NULL;
 }
 
+/**
+ * reads the token value from @p code as symbol
+ *
+ * @param code a Scheme-like syntax
+ *
+ * @return value of the token if type matches, or NULL otherwise
+ *
+ * @see getnc()
+ * @see token.h
+ *
+ * @note this function modifies the static values in of getnc()
+ */
 string_t read_symbol(const string_t code) {
     string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
     string_t not_allowed = "()\'\"\\";

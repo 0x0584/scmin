@@ -42,7 +42,7 @@ vector_t *vector_new(operation_t free_obj, operation_t print_obj,
     v->print_obj = print_obj;
     v->cmp_obj = cmp_obj;
 
-    /* this one is initalized using vector_set_debug() */
+    /* this one is initialized using vector_set_debug() */
     v->dbg_obj = NULL;
 
     return v;
@@ -56,7 +56,7 @@ vector_t *vector_new(operation_t free_obj, operation_t print_obj,
  *
  * @param o Vector
  *
- * @note the raison why the aprameter is an object instead of a vector,
+ * @note the reason why the parameter is an object instead of a vector,
  * is to make it possible to create a vector of vectors
  */
 void vector_free(object_t o) {
@@ -177,7 +177,7 @@ object_t vector_get(vector_t * v, int i) {
  * array, it also increments the `v` size
  *
  * if the the we reach the maximum capacity of the `v`, then we
- * realloate the memory adding #VECTOR_DEFAULT_CAPACITY to the
+ * reallocate the memory adding #VECTOR_DEFAULT_CAPACITY to the
  * current capacity
  *
  * @param v Vector
@@ -192,7 +192,7 @@ object_t vector_add(vector_t * v, object_t o, int i) {
     if (v == NULL || i < 0 || i > v->capacity)
 	return NULL;
 
-    /* if the maximus capacity is reached */
+    /* if the maximum capacity is reached */
     if (v->size == v->capacity) {
 	const int dc = VECTOR_DEFAULT_CAPACITY;
 	const int oc = v->capacity;	/* old capacity */
@@ -217,7 +217,7 @@ object_t vector_add(vector_t * v, object_t o, int i) {
  * @param o Object
  * @param i index where to put `o`
  *
- * @note reallotes the objects array if necessary
+ * @note reallocates the objects array if necessary
  */
 void vector_del(vector_t * v, int i) {
     if (v == NULL || i < 0 || i > v->size)
@@ -236,7 +236,7 @@ void vector_del(vector_t * v, int i) {
  * @param v Vector
  * @param o Object
  *
- * @note calls vector_add() firectly, since a LIFO push is the default
+ * @note calls vector_add() directly, since a LIFO push is the default
  * adding method
  */
 object_t vector_push(vector_t * v, object_t o) {
@@ -244,7 +244,7 @@ object_t vector_push(vector_t * v, object_t o) {
 }
 
 /**
- * @brief same functionaly as a LIFO pop
+ * @brief same functionally as a LIFO pop
  *
  * @param v Vector
  *
@@ -354,8 +354,8 @@ void vector_set_debug(vector_t * v, debug_t dbg) {
 }
 
 /**
- * @brief same as vector_print() but with @p v's @p dbg_obj() instead of
- * @p print_obj()
+ * @brief same as vector_print() but with `v's` dbg_obj() instead of
+ * print_obj()
  *
  * along with the array index of each object and it's memory address. this
  * could be used also to write into a file (it must be handled outside)

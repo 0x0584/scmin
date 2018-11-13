@@ -1,7 +1,7 @@
 /**
  * @file gc.c
  *
- * @brief a simple Garbage Collector implemebntation of teh mark-and-sweep
+ * @brief a simple Garbage Collector implementation of the mark-and-sweep
  * algorithm
  *
  * @details contains definitions to handle scopes, lambdas and s-expressions
@@ -16,8 +16,6 @@
 #include "native.h"
 
 #include "scope.h"
-
-#include "context.h"
 #include "pair.h"
 
 /**
@@ -103,7 +101,7 @@ bool gc_has_space_left(void) {
 }
 
 /**
- * @brief collects the objects in teh garbae collector by calling sweeping
+ * @brief collects the objects in the garbage collector by calling sweeping
  * functions
  *
  * @details calls the following functions, gc_sweep_sexprs(),
@@ -366,7 +364,7 @@ void gc_sweep_scopes(vector_t * v) {
     vector_compact(v);
 
 #if GC_DEBUG == DBG_ON
-    puts("\n -*- final scopess stack -*- ");
+    puts("\n -*- final scopes stack -*- ");
     vector_print(v);
 
     printf("previous: %d - current: %d - freed: %d \n",

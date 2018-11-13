@@ -14,33 +14,7 @@
 
 #  include "sexpr.h"
 
-/**
- * @brief evaluate a @p expr within a given @p scope and return
- * the evaluated s-expression
- *
- * this function may call it self recursively in order to evaluate
- * inner s-expressions.
- *
- * @param scope the contaning scope
- * @param expr a s-expreesion to evaluate
- *
- * @return the evaluated s-expression
- *
- * @note this is a recursive function
- */
 sexpr_t *eval_sexpr(scope_t * s, sexpr_t * expr);
-
-/**
- * @brief just like eval_sexpr(), but with a vector of s-expressions
- * instead of a single one
- *
- * calling eval_sexpr() passing the global scope along with each
- * expression in @p sexprs vector. results are saved into a new vector
- *
- * @param sexprs a vector of s-expressions
- *
- * @return a vector of the evaluated s-expressions
- */
 vector_t *eval_sexprs(vector_t * exprs);
 
 /**
@@ -74,63 +48,11 @@ struct KEYWORD {
     k_func func;
 };
 
-/**
- * @brief determines whether a `expr` s-expression is a keyword or not
- *
- * @param expr s-expression
- *
- * @return `NULL` if the s-expression is not a keyword, or the keyword's
- * correspondant function otherwise
- */
 k_func eval_keyword(sexpr_t * expr);
-
-/**
- * @brief returns the expression as it is
- *
- * @param s the contaning scope
- * @param expr the expression to evaluate
- *
- * @return expr without evaluation
- * @note `quote` is defined as `(quote expr)`
- */
 sexpr_t *eval_quote(scope_t * s, sexpr_t * expr);
-
-/**
- * @brief define a symbol to hold a sexpr
- *
- * @param s the contaning scope
- * @param expr the expression to evaluate
- *
- * @return the defined s-expression
- *
- * @see scope.h
- * @note `defines` are defined as `(define symbol expr)`
- */
 sexpr_t *eval_define(scope_t *, sexpr_t * expr);
-
-/**
- * @brief performes a condtional based on the car() of `expr`
- *
- * @return the evaluate of expression that satisfies the condition
- *
- * @see sexpr.h
- * @note conditions are done as (if (expr) (true) (false))
- */
 sexpr_t *eval_if(scope_t *, sexpr_t * expr);
-
-/**
- * @brief creates lambda from `expr`
- *
- * @param s the contaning scope
- * @param expr the expression to evaluate
- *
- * @return a lambda s-expression
- *
- * @see sexpr.h
- * @note `lambdas` are defined as `(lambda (args) (body))`
- */
 sexpr_t *eval_lambda(scope_t * s, sexpr_t * expr);
-
 sexpr_t *eval_set(scope_t * scope, sexpr_t * expr);
 sexpr_t *eval_setq(scope_t * scope, sexpr_t * expr);
 sexpr_t *eval_undef(scope_t * scope, sexpr_t * expr);

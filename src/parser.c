@@ -1,7 +1,7 @@
 /**
  * @file parser.c
  *
- * @brief contains the declaration of parsing functionailties
+ * @brief contains the declaration of parsing functionalities
  *
  * the main method here is parse_sexpr()
  *
@@ -18,7 +18,7 @@
 #include "sexpr.h"
 
 /**
- * @brief this function is resposible of turning a set of tokens into a
+ * @brief this function is responsible of turning a set of tokens into a
  * s-expression.
  *
  * first it reads a set of tokens and then it parses each one as

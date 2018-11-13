@@ -95,7 +95,6 @@ typedef struct LAMBDA_EXPRESSION {
      */
     bool isnative;
 
-
     /**
      * @brief the lambda could be either native or a body as s-expression
      */

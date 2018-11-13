@@ -44,40 +44,43 @@ static keyword_t kwd[] = {
  *
  * before evaluating each expression, we need to determine its type, there
  * are native/predefined expression that would be executed directly using
- * a predefined C function. and other expressions that are written in need
- * evaluation.
+ * a predefined C function. and other expressions that are written in pure
+ * Scheme/Lisp that need to be evaluated
  *
  * the first thing to do is to determine the type whether it's a normal
  * s-expression or does it has an operator:
  *
- *   + the expression'd be a keyword, if so, we pass the cdr(), i.e. args
+ *   + if the expression is a keyword, we pass the cdr(), i.e. the args
  *     to the related function returned by eval_keyword() so that it runs
  *     evaluation on it's own and returns an evaluated s-expression.
  *
- *   + the expression'd be bonded to a symbol, if so, resolve the bond
- *     using resolve_bond() and return the result.
+ *   + if the expression is bonded to a symbol, resolve the bond using
+ *     resolve_bond() and return the result.
  *
- *   + the expression'd be an atom, if so just return it. (if symbol was
- *     not bonded it would be returned laterally)
+ *   + if the expression is an atom, we just return it. (if symbol is not
+ *     bonded it would be returned laterally)
  *
- * if none of the above situation was true, then it's must has an operator,
- * so get the operator which is the car() of the expression, and then we
- * collect an evaluated version of the args by calling eval_sexpr() on each
- * cadr() until the cdr() of the expression is nil.
+ * if none of the above situation was true, then it's must has an operator;
+ * so we get the operator (evaluating the car() of the expression) and then
+ * we collect an evaluated version of the args by calling eval_sexpr() on
+ * each cadr() until we reach the end i.e. a `nil` at the end.
  *
- * next, we look to see if the operator was a native one, then we call the
- * related native function passing the arguments. or if the the operator was
- * a bond lambda, we create a new scope (child scope of the current scope)
- * then bind the lambda arguments to the arguments in the child scope and
- * evaluate the lambda's body passing the new child scope. finally, the result
+ * next, we look to see if the operator was a native one, if so; we call the
+ * related native function passing the arguments. otherwise we create a new
+ * scope (child scope of the current scope) then bind the lambda arguments
+ * using bind_lambda_args() to the arguments in the child scope and evaluate
+ * the lambda's body passing the new child scope. finally, the last result
  * is returned
  *
- * @param scope the contaning scope
- * @param expr a s-expreesion to evaluate
+ * @param scope the containing scope
+ * @param expr a s-expression to evaluate
  *
  * @return the evaluated s-expression
  *
- * @note this fucntion may call itself recursively
+ * @see #SYMBOLIC_EXPRESSION_TYPE
+ * @see scope.c
+ *
+ * @note this function may call itself recursively
  */
 sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     if (expr == NULL)
@@ -166,11 +169,6 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     err_raise(ERR_RSLT_NULL, !result);
 
-    /* XXX: clean memory after the evaluation ends
-     * which would be done using evaluation contexts
-     *
-     * done outside in the repl or eval_sexprs */
-
 #if EVALUATOR_DEBUG == DBG_ON
     puts("result: ");
     sexpr_print(result);
@@ -220,7 +218,7 @@ vector_t *eval_sexprs(vector_t * sexprs) {
  * @param expr s-expression
  *
  * @return `NULL` if the `expr` is not a keyword, or the keyword's
- * correspondant function otherwise
+ * correspondent function otherwise
  */
 k_func eval_keyword(sexpr_t * expr) {
     int i;
@@ -241,10 +239,10 @@ k_func eval_keyword(sexpr_t * expr) {
  *
  * quote gives the ability to just pass s-expression without
  * evaluating them, and since `expr` must be the cdr() of `'expr`,
- * we need tu return the car() which is what we really want, and not
+ * we need to return the car() which is what we really want, and not
  * `expr` directly because we'll return the terminating nil as well.
  *
- * @param scope the contaning scope
+ * @param scope the containing scope
  * @param expr the expression to evaluate
  *
  * @return expr without evaluation
@@ -266,7 +264,7 @@ sexpr_t *eval_quote(scope_t * scope, sexpr_t * expr) {
  * evaluates the cadr() `expr` and then creates a new bind
  * with the result and the symbol in the car() of `expr`
  *
- * @param scope the contaning scope
+ * @param scope the containing scope
  * @param expr the expression to evaluate
  *
  * @return the defined s-expression
@@ -282,8 +280,10 @@ sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
 	return sexpr_err();
 
     sexpr_t *evaled = NULL, *symbol = car(expr);
-    bond_t *bond = vector_find(scope->bonds, &(bond_t){
-	    symbol->s, NULL, false});
+    bond_t *bond = vector_find(scope->bonds, &(bond_t) {
+			       symbol->s, NULL, false
+			       }
+    );
 
     if (bond != NULL)
 	return eval_set(scope, expr);
@@ -295,20 +295,20 @@ sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
 }
 
 /**
- * @brief performes a condtional based on the car() of `expr`
+ * @brief performers a conditional based on the car() of `expr`
  *
  * the condition is the car() of `expr`, if it was `true`, checked using
- * istrue(), then cadr() is ecaluated, otherwise the caddr() if evalutaed
+ * istrue(), then cadr() is evaluated, otherwise the caddr() if evaluated
  * instead.
  *
- * @param scope the contaning scope
+ * @param scope the containing scope
  * @param expr the expression to evaluate
  *
  * @return the evaluate of expression that satisfies the condition
  *
  * @see sexpr.h
  * @note conditions are done as `(if (expr) (foo) (bar))`. `foo` is
- * evaluated when `expr` is not `nil`, otherwise egvaluate `bar`
+ * evaluated when `expr` is not `nil`, otherwise evaluate `bar`
  */
 sexpr_t *eval_if(scope_t * scope, sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 3);
@@ -328,7 +328,7 @@ sexpr_t *eval_if(scope_t * scope, sexpr_t * expr) {
  * initialize a non native lambda, car() are the args and cadr() is
  * the body
  *
- * @param scope the contaning scope
+ * @param scope the containing scope
  * @param expr the expression to evaluate
  *
  * @return a lambda s-expression

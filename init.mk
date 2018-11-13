@@ -6,7 +6,7 @@ CFLAGS = -ggdb -Wall -Wextra
 # LIBRARY FLAGS
 LDFLAGS = -Iinclude -lm
 # DEFAULT DEBUGGING FLAGS
-GDBFLAGS = -x gdb.txt
+GDBFLAGS = -x gdb.cfg
 
 RM = rm -f
 

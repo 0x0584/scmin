@@ -33,7 +33,7 @@
 #  define DBG_OFF	(1)
 
 /**
- * @brief garbag collector debugging information
+ * @brief garbage collector debugging information
  * @see gc.c
  */
 #  define GC_DEBUG		DBG_OFF
@@ -69,12 +69,12 @@
 #  define REPL_DEBUG		DBG_OFF
 
 /**
- * @brief different errors that would occur during te process of evaluating
+ * @brief different errors that would occur during the process of evaluating
  * a s-expression
  */
 enum SCHEME_ERROR {
     /**
-     * @brief no colosing parenthesis is found
+     * @brief no closing parenthesis is found
      * @see lexer.c
      */
     ERR_PRNS_CLS = 0,
@@ -93,7 +93,7 @@ enum SCHEME_ERROR {
     ERR_TOK_ERR,
 
     /**
-     * @brief unexpected END OF FILE occured
+     * @brief unexpected END OF FILE occurred
      * @see lexer.c
      * @see characters.c
      */
@@ -168,14 +168,20 @@ enum SCHEME_ERROR {
     ERR_FILE_ERR,
 
     /**
-     * @brief using set on an unbonded symbol
+     * @brief using set on an unbounded symbol
+     * @see eval_set()
      */
     ERR_CANNOT_SET,
 
+    /**
+     * @brief operator not found
+     * @see eval_sexpr()
+     */
     ERR_OP_NOT_FOUND,
 
     /**
-     * @brief this indicates that there is no error; everything is fine
+     * @brief this indicates that there is no error;
+     * everything is fine
      */
     ERR_NO_ERROR = -1
 };

@@ -46,23 +46,11 @@ typedef struct GC_INFO {
     bool isglobal;
 } gc_info;;
 
-/**
- * initialize the GC
- */
 void gc_init(void);
-
 void gc_clean(void);
-
-/**
- * collect the garbage
- */
 void gc_collect(bool final);
-
 long gc_allocated_size(void);
 
-/**
- * allocate memory for a sexpr
- */
 sexpr_t *gc_alloc_sexpr(void);
 void gc_free_sexpr(object_t o);
 void gc_setmark_sexpr(sexpr_t * expr, bool mark);

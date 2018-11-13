@@ -46,7 +46,7 @@ void repl(scope_t * scope) {
 
 	buffer = stdin_as_string();
 
-	if (buffer == NULL){
+	if (buffer == NULL) {
 	    isfinished = true;
 	    goto CLEAN;
 	} else if (*buffer == '\0') {

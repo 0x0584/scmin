@@ -1,13 +1,13 @@
 /**
  * @file sexpr.c
  *
- * @brief declataions of s-expression and lambda functions
+ * @brief declaration of s-expression and lambda functions
  *
- * functions are devided functions to determine the type such as isnil() or
+ * functions are divided functions to determine the type such as isnil() or
  * isatom() and also functions to create a s-expression such as sexpr_new()
  * and some handy functions like sexpr_nil() or sexpr_true().
  *
- * and ducntions to handle lambdas such as lambda_new(), lambda_print()
+ * and functions to handle lambdas such as lambda_new(), lambda_print()
  *
  * @see sexpr.h
  * @see pair.h
@@ -124,8 +124,6 @@ bool islambda(sexpr_t * expr) {
  * @param expr s-expression
  * @return `true` if `expr` was a native lambda
  *
- * wgat's wrinbg with moroccan common sense
- *
  * @see sexpr.h
  * @see native.h
  */
@@ -193,7 +191,7 @@ int sexpr_length(sexpr_t * expr) {
  * @return error s-expression
  *
  * @see error.c
- * @note error s-expression is returned after error occurence
+ * @note error s-expression is returned after error occurrence
  */
 sexpr_t *sexpr_err(void) {
     return sexpr_new(T_ERR);
@@ -213,7 +211,7 @@ sexpr_t *sexpr_nil(void) {
 }
 
 /**
- * @brief creating a symbol s-expresion of `t`
+ * @brief creating a symbol s-expression of `t`
  *
  * basically calling sexpr_new() passing #T_SYMBOL and initializing its
  * text with `"t"`
@@ -227,11 +225,11 @@ sexpr_t *sexpr_true(void) {
 }
 
 /**
- * @brief allocates memory and initilize a new **native** lambda after
+ * @brief allocates memory and initialize a new **native** lambda after
  * calling sexpr_new()
  *
  * @param parent the scope containing the lambda
- * @param args a list of lambda's arguments
+ * @param Argos a list of lambda's arguments
  * @param native a native C function
  *
  * @return a s-expression of type #T_LAMBDA
@@ -240,7 +238,7 @@ sexpr_t *sexpr_true(void) {
  * @see #SYMBOLIC_EXPRESSION
  * @see #NATIVE_LAMBDA
  *
- * @note initializing `isnative` to `true`
+ * @note initializing `is native` to `true`
  */
 sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
 			   native_t * func) {
@@ -255,12 +253,12 @@ sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
 }
 
 /**
- * @brief allocates memory and initilize a new lambda after calling
+ * @brief allocates memory and initialize a new lambda after calling
  * sexpr_new()
  *
  * @param parent the scope containing the lambda
  * @param args a list of lambda's arguments
- * @param body a s-expression to interpete when calling this lambda
+ * @param body a s-expression to interpret when calling this lambda
  *
  * @return a s-expression of type #T_LAMBDA
  *

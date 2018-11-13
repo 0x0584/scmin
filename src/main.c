@@ -5,7 +5,7 @@
 /**
  * @file main.c
  *
- * @brief this is the main entery point, basically would intialize the
+ * @brief this is the main entry point, basically would initialize the
  * environment, then check if there are any sent-arguments to process.
  *
  *   + if so, it would evaluate them then quit with success (or failure
@@ -46,7 +46,7 @@ void scmin_init(void) {
 
 int main(int argc, char **argv) {
     if (argc == 1 && argv[0]) {
-	/* just to dimiss the warnings for now */
+	/* just to dismiss the warnings for now */
     }
 
     gc_init();

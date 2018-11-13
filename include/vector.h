@@ -6,9 +6,10 @@
  *
  * @brief definition of Vector Data Structure functionalities
  *
- * the vector holds an Array of objects (basically void * pointers) which point
- * to the desired objects. when vector_free() is called, it free the objects
- * first using the free_obj(), if not, it will use the default free()
+ * the vector holds an Array of objects (basically `void *` pointers)
+ * which point to the desired objects. when vector_free() is called,
+ * it free the objects first using the free_obj(), if not, it will
+ * use the default free()
  */
 
 #  include "main.h"
@@ -61,7 +62,7 @@ typedef struct VECTOR {
     int capacity;
 
     /**
-     * @brief the current size, i.e. count, of teh vector
+     * @brief the current size, i.e. count, of the vector
      */
     int size;
 
@@ -81,7 +82,7 @@ typedef struct VECTOR {
     operation_t print_obj;
 
     /**
-     * @brief function pointer to a debbuging function
+     * @brief function pointer to a debugging function
      */
     debug_t dbg_obj;
 
@@ -93,33 +94,19 @@ typedef struct VECTOR {
 
 vector_t *vector_new(operation_t free_obj, operation_t print_obj,
 		     compare_t cmp_obj);
-
 void vector_free(object_t o);
-
 vector_t *vector_compact(vector_t * v);
-
 void vector_set(vector_t * v, int i, object_t o);
-
 object_t vector_get(vector_t * v, int i);
-
 object_t vector_add(vector_t * v, object_t o, int i);
-
 void vector_del(vector_t * v, int i);
-
 object_t vector_push(vector_t * v, object_t o);
-
 object_t vector_pop(vector_t * v);
-
 object_t vector_peek(vector_t * v);
-
 object_t vector_find(vector_t * v, object_t o);
-
 void vector_print(object_t v);
-
 void vector_set_debug(vector_t * v, debug_t dbg);
-
 void vector_debug(FILE * stream, vector_t * v);
-
 void vector_testing(void);
 
 #endif				/* __SCMIN_LIST_H */

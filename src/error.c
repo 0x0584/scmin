@@ -5,14 +5,14 @@
  *
  * err_raise() is called in the different stages of evaluations, indeed
  * while lexing, parsing and evaluating. err_log() would print the
- * occurent errors.
+ * occurring errors.
  */
 
 #include "main.h"
 #include "vector.h"
 
 /**
- * @brief the error log of the occured errors
+ * @brief the error log of the occurred errors
  * @see err_log()
  */
 vector_t *error_log = NULL;
@@ -22,29 +22,45 @@ vector_t *error_log = NULL;
  * @see main.h
  */
 error_t errs[] = {
-    {"PARENS ARE NOT BALANCED", ERR_PRNS_BLNC},
-    {"STARTING WITH A CLOSING PAREN", ERR_PRNS_CLS},
+    {"PARENS ARE NOT BALANCED", ERR_PRNS_BLNC}
+    ,
+    {"STARTING WITH A CLOSING PAREN", ERR_PRNS_CLS}
+    ,
 
-    {"TOKEN IS NOT CORRECT", ERR_TOK_ERR},
-    {"UNEXPECTED EOF IS REACHED", ERR_EOF_ERR},
-    {"SIZE LIMIT IS REACHED", ERR_SIZE_ERR},
-    {"SYMBOL CONTAINS BAD CHARACTERS", ERR_SYM_ERR},
+    {"TOKEN IS NOT CORRECT", ERR_TOK_ERR}
+    ,
+    {"UNEXPECTED EOF IS REACHED", ERR_EOF_ERR}
+    ,
+    {"SIZE LIMIT IS REACHED", ERR_SIZE_ERR}
+    ,
+    {"SYMBOL CONTAINS BAD CHARACTERS", ERR_SYM_ERR}
+    ,
 
-    {"NUMBER HAS MULTIPLE SIGNS", ERR_NUM_SIGN},
-    {"NUMBER HAS MULTIPLE PERIODS", ERR_NUM_PRD},
-    {"DIVIDING BY ZERO", ERR_DIVID_ZERO},
-    /* FIXME: probably parse this as symbol */
-    {"NUMBER HAS ALPHA CHARACTERS", ERR_NUM_DIG},
+    {"NUMBER HAS MULTIPLE SIGNS", ERR_NUM_SIGN}
+    ,
+    {"NUMBER HAS MULTIPLE PERIODS", ERR_NUM_PRD}
+    ,
+    {"DIVIDING BY ZERO", ERR_DIVID_ZERO}
+    ,
+    {"NUMBER HAS ALPHA CHARACTERS", ERR_NUM_DIG}
+    ,
 
-    {"ARGUMENT TYPE IS NOT CORRECT", ERR_ARG_TYPE},
-    {"ARGUMENT COUNT IS NOT CORRECT", ERR_ARG_COUNT},
-    {"CANNOT BIND LAMBDA ARGS", ERR_LMBD_ARGS},
+    {"ARGUMENT TYPE IS NOT CORRECT", ERR_ARG_TYPE}
+    ,
+    {"ARGUMENT COUNT IS NOT CORRECT", ERR_ARG_COUNT}
+    ,
+    {"CANNOT BIND LAMBDA ARGS", ERR_LMBD_ARGS}
+    ,
 
-    {"FINAL RESULT SHOULD NOT BE NULL", ERR_RSLT_NULL},
-    {"FILE NOT FOUND", ERR_FILE_ERR},
+    {"FINAL RESULT SHOULD NOT BE NULL", ERR_RSLT_NULL}
+    ,
+    {"FILE NOT FOUND", ERR_FILE_ERR}
+    ,
 
-    {"CANNOT SET SYMBOL", ERR_CANNOT_SET},
-    {"OPERATOR NOT FOUND", ERR_OP_NOT_FOUND},
+    {"CANNOT SET SYMBOL", ERR_CANNOT_SET}
+    ,
+    {"OPERATOR NOT FOUND", ERR_OP_NOT_FOUND}
+    ,
 
     {NULL, ERR_NO_ERROR}
 };
@@ -55,14 +71,14 @@ error_t errs[] = {
  * `err` should be one of the predefined errors
  *
  * @param err the error to raise
- * @param cond true or false
+ * @param cond `true` or `false`
  *
  * @see #error_log
  */
 void err_raise(serror_t err, bool cond) {
     int i;
 
-    /* initializing teh error log */
+    /* initializing the error log */
     if (error_log == NULL)
 	error_log = vector_new(err_free, err_print, NULL);
 

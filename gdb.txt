@@ -1,4 +1,0 @@
-# break gc.c:173
-# break gc.c:350
-# break scope.c:32
-break scope.c:73

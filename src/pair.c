@@ -1,16 +1,6 @@
 #include "pair.h"
 #include "sexpr.h"
 
-/* ==========================================================================
- * NOTES ON CONS: THIS IS WHAT THIS IS SUPPOSED TO SOLVE
- * ==========================================================================
- * + it car and cdr are both symbols, gives us just a pair_t
- * + nil is an empty list == '()
- * + (cons 'a '()) == (list a) lists end with an empry list '()
- * + (cons '() 'a) == same as pair(nil, a) because lists ended with nil
- * +
- * ==========================================================================
- */
 sexpr_t *cons(sexpr_t * car, sexpr_t * cdr) {
     assert(car != NULL);
     assert(cdr != NULL);

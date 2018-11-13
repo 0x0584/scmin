@@ -15,8 +15,8 @@
 /**
  * @brief the global scope of the interpreter
  *
- * @details this global scope cotains predefined lambdas and constants
- * that are essential for the interpreter to function. It's intialized
+ * @details this global scope contains predefined lambdas and constants
+ * that are essential for the interpreter to function. It's initialized
  * in the first call to get_global_scope()
  */
 static scope_t *gs = NULL;
@@ -24,7 +24,7 @@ static scope_t *gs = NULL;
 /**
  * @brief this is a remapping of Scheme/Lisp keywords and native C functions
  *
- * @details those functions are impl;emeted in native C because they could
+ * @details those functions are implemented in native C because they could
  * not be described in Lisp or Scheme.
  *
  * @see native.c
