@@ -1,7 +1,7 @@
 /**
  * @file token.c
  *
- * @brief token functionalites needed by the lexing functions
+ * @brief token functionalities needed by the lexing functions
  *
  * @see lexer.h
  * @see token.h
@@ -44,36 +44,72 @@ token_type predict_token_type(string_t code) {
     };
 
     /* if we made it up to here, token must be either a number
-     * or a symbol */
+     * or a symbol. at first, we suppose it's a number unless
+     * we found out the opposite */
+
+    int count = 1;		/* counting how many getnc() */
+
+    type = TOK_NUMBER;
 
     if (isdigit(c) || strchr(".-+", c)) {
-	char cc = getnc(code);
+	bool period = false, sign = false;
 
-	/* if next character is a space/digit */
-	if ((isdigit(cc) || isspace(cc) || cc == ')')
-	    && !strchr(".-+", c)) {
-	    type = TOK_NUMBER;	/* it's probably a number  */
-	} else {
-	    type = TOK_SYMBOL;	/* otherwise it's a symbol */
+	while (true) {
+	    if (c == '+' || c == '-') {
+		/* signs must appear only once at the beginning and
+		 * not followed with either a space of left parenthesis,
+		 * otherwise this is a symbol */
+
+		if (count == 1)
+		    sign = true;
+		else if (count != 1 || sign) {
+		    type = TOK_SYMBOL;
+		    break;
+		}
+
+		if (strchr(" )", getnc(code))) {
+		    type = TOK_SYMBOL, ungetnc();
+		    break;
+		} else {
+		    ungetnc();
+		}
+	    } else if (c == '.') {
+		/* periods only appear once
+		 * otherwise this is a symbol */
+		if (!period)
+		    period = true;
+		else {
+		    type = TOK_SYMBOL;
+		    break;
+		}
+	    } else if (c == ' ' || c == ')') {
+		break;
+	    } else if (!isdigit(c)) {
+		type = TOK_SYMBOL;
+		break;
+	    }
+
+	    c = getnc(code), count++;
 	}
-
-	ungetnc();
     } else {
-	type = TOK_SYMBOL;	/* symbol */
+	type = TOK_SYMBOL;
     }
 
-    ungetnc();
+    /* this behavior is a side effect of reading so many characters,
+     * so calling ungentc() to return them back */
+    while (count--)
+	ungetnc();
 
   RET:
     return type;
 }
 
 /**
- * @brief allocate and inialize a new token
+ * @brief allocate and initialize a new token
  *
- * @param type one of the types in the enum
+ * @param type one of the types in #TOKEN_TYPE
  * @param buffer token as text
- * @param depth how many parens are there
+ * @param depth how many parenthesis are there
  *
  * @return the initialized token
  */
@@ -90,7 +126,7 @@ token_t *token_new(token_type type, string_t vbuffer, int depth) {
 /**
  * @brief display the token to the screen
  *
- * diplay the token as DEPTH - TYPE - BUFFER to the stdout using
+ * display the token as DEPTH - TYPE - BUFFER to the stdout using
  * stdio printf
  *
  * @param o the token to print
@@ -139,7 +175,7 @@ void token_print(object_t o) {
 }
 
 /**
- * @brief free's the memory occupierd by token
+ * @brief free the memory occupied by token
  *
  * it frees also the token's buffer if it was not @p NULL
  *

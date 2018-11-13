@@ -150,10 +150,8 @@ token_t *next_token(const string_t code) {
 	return NULL;
     };
 
-    if (!vbuffer && !accept_null) {
-	puts("i'm really lost");
+    if (!vbuffer && !accept_null)
 	type = TOK_ERR;
-    }
 
   RET:
 
