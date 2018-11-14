@@ -162,11 +162,16 @@ string_t reduce_string_size(string_t str) {
 }
 
 /**
- * takes any possible white-spaces from the `code` string
+ * @brief takes any possible white-spaces from the `code` string
  *
- * @param code a string containing Scheme-like syntax
+ * @details this is really setting the index in getnc() to the first
+ * non-white-spaced character
  *
- * @return false if we reach the `EOF`
+ * @param code a string containing Scheme/Lisp syntax
+ *
+ * @return `false` if we reach the `EOF`
+ *
+ * @see gentc()
  */
 bool clean_whitespaces(string_t code) {
     char c;
@@ -180,11 +185,16 @@ bool clean_whitespaces(string_t code) {
 }
 
 /**
- * takes any possible comments from the `code` string
+ * @brief takes any possible comments from the `code` string
+ *
+ * @details this is really setting the index in getnc() to the line
+ * not starting with `;`
  *
  * @param code a string containing Scheme-like syntax
  *
- * @return false if we reach the `EOF`
+ * @return `false` if we reach the `EOF`
+ *
+ * @see gentc()
  */
 bool clean_comments(string_t code) {
     char c;
@@ -198,4 +208,23 @@ bool clean_comments(string_t code) {
 	ungetnc();
 
     return c != EOF;
+}
+
+
+bool clean_source_code(string_t code) {
+    char c = 0x00;
+
+  CLEAN: /* this is a weird way to write some code but labels are
+	  * great to create loops, right? */
+    if (!clean_whitespaces(code) || !clean_comments(code))
+	return false;
+
+    c = getnc(code), ungetnc();
+
+    /* it's possible to have spaces and comments after each other
+     * thus we have to test again */
+    if (isspace(c) || c == ';')
+	goto CLEAN;
+
+    return true;
 }

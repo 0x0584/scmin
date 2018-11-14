@@ -36,7 +36,7 @@
  * @brief garbage collector debugging information
  * @see gc.c
  */
-#  define GC_DEBUG		DBG_OFF
+#  define GC_DEBUG		DBG_ON
 
 /**
  * @brief vector debugging information

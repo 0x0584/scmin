@@ -33,7 +33,7 @@
 (and (or 1 2) (not (or nil '())))	; t
 
 ;; this would print yeah
-;; FIXME: a bug when inserting comments between expressions
+;; XXX: a bug when inserting comments between expressions
 (if (or t nil)
     (print "yeah")
     (print "no"))			; "yeah"

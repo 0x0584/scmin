@@ -21,4 +21,8 @@ char getnc(const string_t str);
 
 string_t reduce_string_size(string_t str);
 
+bool clean_comments(string_t code);
+bool clean_whitespaces(string_t code);
+bool clean_source_code(string_t code);
+
 #endif

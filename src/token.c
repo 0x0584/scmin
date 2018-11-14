@@ -53,6 +53,7 @@ token_type predict_token_type(string_t code) {
 
     if (isdigit(c) || strchr(".-+", c)) {
 	bool period = false, sign = false;
+	char cc = 0x00;
 
 	while (true) {
 	    if (c == '+' || c == '-') {
@@ -67,11 +68,11 @@ token_type predict_token_type(string_t code) {
 		    break;
 		}
 
-		if (strchr(" )", getnc(code))) {
-		    type = TOK_SYMBOL, ungetnc();
+		cc = getnc(code), ungetnc();
+
+		if (isspace(cc) || cc == ')') {
+		    type = TOK_SYMBOL;
 		    break;
-		} else {
-		    ungetnc();
 		}
 	    } else if (c == '.') {
 		/* periods only appear once
@@ -82,7 +83,7 @@ token_type predict_token_type(string_t code) {
 		    type = TOK_SYMBOL;
 		    break;
 		}
-	    } else if (c == ' ' || c == ')') {
+	    } else if (isspace(c) || c == ')') {
 		break;
 	    } else if (!isdigit(c)) {
 		type = TOK_SYMBOL;
@@ -186,6 +187,9 @@ void token_print(object_t o) {
  * token is because this is used as printing function by vector_print()
  */
 void token_free(object_t o) {
+    if (o == NULL)
+	return;
+
     token_t *token = o;
 
     if (token->vbuffer != NULL)

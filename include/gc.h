@@ -24,12 +24,14 @@
  * @brief a number ranging between 1 and 10 indicating the frequency of
  * the process of garbage collection
  */
-#  define GC_FREQUENCY		 4
+#  define GC_FREQUENCY		 (4)
 
 /**
  * @brief a value that we would execute the garbage collector after
  */
 #  define GC_RATIO		(GC_STACK_LIMIT_SIZE / GC_FREQUENCY)
+
+#  define FULL_DEBUG		DBG_ON
 
 /**
  *  @brief information about the garbage collection

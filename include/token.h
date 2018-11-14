@@ -96,30 +96,4 @@ token_t *token_new(token_type type, string_t vbuffer, int depth);
 void token_print(object_t t);
 void token_free(object_t o);
 
-/**
- * takes any lisp comments away, it reads characters
- * using getnc()
- *
- * @param code a Scheme-like syntax
- *
- * @return false if it reaches EOF
- *
- * @see getnc() in @file characters.c
- * @note this function modifies the static values in of getnc()
- */
-bool clean_comments(string_t code);
-
-/**
- * takes any whitespaces away, it reads characters
- * using getnc()
- *
- * @param code a Scheme-like syntax
- *
- * @return false if it reaches EOF
- *
- * @see getnc() in @file characters.c
- * @note this function modifies the static values in of getnc()
- */
-bool clean_whitespaces(string_t code);
-
 #endif				/* _SCMIN_TOKEN_H */

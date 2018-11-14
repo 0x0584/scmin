@@ -1,4 +1,4 @@
-;; This is teh standard library provided by the scmin Interpreter
+;; This is the standard library provided by the scmin Interpreter
 ;; this file contains definitions to Scheme/Lisp functions that
 ;; does not need to be implemented in pure C, instead, it makes
 ;; real sense to be written in Scheme/Lisp
@@ -28,7 +28,9 @@
 			(map callback (cdr lis))))))
 
 (define fib (lambda (n)
-	      (if (= n 0) 1 (if (= n 1) 1 (+ (fib (- n 2)) (fib (- n 1)))))))
+	      (if (= n 0)
+		  1			; this is a test
+		  (if (= n 1) 1 (+ (fib (- n 2)) (fib (- n 1)))))))
 
 (define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))
 

@@ -39,11 +39,17 @@
 vector_t *read_tokens(const string_t src) {
     vector_t *tokens = vector_new(token_free, token_print, NULL);
     token_t *token = NULL;
-    int depth = 0;
-    bool islastloop = false;
+    bool islastloop = false, isfirstloop = true;
     string_t code = src;
+    int depth = 0;
 
+    /* reading the tokens in the code on after the other  */
     while ((token = next_token(code))) {
+	if (isfirstloop && token->type != TOK_L_PAREN) {
+	    token_free(token);
+	    goto FAILED;
+	}
+
 	switch (token->type) {
 	case TOK_ERR:		/* error while lexing */
 	    err_raise(ERR_TOK_ERR, true);
@@ -71,8 +77,8 @@ vector_t *read_tokens(const string_t src) {
 
 	if (err_log())
 	    goto FAILED;
-	else
-	    vector_push(tokens, token);
+
+	vector_push(tokens, token), isfirstloop = false;
 
 	if (islastloop)
 	    break;
@@ -86,7 +92,7 @@ vector_t *read_tokens(const string_t src) {
 }
 
 /**
- * this function reads a characters from @p stream, convert them
+ * this function reads a characters from `stream`, convert them
  * into a string and call read_tokens()
  *
  * @param code a string containing Scheme-like syntax
@@ -97,11 +103,12 @@ vector_t *read_stream_tokens(const string_t filename) {
     vector_t *vv = vector_new(vector_free, vector_print, NULL);
     string_t tmp = file_as_string(filename);
 
-    while (getnc(tmp) != EOF)
-	if (!clean_whitespaces(tmp) || !clean_comments(tmp))
+    while (getnc(tmp) != EOF) {
+	if (!clean_source_code(tmp))
 	    break;
-	else
-	    vector_push(vv, read_tokens(tmp));
+
+	vector_push(vv, read_tokens(tmp));
+    }
 
     free(tmp);
 
@@ -129,7 +136,7 @@ token_t *next_token(const string_t code) {
     string_t vbuffer = NULL;
     bool accept_null = false;
 
-    if (!clean_whitespaces(code) || !clean_comments(code)) {
+    if (!clean_source_code(code)) {
 	type = EOL;
 	goto RET;
     }
@@ -156,16 +163,20 @@ token_t *next_token(const string_t code) {
     default:
     case EOL:
     case TOK_ERR:
-	return NULL;
+	goto FAILED;
     };
 
     if (!vbuffer && !accept_null)
-	type = TOK_ERR;
+	goto FAILED;
 
   RET:
 
     /* depth is initialized outside */
     return token_new(type, vbuffer, 0x0584);
+
+  FAILED:
+
+    return NULL;
 }
 
 /*
@@ -175,11 +186,11 @@ token_t *next_token(const string_t code) {
  */
 
 /**
- * reads the token value from @p code as string
+ * reads the token value from `code` as string
  *
- * @param code a Scheme-like syntax
+ * @param code a Scheme/Lisp syntax
  *
- * @return value of the token if type matches, or NULL otherwise
+ * @return value of the token if type matches, or `NULL` otherwise
  *
  * @see getnc()
  * @see token.h
@@ -202,7 +213,7 @@ string_t read_string(const string_t code) {
     }
 
     if (c != EOF && c != '\"')
-	putchar(ungetnc());
+	ungetnc();
 
     vbuffer[i] = '\0';
 
@@ -214,11 +225,11 @@ string_t read_string(const string_t code) {
 }
 
 /**
- * reads the token value from @p code as number
+ * reads the token value from `code` as number
  *
- * @param code a Scheme-like syntax
+ * @param code a Scheme/Lisp syntax
  *
- * @return value of the token if type matches, or NULL otherwise
+ * @return value of the token if type matches, or `NULL` otherwise
  *
  * @see getnc()
  * @see token.h
@@ -231,7 +242,7 @@ string_t read_number(const string_t code) {
     bool period_found = false;
     char c;
 
-    while ((c = getnc(code)) != ' ' && c != ')') {
+    while (!isspace(c = getnc(code)) && c != ')') {
 	err_raise(ERR_NUM_DIG, !isdigit(c) && !strchr("+-.", c));
 	err_raise(ERR_NUM_SIGN, strchr("+-", c) && i);
 	err_raise(ERR_NUM_PRD, c == '.' && period_found);
@@ -258,11 +269,11 @@ string_t read_number(const string_t code) {
 }
 
 /**
- * reads the token value from @p code as symbol
+ * reads the token value from `code` as symbol
  *
- * @param code a Scheme-like syntax
+ * @param code a Scheme/Lisp syntax
  *
- * @return value of the token if type matches, or NULL otherwise
+ * @return value of the token if type matches, or `NULL` otherwise
  *
  * @see getnc()
  * @see token.h
@@ -271,11 +282,11 @@ string_t read_number(const string_t code) {
  */
 string_t read_symbol(const string_t code) {
     string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
-    string_t not_allowed = "()\'\"\\";
+    string_t not_allowed = "()\'\"\\;";
     char c;
     int i = 0;
 
-    while ((c = getnc(code)) != ' ' && c != ')') {
+    while (!isspace(c = getnc(code)) && c != ')') {
 	err_raise(ERR_SYM_ERR, strchr(not_allowed, c));
 	err_raise(ERR_SIZE_ERR, TOK_LIMIT(i));
 	err_raise(ERR_EOF_ERR, c == EOF);

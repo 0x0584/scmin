@@ -61,8 +61,6 @@ void gc_init(void) {
  * @see #gc_allocd_scopes
  */
 void gc_clean(void) {
-    gc_collect(true);
-
     vector_free(gc_allocd_scopes);
     vector_free(gc_allocd_lambdas);
     vector_free(gc_allocd_sexprs);
@@ -116,29 +114,30 @@ void gc_collect(bool iscleanup) {
 	return;
 
 #if GC_DEBUG == DBG_ON
-    puts("\n================ sweep scopes ==================\n");
+    puts("================ sweep scopes ==================");
 #endif
 
     gc_sweep_scopes(gc_allocd_scopes);
 
 #if GC_DEBUG == DBG_ON
-    puts("\n================ sweep lambdas ==================\n");
+    puts("================ sweep lambdas =================");
 #endif
 
     gc_sweep_lambdas(gc_allocd_lambdas);
 
 #if GC_DEBUG == DBG_ON
-    puts("\n================ sweep sexprs ==================\n");
+    puts("================ sweep sexprs ==================");
 #endif
 
     gc_sweep_sexprs(gc_allocd_sexprs);
 
 #if GC_DEBUG == DBG_ON
     puts("================================================");
-    printf("%s \n", iscleanup ? "final" : "collecting");
+    printf("\t\t %s \n", iscleanup ? "final" : "collecting");
     printf("sexprs:%d\tscopes:%d\tlambdas:%d\n",
 	   gc_allocd_sexprs->size,
 	   gc_allocd_scopes->size, gc_allocd_lambdas->size);
+    puts("================================================");
 #endif
 
 }
@@ -169,8 +168,10 @@ void gc_sweep_sexprs(vector_t * v) {
 #if GC_DEBUG == DBG_ON
     int freed = 0, size = v->size;
 
-    puts(" -*- sexprs stack before -*- ");
-    vector_print(v);
+    if (FULL_DEBUG) {
+	puts(" -*- sexprs stack before -*- ");
+	vector_print(v);
+    }
 #endif
 
     for (i = 0; i < v->size; ++i) {
@@ -196,9 +197,10 @@ void gc_sweep_sexprs(vector_t * v) {
     vector_compact(v);
 
 #if GC_DEBUG == DBG_ON
-    puts("\n -*- final sexprs stack -*- ");
-    vector_print(v);
-
+    if (FULL_DEBUG) {
+	puts("\n -*- final sexprs stack -*- ");
+	vector_print(v);
+    }
     printf("previous:%d\tcurrent:%d\tfreed:%d\n", size, v->size, freed);
 #endif
 }
@@ -249,8 +251,10 @@ void gc_sweep_lambdas(vector_t * v) {
 #if GC_DEBUG == DBG_ON
     int freed = 0, size = v->size;
 
-    puts(" -*- lambda stack before -*- ");
-    vector_print(v);
+    if (FULL_DEBUG) {
+	puts(" -*- lambda stack before -*- ");
+	vector_print(v);
+    }
 #endif
 
     for (i = 0; i < v->size; ++i) {
@@ -275,11 +279,12 @@ void gc_sweep_lambdas(vector_t * v) {
     vector_compact(v);
 
 #if GC_DEBUG == DBG_ON
-    puts("\n -*- final lambdas stack -*- ");
-    vector_print(v);
+    if (FULL_DEBUG) {
+	puts("\n -*- final lambdas stack -*- ");
+	vector_print(v);
+    }
 
-    printf("previous: %d - current: %d - freed: %d \n",
-	   size, v->size, freed);
+    printf("previous:%d\tcurrent:%d\tfreed:%d\n", size, v->size, freed);
 #endif
 }
 
@@ -338,8 +343,10 @@ void gc_sweep_scopes(vector_t * v) {
 #if GC_DEBUG == DBG_ON
     int freed = 0, size = v->size;
 
-    puts(" -*- scope stack before -*- ");
-    vector_print(v);
+    if (FULL_DEBUG) {
+	puts(" -*- scope stack before -*- ");
+	vector_print(v);
+    }
 #endif
 
     for (i = 0; i < v->size; ++i) {
@@ -364,12 +371,12 @@ void gc_sweep_scopes(vector_t * v) {
     vector_compact(v);
 
 #if GC_DEBUG == DBG_ON
-    puts("\n -*- final scopes stack -*- ");
-    vector_print(v);
+    if (FULL_DEBUG) {
+	puts("\n -*- final scopes stack -*- ");
+	vector_print(v);
+    }
 
-    printf("previous: %d - current: %d - freed: %d \n",
-	   size, v->size, freed);
-
+    printf("previous:%d\tcurrent:%d\tfreed:%d\n", size, v->size, freed);
 #endif
 }
 
