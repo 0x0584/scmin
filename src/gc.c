@@ -6,7 +6,7 @@
  *
  * @details contains definitions to handle scopes, lambdas and s-expressions
  *
- * @todo: figure out how to eliminate code-redundancy
+ * @todo figure out how to eliminate code-redundancy
  */
 
 #include "gc.h"
@@ -38,13 +38,9 @@ static vector_t *gc_allocd_lambdas;
  * @brief a vector of allocated scopes in the garbage collector
  */
 static vector_t *gc_allocd_scopes;
-
+
 /**
  * @brief initialize the Garbage Collector's vectors
- *
- * @see #gc_allocd_sexprs
- * @see #gc_allocd_lambdas
- * @see #gc_allocd_scopes
  */
 void gc_init(void) {
     gc_allocd_sexprs = vector_new(gc_free_sexpr, sexpr_print, NULL);
@@ -55,10 +51,6 @@ void gc_init(void) {
 /**
  * @brief free's the Garbage Collect vectors from the memory, also free's
  * the error log
- *
- * @see #gc_allocd_sexprs
- * @see #gc_allocd_lambdas
- * @see #gc_allocd_scopes
  */
 void gc_clean(void) {
     vector_free(gc_allocd_scopes);
@@ -74,10 +66,6 @@ void gc_clean(void) {
  * @details sum of all bytes allocated by the global vectors
  *
  * @return size of allocated memory by the GC
- *
- * @see #gc_allocd_sexprs
- * @see #gc_allocd_lambdas
- * @see #gc_allocd_scopes
  */
 long gc_allocated_size(void) {
     return (gc_allocd_sexprs->size * sizeof(sexpr_t))
@@ -97,7 +85,7 @@ bool gc_has_space_left(void) {
     assert(GC_FREQUENCY > 0);
     return gc_allocated_size() < GC_RATIO;
 }
-
+
 /**
  * @brief collects the objects in the garbage collector by calling sweeping
  * functions
@@ -113,40 +101,48 @@ void gc_collect(bool iscleanup) {
     if (gc_has_space_left() && !iscleanup)
 	return;
 
-#if GC_DEBUG == DBG_ON
+#if DEBUG_GC == DBG_ON
+    puts("================================================");
+    printf("%-8s: %4d - %-8s: %4d - %-8s: %4d\n",
+	   "scopes", gc_allocd_scopes->size,
+	   "lambdas", gc_allocd_lambdas->size,
+	   "sexprs",  gc_allocd_sexprs->size);
+    puts("================================================");
+#endif
+
+#if DEBUG_GC == DBG_ON
     puts("================ sweep scopes ==================");
 #endif
 
     gc_sweep_scopes(gc_allocd_scopes);
 
-#if GC_DEBUG == DBG_ON
+#if DEBUG_GC == DBG_ON
     puts("================ sweep lambdas =================");
 #endif
 
     gc_sweep_lambdas(gc_allocd_lambdas);
 
-#if GC_DEBUG == DBG_ON
+#if DEBUG_GC == DBG_ON
     puts("================ sweep sexprs ==================");
 #endif
 
     gc_sweep_sexprs(gc_allocd_sexprs);
-
-#if GC_DEBUG == DBG_ON
+
+#if DEBUG_GC == DBG_ON
     puts("================================================");
-    printf("\t\t %s \n", iscleanup ? "final" : "collecting");
-    printf("sexprs:%d\tscopes:%d\tlambdas:%d\n",
-	   gc_allocd_sexprs->size,
-	   gc_allocd_scopes->size, gc_allocd_lambdas->size);
+    printf("%-8s: %4d - %-8s: %4d - %-8s: %4d\n",
+	   "scopes", gc_allocd_scopes->size,
+	   "lambdas", gc_allocd_lambdas->size,
+	   "sexprs",  gc_allocd_sexprs->size);
     puts("================================================");
 #endif
-
 }
 
 /* ==============================================================
  *		   s-expressions memory management
  * ==============================================================
  */
-
+
 void gc_setmark_sexpr(sexpr_t * expr, bool mark) {
     if (expr == NULL || expr->gci.ismarked == mark)
 	return;
@@ -165,10 +161,10 @@ void gc_sweep_sexprs(vector_t * v) {
     int i;
     sexpr_t *tmp;
 
-#if GC_DEBUG == DBG_ON
-    int freed = 0, size = v->size;
+#if DEBUG_GC == DBG_ON
+    int size = v->size;
 
-    if (FULL_DEBUG) {
+    if (DEBUG_FULL) {
 	puts(" -*- sexprs stack before -*- ");
 	vector_print(v);
     }
@@ -185,10 +181,6 @@ void gc_sweep_sexprs(vector_t * v) {
 	    gc_free_sexpr(tmp);
 	    vector_set(v, i, NULL);
 
-#if GC_DEBUG == DBG_ON
-	    ++freed;
-#endif
-
 	} else {
 	    gc_setmark_sexpr(tmp, false);
 	}
@@ -196,15 +188,19 @@ void gc_sweep_sexprs(vector_t * v) {
 
     vector_compact(v);
 
-#if GC_DEBUG == DBG_ON
-    if (FULL_DEBUG) {
+#if DEBUG_GC == DBG_ON
+    if (DEBUG_FULL) {
 	puts("\n -*- final sexprs stack -*- ");
 	vector_print(v);
     }
-    printf("previous:%d\tcurrent:%d\tfreed:%d\n", size, v->size, freed);
+
+    printf("%-8s: %4d - %-8s: %4d - %-8s: %4d\n",
+	   "previous", size,
+	   "current", v->size,
+	   "diff", v->size - size);
 #endif
 }
-
+
 sexpr_t *gc_alloc_sexpr(void) {
     sexpr_t *s = malloc(sizeof *s);
     s->gci.ismarked = false;
@@ -231,7 +227,7 @@ void gc_free_sexpr(object_t o) {
  *		      lambda memory management
  * ==============================================================
  */
-
+
 void gc_setmark_lambda(lambda_t * l, bool mark) {
     if (l == NULL || l->gci.ismarked == mark)
 	return;
@@ -248,10 +244,10 @@ void gc_sweep_lambdas(vector_t * v) {
     int i;
     lambda_t *tmp;
 
-#if GC_DEBUG == DBG_ON
-    int freed = 0, size = v->size;
+#if DEBUG_GC == DBG_ON
+    int size = v->size;
 
-    if (FULL_DEBUG) {
+    if (DEBUG_FULL) {
 	puts(" -*- lambda stack before -*- ");
 	vector_print(v);
     }
@@ -267,10 +263,6 @@ void gc_sweep_lambdas(vector_t * v) {
 	    gc_free_lambda(tmp);
 	    vector_set(v, i, NULL);
 
-#if GC_DEBUG == DBG_ON
-	    ++freed;
-#endif
-
 	} else {
 	    gc_setmark_lambda(tmp, false);
 	}
@@ -278,22 +270,23 @@ void gc_sweep_lambdas(vector_t * v) {
 
     vector_compact(v);
 
-#if GC_DEBUG == DBG_ON
-    if (FULL_DEBUG) {
+#if DEBUG_GC == DBG_ON
+    if (DEBUG_FULL) {
 	puts("\n -*- final lambdas stack -*- ");
 	vector_print(v);
     }
-
-    printf("previous:%d\tcurrent:%d\tfreed:%d\n", size, v->size, freed);
+    printf("%-8s: %4d - %-8s: %4d - %-8s: %4d\n",
+	   "previous", size,
+	   "current", v->size,
+	   "diff", v->size - size);
 #endif
 }
-
+
 lambda_t *gc_alloc_lambda(void) {
     lambda_t *l = malloc(sizeof *l);
 
     l->gci.ismarked = false;
     l->gci.isglobal = false;
-    l->parent = NULL;
     l->args = NULL;
     l->body = NULL;
     l->isnative = false;
@@ -316,7 +309,7 @@ void gc_free_lambda(object_t o) {
  *		       scope memory management
  * ==============================================================
  */
-
+
 void gc_setmark_scope(scope_t * s, bool mark) {
     if (s == NULL || s->gci.ismarked == mark)
 	return;
@@ -340,10 +333,10 @@ void gc_sweep_scopes(vector_t * v) {
     scope_t *tmp;
     int i;
 
-#if GC_DEBUG == DBG_ON
-    int freed = 0, size = v->size;
+#if DEBUG_GC == DBG_ON
+    int size = v->size;
 
-    if (FULL_DEBUG) {
+    if (DEBUG_FULL) {
 	puts(" -*- scope stack before -*- ");
 	vector_print(v);
     }
@@ -359,10 +352,6 @@ void gc_sweep_scopes(vector_t * v) {
 	    gc_free_scope(tmp);
 	    vector_set(v, i, NULL);
 
-#if GC_DEBUG == DBG_ON
-	    ++freed;
-#endif
-
 	} else {
 	    gc_setmark_scope(tmp, false);
 	}
@@ -370,16 +359,19 @@ void gc_sweep_scopes(vector_t * v) {
 
     vector_compact(v);
 
-#if GC_DEBUG == DBG_ON
-    if (FULL_DEBUG) {
+#if DEBUG_GC == DBG_ON
+    if (DEBUG_FULL) {
 	puts("\n -*- final scopes stack -*- ");
 	vector_print(v);
     }
 
-    printf("previous:%d\tcurrent:%d\tfreed:%d\n", size, v->size, freed);
+    printf("%-8s: %4d - %-8s: %4d - %-8s: %4d\n",
+	   "previous", size,
+	   "current", v->size,
+	   "diff", v->size - size);
 #endif
 }
-
+
 scope_t *gc_alloc_scope(void) {
     scope_t *s = malloc(sizeof *s);
 
@@ -403,7 +395,7 @@ void gc_free_scope(object_t o) {
 
     free(s);
 }
-
+
 void gc_debug_memory(void) {
     vector_print(gc_allocd_scopes);
     vector_print(gc_allocd_sexprs);

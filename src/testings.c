@@ -137,7 +137,3 @@ void eval_testing() {
 
     gc_collect(true);
 }
-
-void repl_testing(void) {
-    repl(get_global_scope());
-}

@@ -34,11 +34,12 @@ static keyword_t kwd[] = {
     {"undef", eval_undef},
     {"set", eval_set},
     {"setq", eval_setq},
+    {"let", eval_let},
     {"if", eval_if},
     {"lambda", eval_lambda},
     {NULL, NULL}
 };
-
+
 /**
  * @brief evaluate an expression `expr` within a given `scope`
  *
@@ -48,7 +49,7 @@ static keyword_t kwd[] = {
  * Scheme/Lisp that need to be evaluated
  *
  * the first thing to do is to determine the type whether it's a normal
- * s-expression or does it has an operator:
+ * s-expression or it does has an operator:
  *
  *   + if the expression is a keyword, we pass the cdr(), i.e. the args
  *     to the related function returned by eval_keyword() so that it runs
@@ -78,6 +79,8 @@ static keyword_t kwd[] = {
  * @return the evaluated s-expression
  *
  * @see #SYMBOLIC_EXPRESSION_TYPE
+ * @see #LAMBDA_EXPRESSION
+ * @see #NATIVE_EXPRESSION
  * @see scope.c
  *
  * @note this function may call itself recursively
@@ -91,10 +94,10 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     k_func kwd_func = eval_keyword(car(expr));
 
     /* ==================== ==================== ==================== */
-
-#if EVALUATOR_DEBUG == DBG_ON
+
+#if DEBUG_EVALUATOR == DBG_ON
     puts("================ eval start ================");
-    sexpr_print(expr);
+    sexpr_print(expr), putchar('\n');
     puts("============================================");
 #endif
 
@@ -106,29 +109,33 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	result = expr;		/* just an atom/nil */
 
     /* ==================== ==================== ==================== */
-
-#if EVALUATOR_DEBUG == DBG_ON
+
+#if DEBUG_EVALUATOR == DBG_ON
     puts(result ? "we have a result" : "there is no result");
-    sexpr_print(result);
+    sexpr_print(result), putchar('\n');
 #endif
 
     if (result)
 	goto RET;		/* we have a result */
 
-    err_raise(ERR_OP_NOT_FOUND, !resolve_bond(scope, car(expr)));
+    op = eval_sexpr(scope, car(expr));
+
+    sexpr_print(op), putchar('\n');
+
+    err_raise(ERR_OP_NOT_FOUND, !islambda(op));
 
     if (err_log())
 	goto FAILED;		/* no operator was found */
 
-    op = eval_sexpr(scope, car(expr));
 
-#if EVALUATOR_DEBUG == DBG_ON
+#if DEBUG_EVALUATOR == DBG_ON
     puts(op ? "we have an operator " : "there is no operator");
-    sexpr_print(op);
+    sexpr_print(op), putchar('\n');
+    puts("============== collecting args ==============");
 #endif
 
     /* ==================== ==================== ==================== */
-
+
     sexpr_t *args = NULL, *tail = NULL;
     sexpr_t *foo = expr, *bar = NULL, *nil = sexpr_nil();
 
@@ -144,14 +151,16 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	tail = bar;
     }
 
-#if EVALUATOR_DEBUG == DBG_ON
-    puts("args: ");
+#if DEBUG_EVALUATOR == DBG_ON
+    puts("============================================");
+    printf("args: ");
+    sexpr_print(args), putchar('\n');
     printf("length: %d \n", sexpr_length(args));
-    sexpr_print(args);
+    puts("=============================================");
 #endif
 
     /* ==================== ==================== ==================== */
-
+
     if (op->l->isnative)	/* call the native function */
 	result = op->l->native->func(args);
     else {			/* evaluate the lambda's body */
@@ -161,6 +170,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	if (err_log())
 	    goto FAILED;
 
+	puts("here");
 	scope_t *child = scope_init(scope);
 
 	bind_lambda_args(child, op->l, args);
@@ -169,9 +179,9 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     err_raise(ERR_RSLT_NULL, !result);
 
-#if EVALUATOR_DEBUG == DBG_ON
-    puts("result: ");
-    sexpr_print(result);
+#if DEBUG_EVALUATOR == DBG_ON
+    puts("final result: ");
+    sexpr_print(result), putchar('\n');
 #endif
 
   RET:
@@ -180,7 +190,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
   FAILED:
     return NULL;
 }
-
+
 /**
  * @brief just like eval_sexpr(), but with a vector of s-expressions
  *
@@ -198,20 +208,20 @@ vector_t *eval_sexprs(vector_t * sexprs) {
     int i;
 
     for (i = 0; i < sexprs->size; ++i) {
-#if EVALUATOR_DEBUG == DBG_ON
-	sexpr_print(vector_get(sexprs, i));
+#if DEBUG_EVALUATOR == DBG_ON
+	/* sexpr_print(vector_get(sexprs, i)); */
 #endif
 	tmp = eval_sexpr(gs, vector_get(sexprs, i));
 	tmp = vector_push(v, tmp);
 
-#if EVALUATOR_DEBUG == DBG_ON
+#if DEBUG_EVALUATOR == DBG_ON
 	printf(" > "), sexpr_print(tmp), putchar('\n');
 #endif
     }
 
     return vector_compact(v);
 }
-
+
 /**
  * @brief determines whether a `expr` s-expression is a keyword or not
  *
@@ -233,7 +243,7 @@ k_func eval_keyword(sexpr_t * expr) {
 
     return NULL;
 }
-
+
 /**
  * @brief returns the expression as it is
  *
@@ -257,7 +267,7 @@ sexpr_t *eval_quote(scope_t * scope, sexpr_t * expr) {
     if (scope || true)
 	return car(expr);
 }
-
+
 /**
  * @brief define a symbol to hold a sexpr
  *
@@ -270,30 +280,29 @@ sexpr_t *eval_quote(scope_t * scope, sexpr_t * expr) {
  * @return the defined s-expression
  *
  * @see scope.h
- * @note `defines` are defined as (define symbol expr)
+ * @note `define` defines a symbol `(define symbol expr)`
  */
 sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
     err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
+    err_raise(ERR_MDFY_RSRVD, isreserved(car(expr)));
 
     if (err_log())
 	return sexpr_err();
 
     sexpr_t *evaled = NULL, *symbol = car(expr);
-    bond_t *bond = vector_find(scope->bonds, &(bond_t) {
-			       symbol->s, NULL, false
-			       }
-    );
+    bond_t bond = { symbol->s, NULL, false };
 
-    if (bond != NULL)
+    if (vector_find(scope->bonds, &bond) != NULL)
 	return eval_set(scope, expr);
 
     evaled = eval_sexpr(scope, cadr(expr));
     scope_push_bond(scope, bond_new(symbol->s, evaled));
 
     return symbol;
-}
 
+}
+
 /**
  * @brief performers a conditional based on the car() of `expr`
  *
@@ -321,20 +330,22 @@ sexpr_t *eval_if(scope_t * scope, sexpr_t * expr) {
     else
 	return eval_sexpr(scope, caddr(expr));
 }
-
+
 /**
  * @brief creates lambda from `expr`
  *
  * initialize a non native lambda, car() are the args and cadr() is
  * the body
  *
- * @param scope the containing scope
+ * @param scope a scope (see notes)
  * @param expr the expression to evaluate
  *
- * @return a lambda s-expression
+ * @return a s-expression contains a lambda
  *
  * @see sexpr.h
  * @note `lambdas` are defined as `(lambda (args) (body))`
+ * @note the `scope` is not used but since lambda is a keyword
+ * so the function signature must contain a scope.
  */
 sexpr_t *eval_lambda(scope_t * scope, sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, !sexpr_length(expr));
@@ -342,15 +353,17 @@ sexpr_t *eval_lambda(scope_t * scope, sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    return lambda_new(scope, car(expr), cadr(expr));
-}
+    if (scope) {
+	/* suppress warning */
+    }
 
-/*
- * TODO: remove code redundancy between set and setq
- */
-sexpr_t *eval_set(scope_t * scope, sexpr_t * expr) {
+    return lambda_new(car(expr), cadr(expr));
+}
+
+sexpr_t *eval_setq_or_set(scope_t * scope, sexpr_t * expr, bool quoted) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
     err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
+    err_raise(ERR_MDFY_RSRVD, isreserved(car(expr)));
 
     if (err_log())
 	return sexpr_err();
@@ -361,32 +374,26 @@ sexpr_t *eval_set(scope_t * scope, sexpr_t * expr) {
 	return eval_define(scope, expr);
     else {
 	setglobal(bond->sexpr, false);
-	bond->sexpr = eval_sexpr(scope, cadr(expr));
+	bond->sexpr = quoted ? cadr(expr) : eval_sexpr(scope, cadr(expr));
 	setglobal(bond->sexpr, true);
     }
 
     return bond->sexpr;
 }
 
-sexpr_t *eval_setq(scope_t * scope, sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
-    err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
-
-    if (err_log())
-	return sexpr_err();
-
-    bond_t *bond = resolve_bond(scope, car(expr));
-
-    if (bond == NULL)
-	return eval_define(scope, expr);
-
-    setglobal(bond->sexpr, false);
-    bond->sexpr = cadr(expr);
-    setglobal(bond->sexpr, true);
-
-    return bond->sexpr;
+sexpr_t *eval_set(scope_t * scope, sexpr_t * expr) {
+    return eval_setq_or_set(scope, expr, false);
 }
 
+sexpr_t *eval_setq(scope_t * scope, sexpr_t * expr) {
+    return eval_setq_or_set(scope, expr, true);
+}
+
+/*
+ * FIXME: dereference the bond instead of setting the s-expr to nil
+ *
+ * since setting it to nil makes x resolves to nil not x
+ */
 sexpr_t *eval_undef(scope_t * scope, sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
     err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
@@ -406,7 +413,7 @@ sexpr_t *eval_undef(scope_t * scope, sexpr_t * expr) {
 
     return sexpr_true();
 }
-
+
 /*
  * TODO: recreate this function in pure lisp
  */
@@ -417,4 +424,73 @@ sexpr_t *eval_eval(scope_t * scope, sexpr_t * expr) {
 	return sexpr_err();
 
     return eval_sexpr(scope, eval_sexpr(scope, car(expr)));
+}
+
+/**
+ * @brief define temporary symbols to be used in the next s-expression(s)
+ *
+ * the let operator let us define temporary symbol which is really handy
+ * when writing lambdas or other s-expressions.
+ *
+ * for example `(let ((x foo) (y bar)) body)` with Lisp magic is equivalent
+ * to `((lambda (x y) body) foo bar)`. this function does the same by
+ * evaluating that lambda (called `let-lambda` in here).
+ *
+ * @param scope a scope
+ * @param expr the expression to evaluate
+ *
+ * @return a s-expression evaluation of a let s-expression
+ *
+ * @see lambda.h
+ * @note let is defined as: `(let ((arg param) ...) body)`
+ */
+sexpr_t *eval_let(scope_t * scope, sexpr_t * expr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
+    err_raise(ERR_ARG_TYPE, !islist(car(expr)));	/* ((arg param) ...) */
+
+    if (err_log())
+	return sexpr_err();
+
+#define CONS(expr) cons((expr), sexpr_nil())	/* turn expr into (expr) */
+
+    sexpr_t *let = CONS(sexpr_symbol("let-lambda"));
+    sexpr_t *args = NULL, *tmp = NULL, *tail = NULL;
+
+    for (tmp = car(expr); !isnil(tmp); tmp = cdr(tmp)) {
+	sexpr_t *arg = caar(tmp), *param = cadar(tmp);
+
+	err_raise(ERR_ARG_TYPE, !islist(car(tmp)));	/* (arg param) */
+	err_raise(ERR_ARG_TYPE, !issymbol(arg));
+
+	if (err_log())
+	    return sexpr_err();
+
+	/* collecting let-lambda args
+	 * which are the arg in (let ((arg param) ...) body) */
+	if (!args)
+	    args = CONS(arg);
+	else
+	    set_cdr(tail, CONS(arg));
+
+	tail = args;
+
+	/* appending the params to the whole let-lambda
+	 * so that it would look like: (let-lambda param ...) */
+	set_cdr(let, CONS(param));
+    }
+
+#undef CONS
+
+    sexpr_t *lambda = lambda_new(args, cadr(expr)); /* cadr() -> body */
+    scope_t *child = scope_init(scope);
+    scope_push_bond(child, bond_new("let-lambda", lambda));
+
+    /* puts("------------"); */
+    /* printf("%s: ", "args"); sexpr_print(args), putchar('\n'); */
+    /* printf("%s: ", "body"); sexpr_print(cadr(expr)), putchar('\n'); */
+    /* printf("%s: ", "let"); sexpr_print(let), putchar('\n'); */
+    /* printf("%s: ", "lambda"); sexpr_print(lambda), putchar('\n'); */
+    /* puts("------------"); */
+
+    return eval_sexpr(child, let);
 }

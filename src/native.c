@@ -26,7 +26,7 @@ sexpr_t *native_add(sexpr_t * expr) {
 	tmp = cdr(tmp);
     }
 
-    result = sexpr_new(T_NUMBER);
+    result = sexpr_new(LISP_NUMBER);
     result->n = n;
 
     return result;
@@ -53,7 +53,7 @@ sexpr_t *native_minus(sexpr_t * expr) {
 	tmp = cdr(tmp);
     }
 
-    result = sexpr_new(T_NUMBER);
+    result = sexpr_new(LISP_NUMBER);
     result->n = n;
 
     return result;
@@ -73,7 +73,7 @@ sexpr_t *native_times(sexpr_t * expr) {
 	tmp = cdr(tmp);
     }
 
-    result = sexpr_new(T_NUMBER);
+    result = sexpr_new(LISP_NUMBER);
     result->n = n;
 
     return result;
@@ -94,7 +94,7 @@ sexpr_t *native_divid(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    result = sexpr_new(T_NUMBER);
+    result = sexpr_new(LISP_NUMBER);
     result->n = (number_t) tmp->n / tmp0->n;;
 
     return result;
@@ -315,7 +315,7 @@ sexpr_t *native_length(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    sexpr_t *sexpr = sexpr_new(T_NUMBER);
+    sexpr_t *sexpr = sexpr_new(LISP_NUMBER);
     sexpr->n = sexpr_length(car(expr));
 
     return sexpr;
@@ -399,7 +399,7 @@ sexpr_t *native_sqrt(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    sexpr_t *number = sexpr_new(T_NUMBER);
+    sexpr_t *number = sexpr_new(LISP_NUMBER);
     number->n = sqrt(car(expr)->n);
 
     return number;

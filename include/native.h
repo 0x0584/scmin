@@ -5,12 +5,27 @@
 #  include "main.h"
 
 /**
+ * @brief a native lambda is a symbol and native C function
  *
+ * @details native lambdas ad essentials to add basic features
+ * to the interpreter like `+` or `and`
  */
-typedef struct NATIVE_LAMBDA {
+typedef struct LAMBDA_NATIVE {
+    /**
+     * @brief a symbol to be bounded with
+     */
     string_t symbol;
-    sexpr_t *(*func) (sexpr_t *);	/* native lambda */
-} native_t;
+
+    /**
+     * @brief a C function that plays the role of a lambda
+     *
+     * @param args a list or arguments
+     * @return evaluated expression
+     *
+     * @see native.c
+     */
+    sexpr_t *(*func) (sexpr_t *args);
+} nlambda_t;
 
 sexpr_t *native_add(sexpr_t * expr);
 sexpr_t *native_minus(sexpr_t * expr);

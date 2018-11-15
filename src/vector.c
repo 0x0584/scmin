@@ -211,11 +211,11 @@ object_t vector_add(vector_t * v, object_t o, int i) {
  * @brief removes `o` in the `i-th` index of `v` object's
  * array, it also decrements the `v` size
  *
- * calls `v's` `free_obj()` (if not `NULL`) to free `o` if it was not `NULL`
+ * calls `v's` `free_obj()` (if not `NULL`) to free `o` if it was
+ * not `NULL`
  *
  * @param v Vector
- * @param o Object
- * @param i index where to put `o`
+ * @param i index of object to be deleted
  *
  * @note reallocates the objects array if necessary
  */

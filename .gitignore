@@ -3,7 +3,7 @@ TAGS
 scmin
 *.txt
 massif.*
-doc/*
+docs/*
 
 ### C ###
 # Prerequisites

@@ -29,9 +29,17 @@
 
 (define fib (lambda (n)
 	      (if (= n 0)
-		  1			; this is a test
-		  (if (= n 1) 1 (+ (fib (- n 2)) (fib (- n 1)))))))
+		  1 (if (= n 1)
+			1 (+ (fib (- n 2)) (fib (- n 1)))))))
 
-(define fact (lambda (n) (if (<= n 1) 1 (* n (fact (- n 1))))))
+(define fact (lambda (n)
+	       (if (<= n 1)
+		   1 (* n (fact (- n 1))))))
 
 (define add-five (lambda (a) (+ a 7)))	; not really
+
+(define f (lambda (n)
+	    (let ((x (add-five n)))
+	      (square x))))
+
+((lambda (n) (+ n n)) 7)

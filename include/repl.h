@@ -6,7 +6,6 @@
 
 #  define REPL_PROMPT	">"
 
-void repl(scope_t * scope);
-void repl_testing(void);
+void repl(void);
 
 #endif				/* _SCMIN_REPL_H */

@@ -26,9 +26,7 @@
 #include "parser.h"
 #include "eval.h"
 #include "repl.h"
-
-#define STD_SCHEME_LIB "stdlib.scm"
-
+
 void scmin_init(void) {
     vector_t *v = NULL, *w = NULL, *x = NULL;
 
@@ -43,7 +41,7 @@ void scmin_init(void) {
     gc_setmark_scope(get_global_scope(), true);
     gc_collect(true);
 }
-
+
 int main(int argc, char **argv) {
     if (argc == 1 && argv[0]) {
 	/* just to dismiss the warnings for now */
@@ -52,14 +50,7 @@ int main(int argc, char **argv) {
     gc_init();
     scmin_init();
 
-    /* vector_testing(); */
-    /* lexer_testing(); */
-    /* parser_testing(); */
-    /* eval_testing(); */
-
-    repl_testing();
-
-    /* gc_debug_memory(); */
+    repl();
 
     gc_clean();
 

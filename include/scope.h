@@ -5,19 +5,19 @@
 #  include "gc.h"
 
 /**
- * @brief a bond is just a `key` (a symbol) and a s-expression
+ * @brief a symbol that would be related to a s-expression
  *
- * when evaluating a symbol who's like the `key`, `sexpr` is returned
+ * when evaluating a symbol who's like `symbol`, `sexpr` is returned
  * instead. this is done using resolve_bond()
  *
  * @note this might be used as `HashMap` also as Strings too, have a
  * Global String context, since a `HashMap` has `O(1)` complexity
  */
-typedef struct BOND {
+typedef struct SCOPE_BOND {
     /**
      * @brief this is a string that would be represent a symbol
      */
-    string_t key;
+    string_t symbol;
 
     /**
      * @brief a s-expression
@@ -26,7 +26,9 @@ typedef struct BOND {
 
     /**
      * @brief if `true` the bond would be unchangeable
-     * @warning implement this
+     *
+     * @todo implement this
+     * @warning **not implemented!**
      */
     bool isconst;
 } bond_t;
@@ -62,6 +64,7 @@ void bond_describe(object_t b);
 bool isbonded(scope_t *s,sexpr_t *);
 bond_t *resolve_bond(scope_t * s, sexpr_t * expr);
 void bind_lambda_args(scope_t *s,lambda_t *l, sexpr_t *args);
+bool isreserved(sexpr_t *expr);
 
 scope_t *scope_init(scope_t * parent);
 void scope_describe(object_t s);

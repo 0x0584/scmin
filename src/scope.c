@@ -22,15 +22,19 @@
 static scope_t *gs = NULL;
 
 /**
- * @brief this is a remapping of Scheme/Lisp keywords and native C functions
+ * @brief this is a remapping of Scheme/Lisp keywords and native C
+ * functions
  *
- * @details those functions are implemented in native C because they could
- * not be described in Lisp or Scheme.
+ * @details those functions are implemented in native C because they
+ * could not be described in Scheme/Lisp.
  *
  * @see native.c
+ * @see stdlib.scm
+ *
  * @todo try to replace some of these function using Scheme/Lisp syntax
+ * @warning this has nothing to do with `stdlib.scm`
  */
-static native_t stdlib[] = {
+static nlambda_t stdlib[] = {
     {"list", native_list},
     {"length", native_length},
     {"cons", native_cons},
@@ -79,13 +83,13 @@ static native_t stdlib[] = {
     {NULL, NULL}
 };
 
-bond_t *bond_new(string_t key, sexpr_t * expr) {
-    assert(key != NULL);
+bond_t *bond_new(string_t symbol, sexpr_t * expr) {
+    assert(symbol != NULL);
     assert(expr != NULL);
 
     bond_t *b = malloc(sizeof *b);
 
-    b->key = strdup(key);
+    b->symbol = strdup(symbol);
     b->sexpr = expr;
     b->isconst = false;
 
@@ -104,7 +108,7 @@ void bond_free(object_t o) {
     if (b == NULL)
 	return;
 
-    free(b->key);
+    free(b->symbol);
 
     if (b->sexpr->gci.isglobal)
 	setglobal(b->sexpr, false);
@@ -118,7 +122,7 @@ bool bond_cmp(object_t o1, object_t o2) {
 
     bond_t *b1 = o1, *b2 = o2;
 
-    return !strcmp((string_t) b1->key, (string_t) b2->key);
+    return !strcmp((string_t) b1->symbol, (string_t) b2->symbol);
 }
 
 void bond_describe(object_t o) {
@@ -129,7 +133,7 @@ void bond_describe(object_t o) {
 
     bond_t *b = o;
 
-    printf("key: %s\n", b->key);
+    printf("symbol: %s\n", b->symbol);
     printf("sexpr: ");
     sexpr_print(b->sexpr);
 }
@@ -166,6 +170,15 @@ void bind_lambda_args(scope_t * scope, lambda_t * l, sexpr_t * args) {
     }
 }
 
+bool isreserved(sexpr_t *expr) {
+    if (isnumber(expr) || isstring(expr))
+	return true;
+
+    /* TODO: check bonds too after fixing undef */
+
+    return false;
+}
+
 scope_t *scope_init(scope_t * parent) {
     scope_t *scope = gc_alloc_scope();
     scope->parent = parent;
@@ -185,8 +198,8 @@ scope_t *global_scope_init(void) {
     int i;
 
     for (i = 0, gs = scope_init(NULL); stdlib[i].symbol; ++i) {
-	native_t *n = &stdlib[i];
-	sexpr_t *l = lambda_new_native(gs, NULL, n);
+	nlambda_t *n = &stdlib[i];
+	sexpr_t *l = lambda_new_native(NULL, n);
 	bond_t *b = bond_new(n->symbol, l);
 
 	vector_push(gs->bonds, b);

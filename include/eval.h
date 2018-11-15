@@ -14,9 +14,6 @@
 
 #  include "sexpr.h"
 
-sexpr_t *eval_sexpr(scope_t * s, sexpr_t * expr);
-vector_t *eval_sexprs(vector_t * exprs);
-
 /**
  * @brief keyword function prototype
  *
@@ -37,26 +34,31 @@ typedef sexpr_t *(*k_func) (scope_t * s, sexpr_t * expr);
  *
  * @note those functions shall not be called directly
  */
-struct KEYWORD {
+typedef struct KEYWORD {
     /**
      * @brief the Lisp/Scheme keyword such as quote or if
      */
     string_t keyword;
+
     /**
      * @brief the C function that is related to the keyword
      */
     k_func func;
-};
+} keyword_t;
+
+sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr);
+vector_t *eval_sexprs(vector_t * exprs);
 
 k_func eval_keyword(sexpr_t * expr);
-sexpr_t *eval_quote(scope_t * s, sexpr_t * expr);
-sexpr_t *eval_define(scope_t *, sexpr_t * expr);
-sexpr_t *eval_if(scope_t *, sexpr_t * expr);
-sexpr_t *eval_lambda(scope_t * s, sexpr_t * expr);
+sexpr_t *eval_quote(scope_t * scope, sexpr_t * expr);
+sexpr_t *eval_define(scope_t * scope, sexpr_t * expr);
+sexpr_t *eval_if(scope_t * scope, sexpr_t * expr);
+sexpr_t *eval_lambda(scope_t * scope, sexpr_t * expr);
 sexpr_t *eval_set(scope_t * scope, sexpr_t * expr);
 sexpr_t *eval_setq(scope_t * scope, sexpr_t * expr);
 sexpr_t *eval_undef(scope_t * scope, sexpr_t * expr);
 sexpr_t *eval_eval(scope_t * scope, sexpr_t * expr);
+sexpr_t *eval_let(scope_t * scope, sexpr_t * expr);
 
 void eval_testing();
 #endif				/* _SCMIN_EVAL_H */

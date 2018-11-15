@@ -65,7 +65,7 @@ typedef enum TOKEN_TYPE {
     /**
      * @brief END OF LEXING
      */
-    EOL
+    TOK_EOL
 } token_type;
 
 /**

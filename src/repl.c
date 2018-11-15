@@ -32,10 +32,11 @@ void print_head(void) {
 	 "you can modify it under terms of GNU GPL (v2) (see LICENCE)\n"
 	 "\nstart typing Scheme/Lisp syntax or press ^D to exit\n");
 }
-
-void repl(scope_t * scope) {
+
+void repl(void) {
     vector_t *tokens = NULL;
     string_t buffer = NULL;
+    scope_t *scope = get_global_scope();
     sexpr_t *tmp = NULL;
     bool isfinished = false;
 
@@ -54,27 +55,28 @@ void repl(scope_t * scope) {
 	    continue;
 	}
 
-	tokens = read_tokens(buffer);
+	if (!(tokens = read_tokens(buffer)))
+	    goto CLEAN;
 
-#if REPL_DEBUG == DBG_ON
+#if DEBUG_REPL == DBG_ON
 	vector_print(tokens);
 	puts("tokens done");
 #endif
-
+
 	tmp = parse_sexpr(tokens);
 
-#if REPL_DEBUG == DBG_ON
+#if DEBUG_REPL == DBG_ON
 	sexpr_print(tmp);
 	puts("parse done");
 #endif
 
 	tmp = eval_sexpr(scope, tmp);
 
-#if REPL_DEBUG == DBG_ON
+#if DEBUG_REPL == DBG_ON
 	sexpr_print(tmp);
 	puts("eval done");
 #endif
-
+
 	printf(" -> "), sexpr_print(tmp), putchar('\n');
 
 	vector_free(tokens);

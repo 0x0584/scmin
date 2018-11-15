@@ -5,7 +5,7 @@ sexpr_t *cons(sexpr_t * car, sexpr_t * cdr) {
     assert(car != NULL);
     assert(cdr != NULL);
 
-    sexpr_t *expr = sexpr_new(T_PAIR);
+    sexpr_t *expr = sexpr_new(LISP_PAIR);
 
     expr->c = malloc(sizeof(pair_t));
     expr->c->car = car;
@@ -57,4 +57,12 @@ sexpr_t *cddr(sexpr_t * expr) {
 
 sexpr_t *caddr(sexpr_t * expr) {
     return car(cdr(cdr(expr)));
+}
+
+sexpr_t *cdadr(sexpr_t * expr) {
+    return cdr(car(cdr(expr)));
+}
+
+sexpr_t *cadar(sexpr_t * expr) {
+    return car(cdr(car(expr)));
 }

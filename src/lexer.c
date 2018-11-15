@@ -15,7 +15,7 @@
  *
  * after the token is found, read_tokens() collects it into a Vector
  * and the those tokens would be used by the parser to convert that
- * set of tokens into a s-expression
+ * set of tokens into a #SYMBOLIC_EXPRESSION
  *
  * @see lexer.h about further documentation for each function
  * @see token.h information about Tokens
@@ -32,7 +32,7 @@
 /**
  * this function reads a `code` string, i.e. source code
  *
- * @param code a string containing Scheme-like syntax
+ * @param src a string containing Scheme-like syntax
  *
  * @return a Vector of tokens
  */
@@ -55,7 +55,7 @@ vector_t *read_tokens(const string_t src) {
 	    err_raise(ERR_TOK_ERR, true);
 	    break;
 
-	case EOL:		/* end of lexing */
+	case TOK_EOL:		/* end of lexing */
 	    err_raise(ERR_PRNS_BLNC, depth != 0);
 	    islastloop = true;
 	    break;
@@ -95,7 +95,7 @@ vector_t *read_tokens(const string_t src) {
  * this function reads a characters from `stream`, convert them
  * into a string and call read_tokens()
  *
- * @param code a string containing Scheme-like syntax
+ * @param filename a string containing Scheme-like syntax
  *
  * @return a Vector of tokens
  */
@@ -116,7 +116,7 @@ vector_t *read_stream_tokens(const string_t filename) {
 }
 
 /**
- * @berief move through all the tokens in a giving @p code.
+ * @brief move through all the tokens in a giving @p code.
  *
  * first, it calls clean_comments() and clean_whitespaces() to
  * clean the @p code. after that, using getnc() to keep track on
@@ -137,7 +137,7 @@ token_t *next_token(const string_t code) {
     bool accept_null = false;
 
     if (!clean_source_code(code)) {
-	type = EOL;
+	type = TOK_EOL;
 	goto RET;
     }
 
@@ -161,7 +161,7 @@ token_t *next_token(const string_t code) {
 	break;
 
     default:
-    case EOL:
+    case TOK_EOL:
     case TOK_ERR:
 	goto FAILED;
     };

@@ -36,7 +36,7 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
     token_t *token = NULL;
 
     while ((token = vector_peek(tokens))) {
-#if PARSER_DEBUG == DBG_ON
+#if DEBUG_PARSER == DBG_ON
 	puts("current token:");
 	token_print(token);
 	putchar('\n');
@@ -97,7 +97,7 @@ vector_t *parse_sexprs(vector_t * vtokens) {
     vector_t *v = vector_new(NULL, sexpr_print, NULL);
 
     for (i = 0; i < vtokens->size; ++i) {
-#if PARSER_DEBUG == DBG_ON
+#if DEBUG_PARSER == DBG_ON
 	puts(" ========== vector of tokens =========== ");
 	vector_print(vector_get(vtokens, i));
 	puts(" ========== ================ =========== ");
@@ -105,7 +105,7 @@ vector_t *parse_sexprs(vector_t * vtokens) {
 #endif
 	    vector_push(v, parse_sexpr(vector_get(vtokens, i)));
 
-#if PARSER_DEBUG == DBG_ON
+#if DEBUG_PARSER == DBG_ON
 	printf("parsed sexpr: ");
 	sexpr_print(tmp);
 #endif
@@ -122,12 +122,12 @@ sexpr_t *parse_as_list(vector_t * tokens) {
     token_t *token = NULL;
     bool isfirstloop = true;
 
-#if PARSER_DEBUG == DBG_ON
+#if DEBUG_PARSER == DBG_ON
     puts("list starting");
 #endif
 
     while ((token = vector_peek(tokens))) {
-#if PARSER_DEBUG == DBG_ON
+#if DEBUG_PARSER == DBG_ON
 	puts("current token:");
 	token_print(token);
 	putchar('\n');
@@ -162,7 +162,7 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 
 	default:
 
-#if PARSER_DEBUG == DBG_ON
+#if DEBUG_PARSER == DBG_ON
 	    puts("UNKNOWN SYMBOL");
 #endif
 	    return NULL;	/* this would cause problems */
@@ -182,7 +182,7 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	isfirstloop = false;
     }
 
-#if PARSER_DEBUG == DBG_ON
+#if DEBUG_PARSER == DBG_ON
     sexpr_print(head);
     puts("list ending\n--------------\n");
 #endif
@@ -221,12 +221,12 @@ sexpr_t *parse_as_quote(vector_t * tokens) {
     if (isnil(value))
 	return value;
 
-    quote = sexpr_new(T_SYMBOL);
+    quote = sexpr_new(LISP_SYMBOL);
     quote->s = strdup("quote");
 
     value = cons(quote, cons(value, sexpr_nil()));
 
-#if PARSER_DEBUG == DBG_ON
+#if DEBUG_PARSER == DBG_ON
     sexpr_print(value);
 #endif
 
@@ -235,14 +235,14 @@ sexpr_t *parse_as_quote(vector_t * tokens) {
 
 sexpr_t *parse_as_number(string_t value) {
     assert(value != NULL);
-    sexpr_t *expr = sexpr_new(T_NUMBER);
+    sexpr_t *expr = sexpr_new(LISP_NUMBER);
     expr->n = strtod(value, NULL);
     return expr;
 }
 
 sexpr_t *parse_as_string(string_t value) {
     assert(value != NULL);
-    sexpr_t *expr = sexpr_new(T_STRING);
+    sexpr_t *expr = sexpr_new(LISP_STRING);
     expr->s = strdup(value);
     return expr;
 }
@@ -250,6 +250,6 @@ sexpr_t *parse_as_string(string_t value) {
 sexpr_t *parse_as_symbol(string_t value) {
     sexpr_t *expr = NULL;
     expr = parse_as_string(value);
-    expr->type = !strcmp(value, "nil") ? T_NIL : T_SYMBOL;
+    expr->type = !strcmp(value, "nil") ? LISP_NIL : LISP_SYMBOL;
     return expr;
 }

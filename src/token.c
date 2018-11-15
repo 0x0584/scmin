@@ -109,7 +109,7 @@ token_type predict_token_type(string_t code) {
  * @brief allocate and initialize a new token
  *
  * @param type one of the types in #TOKEN_TYPE
- * @param buffer token as text
+ * @param vbuffer token as text
  * @param depth how many parenthesis are there
  *
  * @return the initialized token
@@ -162,8 +162,8 @@ void token_print(object_t o) {
     case TOK_NUMBER:
 	type_str = "TOK_NUMBER";
 	break;
-    case EOL:
-	type_str = "EOL";
+    case TOK_EOL:
+	type_str = "TOK_EOL";
 	break;
     default:
     case TOK_ERR:

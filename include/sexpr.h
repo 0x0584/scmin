@@ -33,37 +33,37 @@ typedef enum SYMBOLIC_EXPRESSION_TYPE {
     /**
      * @brief a cons-cell pair; car, cdr
      */
-    T_PAIR,
+    LISP_PAIR,
 
     /**
      * @brief a number 0 -100 0.25
      */
-    T_NUMBER,
+    LISP_NUMBER,
 
     /**
      * @brief a "string"
      */
-    T_STRING,
+    LISP_STRING,
 
     /**
      * @brief a symbol, such as foo or foo-bar
      */
-    T_SYMBOL,
+    LISP_SYMBOL,
 
     /**
      * @brief (lambda (args) (body))
      */
-    T_LAMBDA,
+    LISP_LAMBDA,
 
     /**
      * @brief like NULL
      */
-    T_NIL,
+    LISP_NIL,
 
     /**
      * @brief ERROR flag
      */
-    T_ERR
+    LISP_ERR
 } type_t;
 
 /**
@@ -77,13 +77,6 @@ typedef struct LAMBDA_EXPRESSION {
      * @brief garbage collector information
      */
     gc_info gci;
-
-    /**
-     * @brief the parent scope of the lambda
-     * @note this would be used if some symbole was bonded to the
-     * `parent` and was used within the lambda
-     */
-    scope_t *parent;
 
     /**
      * @brief the lambdas arguments (un-bonded symbols only)
@@ -102,7 +95,7 @@ typedef struct LAMBDA_EXPRESSION {
 	/**
 	 * @brief native lambda defined in C
 	 */
-	native_t *native;
+	nlambda_t *native;
 
 	/**
 	 * @brief the lambda's body
@@ -144,7 +137,7 @@ typedef struct SYMBOLIC_EXPRESSION {
 	number_t n;
 
 	/**
-	 * @berif cons cell pair car/cdr
+	 * @brief cons cell pair car/cdr
 	 */
 	pair_t *c;
 
@@ -175,9 +168,12 @@ sexpr_t *sexpr_err(void);
 sexpr_t *sexpr_nil(void);
 sexpr_t *sexpr_true(void);
 
-sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
-			   native_t * func);
-sexpr_t *lambda_new(scope_t * parent, sexpr_t * args, sexpr_t * body);
+sexpr_t *sexpr_symbol(string_t symbol);
+sexpr_t *sexpr_number(number_t number);
+sexpr_t *sexpr_string(string_t string);
+
+sexpr_t *lambda_new_native(sexpr_t * args, nlambda_t * func);
+sexpr_t *lambda_new(sexpr_t * args, sexpr_t * body);
 void lambda_describe(object_t expr);
 void lambda_print(object_t expr);
 

@@ -25,7 +25,7 @@ typedef struct PAIR {
      */
     bool islist;
 } pair_t;
-
+
 sexpr_t *cons(sexpr_t * car, sexpr_t * cdr);
 sexpr_t *car(sexpr_t * expr);
 sexpr_t *cdr(sexpr_t * expr);
@@ -36,5 +36,7 @@ sexpr_t *cadr(sexpr_t * expr);
 sexpr_t *cddr(sexpr_t * expr);
 sexpr_t *cdar(sexpr_t * expr);
 sexpr_t *caddr(sexpr_t * expr);
+sexpr_t *cdadr(sexpr_t * expr);
+sexpr_t *cadar(sexpr_t * expr);
 
 #endif

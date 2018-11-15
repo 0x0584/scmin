@@ -31,8 +31,6 @@
  */
 #  define GC_RATIO		(GC_STACK_LIMIT_SIZE / GC_FREQUENCY)
 
-#  define FULL_DEBUG		DBG_ON
-
 /**
  *  @brief information about the garbage collection
  */

@@ -22,33 +22,33 @@
  * @brief test if `expr` is `nil`
  *
  * @param expr s-expression
- * @return `true` if `expr` was of type #T_NIL
+ * @return `true` if `expr` was of type #LISP_NIL
  */
 bool isnil(sexpr_t * expr) {
-    return expr == NULL ? false : expr->type == T_NIL;
+    return expr == NULL ? false : expr->type == LISP_NIL;
 }
 
 /**
  * @brief test if `expr` is **not** `nil`
  *
  * @param expr s-expression
- * @return `true` if `expr` was of **not** type #T_NIL
+ * @return `true` if `expr` was of **not** type #LISP_NIL
  *
- * @note only #T_NIL is considered as `false` anything else is `true`
+ * @note only #LISP_NIL is considered as `false` anything else is `true`
  */
 bool istrue(sexpr_t * expr) {
     return !isnil(expr);
 }
-
+
 /**
  * @brief test if `expr` is an atom such as `1412` or `"string"` or
  * `foo-bar`
  *
  * @param expr s-expression
- * @return `true` if `expr` was of type either #T_NUMBER, #T_STRING
- * or #T_SYMBOL
+ * @return `true` if `expr` was of type either #LISP_NUMBER, #LISP_STRING
+ * or #LISP_SYMBOL
  *
- * @note #T_NIL is **not** an atom
+ * @note #LISP_NIL is **not** an atom
  */
 bool isatom(sexpr_t * expr) {
     return !ispair(expr) && !islambda(expr);
@@ -58,46 +58,46 @@ bool isatom(sexpr_t * expr) {
  * @brief test if `expr` is a symbol
  *
  * @param expr s-expression
- * @return `true` if `expr` was #T_SYMBOL
+ * @return `true` if `expr` was #LISP_SYMBOL
  *
- * @note #T_NIL is **not** a symbol
+ * @note #LISP_NIL is **not** a symbol
  */
 bool issymbol(sexpr_t * expr) {
-    return expr == NULL ? false : expr->type == T_SYMBOL;
+    return expr == NULL ? false : expr->type == LISP_SYMBOL;
 }
 
 /**
  * @brief test if `expr` is a number
  *
  * @param expr s-expression
- * @return `true` if `expr` was of type #T_NUMBER
+ * @return `true` if `expr` was of type #LISP_NUMBER
  */
 bool isnumber(sexpr_t * expr) {
-    return expr == NULL ? false : expr->type == T_NUMBER;
+    return expr == NULL ? false : expr->type == LISP_NUMBER;
 }
 
 /**
  * @brief test if `expr` is a string
  *
  * @param expr s-expression
- * @return `true` if `expr` was of type #T_STRING
+ * @return `true` if `expr` was of type #LISP_STRING
  */
 bool isstring(sexpr_t * expr) {
-    return expr == NULL ? false : expr->type == T_STRING;
+    return expr == NULL ? false : expr->type == LISP_STRING;
 }
-
+
 /**
  * @param expr s-expression
- * @return `true` if `expr` was of type #T_PAIR
+ * @return `true` if `expr` was of type #LISP_PAIR
  *
  * @see pair.h
  */
 bool ispair(sexpr_t * expr) {
-    return expr == NULL ? false : expr->type == T_PAIR;
+    return expr == NULL ? false : expr->type == LISP_PAIR;
 }
 
 /**
- * @brief lists is a chain of #T_PAIR of s-expression with a #T_NIL
+ * @brief lists is a chain of #LISP_PAIR of s-expression with a #LISP_NIL
  *
  * @param expr s-expression
  * @return `true` if `expr` was a list
@@ -107,17 +107,17 @@ bool ispair(sexpr_t * expr) {
 bool islist(sexpr_t * expr) {
     return expr == NULL ? false : ispair(expr) && expr->c->islist;
 }
-
+
 /**
  * @brief test if `expr` is a lambda
  *
  * @param expr s-expression
- * @return `true` if `expr` was of type #T_LAMBDA
+ * @return `true` if `expr` was of type #LISP_LAMBDA
  *
  * @see sexpr.h
  */
 bool islambda(sexpr_t * expr) {
-    return expr == NULL ? false : expr->type == T_LAMBDA;
+    return expr == NULL ? false : expr->type == LISP_LAMBDA;
 }
 
 /**
@@ -133,26 +133,26 @@ bool isnative(sexpr_t * expr) {
     else
 	return false;
 }
-
+
 /**
  * @brief allocates memory for a new s-expression
  *
  * basically, this is the way to allocate memory for a new s-expression
  * because this function allocates memory using the built-in GC allocation
  *
- * @param type s-expression type like #T_NUMBER or #T_SYMBOL
+ * @param type s-expression type like #LISP_NUMBER or #LISP_SYMBOL
  *
  * @see #SYMBOLIC_EXPRESSION_TYPE
  * @see #SYMBOLIC_EXPRESSION
  *
- * @note if `type` was #T_LAMBDA, it allocates memory for the lambda as well
+ * @note if `type` was #LISP_LAMBDA, it allocates memory for the lambda as well
  */
 sexpr_t *sexpr_new(type_t type) {
     sexpr_t *expr = gc_alloc_sexpr();
 
     expr->type = type;
 
-    if (type == T_LAMBDA)
+    if (type == LISP_LAMBDA)
 	expr->l = gc_alloc_lambda();
 
     return expr;
@@ -182,11 +182,11 @@ int sexpr_length(sexpr_t * expr) {
 
     return length;
 }
-
+
 /**
  * @brief creates an error s-expression
  *
- * basically calling sexpr_new() passing #T_ERR
+ * basically calling sexpr_new() passing #LISP_ERR
  *
  * @return error s-expression
  *
@@ -194,18 +194,18 @@ int sexpr_length(sexpr_t * expr) {
  * @note error s-expression is returned after error occurrence
  */
 sexpr_t *sexpr_err(void) {
-    return sexpr_new(T_ERR);
+    return sexpr_new(LISP_ERR);
 }
 
 /**
  * @brief creating a `nil` s-expression
  *
- * basically calling sexpr_new() passing #T_NIL and initializing its text
+ * basically calling sexpr_new() passing #LISP_NIL and initializing its text
  *
  * @return `nil` s-expression
  */
 sexpr_t *sexpr_nil(void) {
-    sexpr_t *t = sexpr_new(T_NIL);
+    sexpr_t *t = sexpr_new(LISP_NIL);
     t->s = strdup("nil");
     return t;
 }
@@ -213,38 +213,53 @@ sexpr_t *sexpr_nil(void) {
 /**
  * @brief creating a symbol s-expression of `t`
  *
- * basically calling sexpr_new() passing #T_SYMBOL and initializing its
+ * basically calling sexpr_new() passing #LISP_SYMBOL and initializing its
  * text with `"t"`
  *
  * @return error s-expression
  */
 sexpr_t *sexpr_true(void) {
-    sexpr_t *t = sexpr_new(T_SYMBOL);
+    sexpr_t *t = sexpr_new(LISP_SYMBOL);
     t->s = strdup("t");
     return t;
 }
 
+sexpr_t *sexpr_symbol(string_t symbol) {
+    sexpr_t *t = sexpr_new(LISP_SYMBOL);
+    t->s = strdup(symbol);
+    return t;
+}
+
+sexpr_t *sexpr_number(number_t number) {
+    sexpr_t *t = sexpr_new(LISP_NUMBER);
+    t->n = number;
+    return t;
+}
+
+sexpr_t *sexpr_string(string_t string) {
+    sexpr_t *t = sexpr_new(LISP_STRING);
+    t->s = strdup(string);
+    return t;
+}
+
 /**
  * @brief allocates memory and initialize a new **native** lambda after
  * calling sexpr_new()
  *
- * @param parent the scope containing the lambda
- * @param Argos a list of lambda's arguments
- * @param native a native C function
+ * @param args a list of lambda's arguments
+ * @param func a native C function
  *
- * @return a s-expression of type #T_LAMBDA
+ * @return a s-expression of type #LISP_LAMBDA
  *
- * @see #LAMBDA_EXPRESSION
  * @see #SYMBOLIC_EXPRESSION
- * @see #NATIVE_LAMBDA
+ * @see #LAMBDA_EXPRESSION
+ * @see #LAMBDA_NATIVE
  *
  * @note initializing `is native` to `true`
  */
-sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
-			   native_t * func) {
-    sexpr_t *lambda = sexpr_new(T_LAMBDA);
+sexpr_t *lambda_new_native(sexpr_t * args, nlambda_t * func) {
+    sexpr_t *lambda = sexpr_new(LISP_LAMBDA);
 
-    lambda->l->parent = parent;
     lambda->l->args = args;
     lambda->l->isnative = true;
     lambda->l->native = func;
@@ -256,21 +271,19 @@ sexpr_t *lambda_new_native(scope_t * parent, sexpr_t * args,
  * @brief allocates memory and initialize a new lambda after calling
  * sexpr_new()
  *
- * @param parent the scope containing the lambda
  * @param args a list of lambda's arguments
  * @param body a s-expression to interpret when calling this lambda
  *
- * @return a s-expression of type #T_LAMBDA
+ * @return a s-expression of type #LISP_LAMBDA
  *
  * @see #LAMBDA_EXPRESSION
  * @see #SYMBOLIC_EXPRESSION
  *
  * @note initializing `isnative` to `false`
  */
-sexpr_t *lambda_new(scope_t * parent, sexpr_t * args, sexpr_t * body) {
-    sexpr_t *lambda = sexpr_new(T_LAMBDA);
+sexpr_t *lambda_new(sexpr_t * args, sexpr_t * body) {
+    sexpr_t *lambda = sexpr_new(LISP_LAMBDA);
 
-    lambda->l->parent = parent;
     lambda->l->args = args;
     lambda->l->isnative = false;
     lambda->l->body = body;
@@ -305,33 +318,33 @@ void sexpr_describe(object_t o) {
     }
 
     switch (expr->type) {
-    case T_PAIR:
+    case LISP_PAIR:
 	type_str = "CONS-PAIR";
 	break;
 
-    case T_NUMBER:
+    case LISP_NUMBER:
 	type_str = "NUMBER";
 	break;
 
-    case T_STRING:
+    case LISP_STRING:
 	type_str = "STRING";
 	break;
 
-    case T_SYMBOL:
+    case LISP_SYMBOL:
 	type_str = "SYMBOL";
 	break;
 
-    case T_LAMBDA:
+    case LISP_LAMBDA:
 	type_str = "LAMBDA";
 	isfinished = true;
 	break;
 
-    case T_NIL:
+    case LISP_NIL:
 	type_str = "NIL";
 	isfinished = true;
 	break;
 
-    case T_ERR:
+    case LISP_ERR:
 	type_str = "ERROR";
 	isfinished = true;
 	break;
@@ -367,13 +380,20 @@ void sexpr_describe(object_t o) {
     --ntabs;
 }
 
+void sexpr_print(object_t o) {
+    void _sexpr_print(object_t o); /* private header */
+
+    if (o == NULL)
+	return;
+    else
+	_sexpr_print(o);
+}
+
 void _sexpr_print(object_t o) {
     sexpr_t *expr = (sexpr_t *) o, *tmp = expr;
 
-    if (expr == NULL) {
-	puts("expr was NULL");
+    if (expr == NULL)
 	return;
-    }
 
     if (islambda(expr)) {
 	lambda_print(expr->l);
@@ -387,34 +407,17 @@ void _sexpr_print(object_t o) {
     else if (isnumber(expr))
 	printf("%lf", expr->n);
     else if (ispair(expr)) {
-	putchar('(');
+	putchar('('), _sexpr_print(car(expr));
 
-	_sexpr_print(car(expr));
-
-	while (ispair(tmp = cdr(tmp))) {
-	    /* a pair be constructed of two pairs
-	     * so we should always check that */
-	    /* if (ispair(car(tmp)) && cadr(tmp) == NULL) */
-	    /*	break; */
-	    putchar(' ');
-	    _sexpr_print(car(tmp));
-	}
+	while (ispair(tmp = cdr(tmp)))
+	    putchar(' '), _sexpr_print(car(tmp));
 
 	/* if it was just a pair not a list */
-	if (!isnil(tmp)) {
-	    printf(" . ");
-	    _sexpr_print(tmp);
-	}
+	if (!isnil(tmp))
+	    printf(" . "), _sexpr_print(tmp);
 
 	putchar(')');
     }
-}
-
-void sexpr_print(object_t o) {
-    if (o == NULL)
-	return;
-    else
-	_sexpr_print(o);
 }
 
 void lambda_describe(object_t o) {
@@ -439,16 +442,19 @@ void lambda_describe(object_t o) {
 void lambda_print(object_t o) {
     lambda_t *l = o;
 
-    if (l == NULL) {
-	puts("lambda was NULL");
+    if (l == NULL)
 	return;
-    }
+
+    putchar('(');
 
     if (l->args != NULL)
-	printf("%s: ", "args"), sexpr_print(l->args);
+	printf("%s: ", "args"), sexpr_print(l->args),
+	    printf("%s", " - ");
 
     if (l->isnative)
 	printf("%s @%p", l->native->symbol, l->native->func);
     else
 	printf("%s: ", "body"), sexpr_print(l->body);
+
+    putchar(')');
 }

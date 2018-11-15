@@ -32,52 +32,69 @@
  */
 #  define DBG_OFF	(1)
 
+#  define DEBUG_FULL		DBG_ON
+
 /**
  * @brief garbage collector debugging information
  * @see gc.c
  */
-#  define GC_DEBUG		DBG_ON
+#  define DEBUG_GC		DBG_ON
 
 /**
  * @brief vector debugging information
  * @see vector.c
  */
-#  define VECTOR_DEBUG		DBG_OFF
+#  define DEBUG_VECTOR		DBG_OFF
 
 /**
  * @brief lexer debugging information
  * @see lexer.c
  */
-#  define LEXER_DEBUG		DBG_ON
+#  define DEBUG_LEXER		DBG_ON
 
 /**
  * @brief parser debugging information
  * @see parser.c
  */
-#  define PARSER_DEBUG		DBG_OFF
+#  define DEBUG_PARSER		DBG_OFF
 
 /**
  * @brief eval debugging information
  * @see eval.c
  */
-#  define EVALUATOR_DEBUG	DBG_OFF
+#  define DEBUG_EVALUATOR	DBG_ON
 
 /**
  * @brief repl debugging information
  * @see repl.c
  */
-#  define REPL_DEBUG		DBG_OFF
+#  define DEBUG_REPL		DBG_OFF
 
 /**
- * @brief different errors that would occur during the process of evaluating
+ * @brief the interpreter's standard Scheme/Lisp library
+ *
+ * this file contains many essential functions written in Scheme/Lisp
+ */
+#  define STD_SCHEME_LIB	"stdlib.scm"
+
+/**
+ * @brief possible errors to catch by the interpreter
+ *
+ * different errors that would occur during the process of evaluating
  * a s-expression
  */
-enum SCHEME_ERROR {
+typedef enum SCHEME_ERROR {
+    /**
+     * @brief this indicates that there is no error;
+     * everything is fine
+     */
+    ERR_NO_ERROR = -1,
+
     /**
      * @brief no closing parenthesis is found
      * @see lexer.c
      */
-    ERR_PRNS_CLS = 0,
+    ERR_PRNS_CLS,
 
     /**
      * @brief parenthesis are not balanced
@@ -180,27 +197,27 @@ enum SCHEME_ERROR {
     ERR_OP_NOT_FOUND,
 
     /**
-     * @brief this indicates that there is no error;
-     * everything is fine
+     * @brief when modifying reserved words such as numbers ans string literals
+     * @todo include constants too (after finding the correct syntax)
      */
-    ERR_NO_ERROR = -1
-};
+    ERR_MDFY_RSRVD
+} serror_t;
 
 /**
  * @brief binding an error with the correspondent message
  * @see error.c
  */
-struct ERROR {
+typedef struct ERROR {
     /**
      * @brief error message
      */
     char *errmsg;
 
     /**
-     * @brief a defined Scheme error
+     * @brief a defined interpreter errors error
      */
     serror_t err;
-};
+} error_t;
 
 void err_raise(serror_t err, bool cond);
 void err_free(object_t o);
