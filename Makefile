@@ -28,12 +28,6 @@ run: build
 
 build: clean all
 
-valg: build
-	valgrind ./$(EXEC)
-
-valk: build
-	valkyrie ./$(EXEC)
-
 clean:
 	@echo  "cleaning up.."
 	$(RM) $(EXEC)

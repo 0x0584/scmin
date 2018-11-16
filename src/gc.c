@@ -62,6 +62,11 @@ void gc_clean(void) {
     vector_free(error_log);
 }
 
+void gc_sweep_log(int a, int b) {
+printf("%-8s %8d - %-8s %8d - %-8s %8d\n",
+	   "before:", a, "after:", b, "diff:", b - a);
+}
+
 void gc_log(bool iscleanup) {
     printf("==%s====================================================\n",
 	   !iscleanup ? " # " : "===");
@@ -69,10 +74,11 @@ void gc_log(bool iscleanup) {
 	   "scopes:", gc_allocd_scopes->size,
 	   "lambdas:", gc_allocd_lambdas->size,
 	   "sexprs:",  gc_allocd_sexprs->size);
-    printf("%15ld B - %15ld B - %15ld B\nstack limit size: %17ld B\n",
+    printf("%15ld B - %15ld B - %15ld B\nstack size: %13ld B - limit size: %13ld B\n",
 	   gc_allocd_scopes->size * sizeof(scope_t),
 	   gc_allocd_lambdas->size * sizeof(lambda_t),
 	   gc_allocd_sexprs->size * sizeof(sexpr_t),
+	   gc_allocated_size(),
 	   gc_stack_limit);
     puts("=========================================================");
 }
@@ -204,10 +210,7 @@ void gc_sweep_sexprs(vector_t * v) {
 	vector_print(v);
     }
 
-    printf("%-8s %8d - %-8s %8d - %-8s %8d\n",
-	   "bafore:", size,
-	   "after:", v->size,
-	   "diff:", v->size - size);
+    gc_sweep_log(size, v->size);
 #endif
 }
 
@@ -285,10 +288,8 @@ void gc_sweep_lambdas(vector_t * v) {
 	puts("\n -*- final lambdas stack -*- ");
 	vector_print(v);
     }
-    printf("%-8s %8d - %-8s %8d - %-8s %8d\n",
-	   "bafore:", size,
-	   "after:", v->size,
-	   "diff:", v->size - size);
+
+    gc_sweep_log(size, v->size);
 #endif
 }
 
@@ -375,10 +376,7 @@ void gc_sweep_scopes(vector_t * v) {
 	vector_print(v);
     }
 
-    printf("%-8s %8d - %-8s %8d - %-8s %8d\n",
-	   "bafore:", size,
-	   "after:", v->size,
-	   "diff:", v->size - size);
+    gc_sweep_log(size, v->size);
 #endif
 }
 

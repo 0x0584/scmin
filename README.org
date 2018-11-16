@@ -49,32 +49,53 @@
   #+BEGIN_SRC scheme
     ;;; Comments start with ';'.
     ;;; anything form the ';' to '\n' is ignored
+    ;;; This is an example of syntax supported by this interpreter
 
     ;; Basic Arithmetic
-    (* (+ 3 (/ 4 2)) (- 3 4))		    ; >> -5
-    (sqrt (square 2))			    ; >> 2
+    (* (+ 3 (/ 4 2)) (- 3 4))			; -5
+    (sqrt (square 2))				; 2
 
-    ;; build a list using cons
-    (cons 'a (cons 'b (cons 'c nil)))	    ; (a b c)
+    ;; Build a list using cons
+    (cons 'a (cons 'b (cons 'c nil)))		; (a b c)
 
-    ;; applying car/cdr
-    (car (cons 'a (cons 'b (cons 'c nil)))) ; a
-    (cdr (cons 'a (cons 'b (cons 'c nil)))) ; (b c)
+    ;; Defining symbols as s-expressions or lambdas
+    (define foo (+ 1 (* 2 5)))			; 11
+    (define bar '(+ 1 4))			; (+ 1 4)
+    (define baz (eval bar))			; 5
+
+    (define list-one (cons
+		      'a (cons
+			  'b (cons
+			      'c nil))))	; (a b c)
+    (define list-two (list a b c))		; (a b c)
+    (define list-three '(a b c))		; (a b c)
+
+    ;; Applying car/cdr operations
+    (car list-one)				; a
+    (cdr list-two)				; (b c)
+    (cadr list-three)				; b
 
     ;; Recursion with factorial
     (define fact
       (lambda (n)
 	(if (<= n 1) 1
 	    (* n (fact (- n 1))))))
-    (fact 5)				    ; >> 120
+    (fact baz)					; 120
 
     ;; Recursion with fibonacci
     (define fib
       (lambda (n)
 	(if (= n 0) 1
 	    (if (= n 1) 1
-		(+ (fib (- n 2)) (fib (- n 1)))))))
-    (fib (- 1 (* 2 5)))			    ; >> 55
+		(+ (fib (- n 2))
+		   (fib (- n 1)))))))
+    (fib foo)					; 144
+
+    ;; let operator
+    (let ((foo (list 1 2 3))) (cadr foo))	; 2
+
+    ;; map operator
+    (map (lambda (n) (+ n 2)) '(1 2 3))		; (3 4 5)
   #+END_SRC
 
 * A basic Lisp Interpreter
