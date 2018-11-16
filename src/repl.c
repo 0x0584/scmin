@@ -58,21 +58,21 @@ void repl(void) {
 	if (!(tokens = read_tokens(buffer)))
 	    goto CLEAN;
 
-#if DEBUG_REPL == DBG_ON
+#if DEBUG_REPL == DEBUG_ON
 	vector_print(tokens);
 	puts("tokens done");
 #endif
 
 	tmp = parse_sexpr(tokens);
 
-#if DEBUG_REPL == DBG_ON
+#if DEBUG_REPL == DEBUG_ON
 	sexpr_print(tmp);
 	puts("parse done");
 #endif
 
 	tmp = eval_sexpr(scope, tmp);
 
-#if DEBUG_REPL == DBG_ON
+#if DEBUG_REPL == DEBUG_ON
 	sexpr_print(tmp);
 	puts("eval done");
 #endif
@@ -84,6 +84,7 @@ void repl(void) {
       CLEAN:
 	free(buffer);
 	gc_setmark_scope(get_global_scope(), true);
-	gc_collect(true);
+	gc_collect(false);
+	gc_log(true);
     }
 }

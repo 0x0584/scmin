@@ -18,6 +18,8 @@
 #include "scope.h"
 #include "pair.h"
 
+static long gc_stack_limit = 0x0584;
+
 /**
  * @brief the error log
  * @see error.c
@@ -60,6 +62,21 @@ void gc_clean(void) {
     vector_free(error_log);
 }
 
+void gc_log(bool iscleanup) {
+    printf("==%s====================================================\n",
+	   !iscleanup ? " # " : "===");
+    printf("%-8s %8d - %-8s %8d - %-8s %8d\n",
+	   "scopes:", gc_allocd_scopes->size,
+	   "lambdas:", gc_allocd_lambdas->size,
+	   "sexprs:",  gc_allocd_sexprs->size);
+    printf("%15ld B - %15ld B - %15ld B\nstack limit size: %17ld B\n",
+	   gc_allocd_scopes->size * sizeof(scope_t),
+	   gc_allocd_lambdas->size * sizeof(lambda_t),
+	   gc_allocd_sexprs->size * sizeof(sexpr_t),
+	   gc_stack_limit);
+    puts("=========================================================");
+}
+
 /**
  * @brief returns the size of currently allocated memory in Bytes
  *
@@ -82,8 +99,7 @@ long gc_allocated_size(void) {
  * @return `true` if there is some space left
  */
 bool gc_has_space_left(void) {
-    assert(GC_FREQUENCY > 0);
-    return gc_allocated_size() < GC_RATIO;
+    return gc_allocated_size() < gc_stack_limit;
 }
 
 /**
@@ -101,40 +117,34 @@ void gc_collect(bool iscleanup) {
     if (gc_has_space_left() && !iscleanup)
 	return;
 
-#if DEBUG_GC == DBG_ON
-    puts("================================================");
-    printf("%-8s: %4d - %-8s: %4d - %-8s: %4d\n",
-	   "scopes", gc_allocd_scopes->size,
-	   "lambdas", gc_allocd_lambdas->size,
-	   "sexprs",  gc_allocd_sexprs->size);
-    puts("================================================");
+#if DEBUG_GC == DEBUG_ON
+    gc_log(iscleanup);
 #endif
 
-#if DEBUG_GC == DBG_ON
-    puts("================ sweep scopes ==================");
+#if DEBUG_GC == DEBUG_ON
+    puts("===================== sweep scopes ======================");
 #endif
 
     gc_sweep_scopes(gc_allocd_scopes);
 
-#if DEBUG_GC == DBG_ON
-    puts("================ sweep lambdas =================");
+#if DEBUG_GC == DEBUG_ON
+    puts("===================== sweep lambdas =====================");
 #endif
 
     gc_sweep_lambdas(gc_allocd_lambdas);
 
-#if DEBUG_GC == DBG_ON
-    puts("================ sweep sexprs ==================");
+#if DEBUG_GC == DEBUG_ON
+    puts("===================== sweep sexprs ======================");
 #endif
 
     gc_sweep_sexprs(gc_allocd_sexprs);
 
-#if DEBUG_GC == DBG_ON
-    puts("================================================");
-    printf("%-8s: %4d - %-8s: %4d - %-8s: %4d\n",
-	   "scopes", gc_allocd_scopes->size,
-	   "lambdas", gc_allocd_lambdas->size,
-	   "sexprs",  gc_allocd_sexprs->size);
-    puts("================================================");
+
+    if (!gc_has_space_left())
+	gc_stack_limit += gc_allocated_size();
+
+#if DEBUG_GC == DEBUG_ON
+    /* gc_log(iscleanup); */
 #endif
 }
 
@@ -161,7 +171,7 @@ void gc_sweep_sexprs(vector_t * v) {
     int i;
     sexpr_t *tmp;
 
-#if DEBUG_GC == DBG_ON
+#if DEBUG_GC == DEBUG_ON
     int size = v->size;
 
     if (DEBUG_FULL) {
@@ -188,16 +198,16 @@ void gc_sweep_sexprs(vector_t * v) {
 
     vector_compact(v);
 
-#if DEBUG_GC == DBG_ON
+#if DEBUG_GC == DEBUG_ON
     if (DEBUG_FULL) {
 	puts("\n -*- final sexprs stack -*- ");
 	vector_print(v);
     }
 
-    printf("%-8s: %4d - %-8s: %4d - %-8s: %4d\n",
-	   "previous", size,
-	   "current", v->size,
-	   "diff", v->size - size);
+    printf("%-8s %8d - %-8s %8d - %-8s %8d\n",
+	   "bafore:", size,
+	   "after:", v->size,
+	   "diff:", v->size - size);
 #endif
 }
 
@@ -244,7 +254,7 @@ void gc_sweep_lambdas(vector_t * v) {
     int i;
     lambda_t *tmp;
 
-#if DEBUG_GC == DBG_ON
+#if DEBUG_GC == DEBUG_ON
     int size = v->size;
 
     if (DEBUG_FULL) {
@@ -270,15 +280,15 @@ void gc_sweep_lambdas(vector_t * v) {
 
     vector_compact(v);
 
-#if DEBUG_GC == DBG_ON
+#if DEBUG_GC == DEBUG_ON
     if (DEBUG_FULL) {
 	puts("\n -*- final lambdas stack -*- ");
 	vector_print(v);
     }
-    printf("%-8s: %4d - %-8s: %4d - %-8s: %4d\n",
-	   "previous", size,
-	   "current", v->size,
-	   "diff", v->size - size);
+    printf("%-8s %8d - %-8s %8d - %-8s %8d\n",
+	   "bafore:", size,
+	   "after:", v->size,
+	   "diff:", v->size - size);
 #endif
 }
 
@@ -333,7 +343,7 @@ void gc_sweep_scopes(vector_t * v) {
     scope_t *tmp;
     int i;
 
-#if DEBUG_GC == DBG_ON
+#if DEBUG_GC == DEBUG_ON
     int size = v->size;
 
     if (DEBUG_FULL) {
@@ -359,16 +369,16 @@ void gc_sweep_scopes(vector_t * v) {
 
     vector_compact(v);
 
-#if DEBUG_GC == DBG_ON
+#if DEBUG_GC == DEBUG_ON
     if (DEBUG_FULL) {
 	puts("\n -*- final scopes stack -*- ");
 	vector_print(v);
     }
 
-    printf("%-8s: %4d - %-8s: %4d - %-8s: %4d\n",
-	   "previous", size,
-	   "current", v->size,
-	   "diff", v->size - size);
+    printf("%-8s %8d - %-8s %8d - %-8s %8d\n",
+	   "bafore:", size,
+	   "after:", v->size,
+	   "diff:", v->size - size);
 #endif
 }
 

@@ -16,22 +16,6 @@
 #  include "main.h"
 
 /**
- * @brief maximum size of the Garbage Collector's stack
- */
-#  define GC_STACK_LIMIT_SIZE	(2 << 15)
-
-/**
- * @brief a number ranging between 1 and 10 indicating the frequency of
- * the process of garbage collection
- */
-#  define GC_FREQUENCY		 (4)
-
-/**
- * @brief a value that we would execute the garbage collector after
- */
-#  define GC_RATIO		(GC_STACK_LIMIT_SIZE / GC_FREQUENCY)
-
-/**
  *  @brief information about the garbage collection
  */
 typedef struct GC_INFO {
@@ -48,7 +32,8 @@ typedef struct GC_INFO {
 
 void gc_init(void);
 void gc_clean(void);
-void gc_collect(bool final);
+void gc_collect(bool iscleanup);
+void gc_log(bool iscleanup);
 long gc_allocated_size(void);
 
 sexpr_t *gc_alloc_sexpr(void);

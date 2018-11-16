@@ -36,7 +36,7 @@ sexpr_t *parse_sexpr(vector_t * tokens) {
     token_t *token = NULL;
 
     while ((token = vector_peek(tokens))) {
-#if DEBUG_PARSER == DBG_ON
+#if DEBUG_PARSER == DEBUG_ON
 	puts("current token:");
 	token_print(token);
 	putchar('\n');
@@ -97,7 +97,7 @@ vector_t *parse_sexprs(vector_t * vtokens) {
     vector_t *v = vector_new(NULL, sexpr_print, NULL);
 
     for (i = 0; i < vtokens->size; ++i) {
-#if DEBUG_PARSER == DBG_ON
+#if DEBUG_PARSER == DEBUG_ON
 	puts(" ========== vector of tokens =========== ");
 	vector_print(vector_get(vtokens, i));
 	puts(" ========== ================ =========== ");
@@ -105,7 +105,7 @@ vector_t *parse_sexprs(vector_t * vtokens) {
 #endif
 	    vector_push(v, parse_sexpr(vector_get(vtokens, i)));
 
-#if DEBUG_PARSER == DBG_ON
+#if DEBUG_PARSER == DEBUG_ON
 	printf("parsed sexpr: ");
 	sexpr_print(tmp);
 #endif
@@ -122,12 +122,12 @@ sexpr_t *parse_as_list(vector_t * tokens) {
     token_t *token = NULL;
     bool isfirstloop = true;
 
-#if DEBUG_PARSER == DBG_ON
+#if DEBUG_PARSER == DEBUG_ON
     puts("list starting");
 #endif
 
     while ((token = vector_peek(tokens))) {
-#if DEBUG_PARSER == DBG_ON
+#if DEBUG_PARSER == DEBUG_ON
 	puts("current token:");
 	token_print(token);
 	putchar('\n');
@@ -162,7 +162,7 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 
 	default:
 
-#if DEBUG_PARSER == DBG_ON
+#if DEBUG_PARSER == DEBUG_ON
 	    puts("UNKNOWN SYMBOL");
 #endif
 	    return NULL;	/* this would cause problems */
@@ -182,7 +182,7 @@ sexpr_t *parse_as_list(vector_t * tokens) {
 	isfirstloop = false;
     }
 
-#if DEBUG_PARSER == DBG_ON
+#if DEBUG_PARSER == DEBUG_ON
     sexpr_print(head);
     puts("list ending\n--------------\n");
 #endif
@@ -226,7 +226,7 @@ sexpr_t *parse_as_quote(vector_t * tokens) {
 
     value = cons(quote, cons(value, sexpr_nil()));
 
-#if DEBUG_PARSER == DBG_ON
+#if DEBUG_PARSER == DEBUG_ON
     sexpr_print(value);
 #endif
 

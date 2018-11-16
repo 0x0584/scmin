@@ -25,50 +25,50 @@
 /**
  * @brief debugging is ON
  */
-#  define DBG_ON	(0)
+#  define DEBUG_ON		(0)
 
 /**
  * @brief debugging is OFF
  */
-#  define DBG_OFF	(1)
+#  define DEBUG_OFF		(1)
 
-#  define DEBUG_FULL		DBG_ON
+#  define DEBUG_FULL		DEBUG_ON
 
 /**
  * @brief garbage collector debugging information
  * @see gc.c
  */
-#  define DEBUG_GC		DBG_ON
+#  define DEBUG_GC		DEBUG_ON
 
 /**
  * @brief vector debugging information
  * @see vector.c
  */
-#  define DEBUG_VECTOR		DBG_OFF
+#  define DEBUG_VECTOR		DEBUG_OFF
 
 /**
  * @brief lexer debugging information
  * @see lexer.c
  */
-#  define DEBUG_LEXER		DBG_ON
+#  define DEBUG_LEXER		DEBUG_ON
 
 /**
  * @brief parser debugging information
  * @see parser.c
  */
-#  define DEBUG_PARSER		DBG_OFF
+#  define DEBUG_PARSER		DEBUG_OFF
 
 /**
  * @brief eval debugging information
  * @see eval.c
  */
-#  define DEBUG_EVALUATOR	DBG_ON
+#  define DEBUG_EVALUATOR	DEBUG_OFF
 
 /**
  * @brief repl debugging information
  * @see repl.c
  */
-#  define DEBUG_REPL		DBG_OFF
+#  define DEBUG_REPL		DEBUG_OFF
 
 /**
  * @brief the interpreter's standard Scheme/Lisp library

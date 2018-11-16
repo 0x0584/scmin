@@ -40,6 +40,7 @@ void scmin_init(void) {
 
     gc_setmark_scope(get_global_scope(), true);
     gc_collect(true);
+    gc_log(true);
 }
 
 int main(int argc, char **argv) {

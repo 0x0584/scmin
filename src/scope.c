@@ -226,6 +226,9 @@ void scope_describe(object_t o) {
 }
 
 void setglobal(sexpr_t * sexpr, bool isglobal) {
+    if (sexpr == NULL)
+	return;
+
     sexpr->gci.isglobal = isglobal;
 
     if (ispair(sexpr)) {

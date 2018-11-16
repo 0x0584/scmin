@@ -95,7 +95,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     /* ==================== ==================== ==================== */
 
-#if DEBUG_EVALUATOR == DBG_ON
+#if DEBUG_EVALUATOR == DEBUG_ON
     puts("================ eval start ================");
     sexpr_print(expr), putchar('\n');
     puts("============================================");
@@ -110,7 +110,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     /* ==================== ==================== ==================== */
 
-#if DEBUG_EVALUATOR == DBG_ON
+#if DEBUG_EVALUATOR == DEBUG_ON
     puts(result ? "we have a result" : "there is no result");
     sexpr_print(result), putchar('\n');
 #endif
@@ -120,15 +120,12 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     op = eval_sexpr(scope, car(expr));
 
-    sexpr_print(op), putchar('\n');
-
     err_raise(ERR_OP_NOT_FOUND, !islambda(op));
 
     if (err_log())
 	goto FAILED;		/* no operator was found */
 
-
-#if DEBUG_EVALUATOR == DBG_ON
+#if DEBUG_EVALUATOR == DEBUG_ON
     puts(op ? "we have an operator " : "there is no operator");
     sexpr_print(op), putchar('\n');
     puts("============== collecting args ==============");
@@ -151,7 +148,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	tail = bar;
     }
 
-#if DEBUG_EVALUATOR == DBG_ON
+#if DEBUG_EVALUATOR == DEBUG_ON
     puts("============================================");
     printf("args: ");
     sexpr_print(args), putchar('\n');
@@ -170,24 +167,28 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	if (err_log())
 	    goto FAILED;
 
-	puts("here");
 	scope_t *child = scope_init(scope);
 
 	bind_lambda_args(child, op->l, args);
 	result = eval_sexpr(child, op->l->body);
     }
 
+  RET:
+
     err_raise(ERR_RSLT_NULL, !result);
 
-#if DEBUG_EVALUATOR == DBG_ON
+    if (err_log())
+	goto FAILED;
+
+#if DEBUG_EVALUATOR == DEBUG_ON
     puts("final result: ");
     sexpr_print(result), putchar('\n');
 #endif
 
-  RET:
     return result;
 
   FAILED:
+
     return NULL;
 }
 
@@ -208,13 +209,13 @@ vector_t *eval_sexprs(vector_t * sexprs) {
     int i;
 
     for (i = 0; i < sexprs->size; ++i) {
-#if DEBUG_EVALUATOR == DBG_ON
+#if DEBUG_EVALUATOR == DEBUG_ON
 	/* sexpr_print(vector_get(sexprs, i)); */
 #endif
 	tmp = eval_sexpr(gs, vector_get(sexprs, i));
 	tmp = vector_push(v, tmp);
 
-#if DEBUG_EVALUATOR == DBG_ON
+#if DEBUG_EVALUATOR == DEBUG_ON
 	printf(" > "), sexpr_print(tmp), putchar('\n');
 #endif
     }
