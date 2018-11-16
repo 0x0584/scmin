@@ -62,6 +62,32 @@ void gc_clean(void) {
     vector_free(error_log);
 }
 
+long gc_allocated_scopes_size() {
+    long scopes_size = (gc_allocd_scopes->size * sizeof(scope_t));
+    int i;
+
+    for (i = 0; i < gc_allocd_scopes->size; ++i) {
+	scope_t *s = vector_get(gc_allocd_scopes, i);
+	scopes_size += (s->bonds->size * sizeof(bond_t));
+    }
+
+    return scopes_size;
+}
+
+/**
+ * @brief returns the size of currently allocated memory in Bytes
+ *
+ * @details sum of all bytes allocated by the global vectors
+ *
+ * @return size of allocated memory by the GC
+ */
+long gc_allocated_size(void) {
+
+    return (gc_allocd_sexprs->size * sizeof(sexpr_t))
+	+ gc_allocated_scopes_size()
+	+ (gc_allocd_lambdas->size * sizeof(lambda_t));
+}
+
 void gc_sweep_log(int a, int b) {
 printf("%-8s %8d - %-8s %8d - %-8s %8d\n",
 	   "before:", a, "after:", b, "diff:", b - a);
@@ -75,25 +101,12 @@ void gc_log(bool iscleanup) {
 	   "lambdas:", gc_allocd_lambdas->size,
 	   "sexprs:",  gc_allocd_sexprs->size);
     printf("%15ld B - %15ld B - %15ld B\nstack size: %13ld B - limit size: %13ld B\n",
-	   gc_allocd_scopes->size * sizeof(scope_t),
+	   gc_allocated_scopes_size(),
 	   gc_allocd_lambdas->size * sizeof(lambda_t),
 	   gc_allocd_sexprs->size * sizeof(sexpr_t),
 	   gc_allocated_size(),
 	   gc_stack_limit);
     puts("=========================================================");
-}
-
-/**
- * @brief returns the size of currently allocated memory in Bytes
- *
- * @details sum of all bytes allocated by the global vectors
- *
- * @return size of allocated memory by the GC
- */
-long gc_allocated_size(void) {
-    return (gc_allocd_sexprs->size * sizeof(sexpr_t))
-	+ (gc_allocd_scopes->size * sizeof(scope_t))
-	+ (gc_allocd_lambdas->size * sizeof(lambda_t));
 }
 
 /**

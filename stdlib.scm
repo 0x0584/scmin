@@ -46,10 +46,11 @@
 
 (let ((foo '+))
   (let ((+ *))
-    (evaluate (list foo 2 3))))
+    (eval (list foo 2 3))))
 
-(define let-loop '(let loop ((n 1))
-		    (if (> n 10)
-			'()
-			(cons n
-			      (loop (+ n 1))))))
+(define let-loop (lambda (init size inc)
+		   (let loop ((n init))
+		     (if (> n size)
+			 '()
+			 (cons n
+			       (loop (+ n inc)))))))

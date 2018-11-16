@@ -465,8 +465,6 @@ sexpr_t *eval_let(scope_t * scope, sexpr_t * expr) {
 
     tmp = labeled ? cadr(expr) : car(expr);
 
-    sexpr_print(cadr(expr)), putchar('\n');
-
     while (!isnil(tmp)) {
 	sexpr_t *arg = caar(tmp), *param = cadar(tmp);
 
@@ -496,8 +494,6 @@ sexpr_t *eval_let(scope_t * scope, sexpr_t * expr) {
     scope_t *child = scope_init(scope);
     scope_push_bond(child, bond_new(labeled ? label->s: "let-lambda",
 				    lambda));
-    sexpr_print(let), putchar('\n');
-    sexpr_print(lambda), putchar('\n');
 
     return eval_sexpr(child, let);
 }
