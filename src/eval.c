@@ -443,21 +443,31 @@ sexpr_t *eval_eval(scope_t * scope, sexpr_t * expr) {
  * @return a s-expression evaluation of a let s-expression
  *
  * @see lambda.h
- * @note let is defined as: `(let ((arg param) ...) body)`
+ * @note let is defined as: `(let [label] ((arg param) ...) body)`
+ * @note is label is not specified, let-lambda is used instead and can
+ * be used to call the let-lambda recursively same as if label was
+ * specified
  */
 sexpr_t *eval_let(scope_t * scope, sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
-    err_raise(ERR_ARG_TYPE, !islist(car(expr)));	/* ((arg param) ...) */
+    sexpr_t *label = car(expr);	/* let could possibly has label */
+    bool labeled = issymbol(label);
+
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) < 2);
+    err_raise(ERR_ARG_TYPE, !islist(label) && !labeled);
 
     if (err_log())
 	return sexpr_err();
 
-#define CONS(expr) cons((expr), sexpr_nil())	/* turn expr into (expr) */
+#define CONS(sexpr) cons((sexpr), sexpr_nil())	/* turn expr into (expr) */
 
-    sexpr_t *let = CONS(sexpr_symbol("let-lambda"));
+    sexpr_t *let = CONS(labeled ? label : sexpr_symbol("let-lambda"));
     sexpr_t *args = NULL, *tmp = NULL, *tail = NULL;
 
-    for (tmp = car(expr); !isnil(tmp); tmp = cdr(tmp)) {
+    tmp = labeled ? cadr(expr) : car(expr);
+
+    sexpr_print(cadr(expr)), putchar('\n');
+
+    while (!isnil(tmp)) {
 	sexpr_t *arg = caar(tmp), *param = cadar(tmp);
 
 	err_raise(ERR_ARG_TYPE, !islist(car(tmp)));	/* (arg param) */
@@ -466,6 +476,10 @@ sexpr_t *eval_let(scope_t * scope, sexpr_t * expr) {
 	if (err_log())
 	    return sexpr_err();
 
+	/* appending the params to the whole let-lambda
+	 * so that it would look like: (let-lambda param ...) */
+	set_cdr(let, CONS(param));
+
 	/* collecting let-lambda args
 	 * which are the arg in (let ((arg param) ...) body) */
 	if (!args)
@@ -473,25 +487,17 @@ sexpr_t *eval_let(scope_t * scope, sexpr_t * expr) {
 	else
 	    set_cdr(tail, CONS(arg));
 
-	tail = args;
-
-	/* appending the params to the whole let-lambda
-	 * so that it would look like: (let-lambda param ...) */
-	set_cdr(let, CONS(param));
+	tail = args, tmp = cdr(tmp);
     }
 
 #undef CONS
 
-    sexpr_t *lambda = lambda_new(args, cadr(expr)); /* cadr() -> body */
+    sexpr_t *lambda = lambda_new(args, labeled ? caddr(expr) : cadr(expr));
     scope_t *child = scope_init(scope);
-    scope_push_bond(child, bond_new("let-lambda", lambda));
-
-    /* puts("------------"); */
-    /* printf("%s: ", "args"); sexpr_print(args), putchar('\n'); */
-    /* printf("%s: ", "body"); sexpr_print(cadr(expr)), putchar('\n'); */
-    /* printf("%s: ", "let"); sexpr_print(let), putchar('\n'); */
-    /* printf("%s: ", "lambda"); sexpr_print(lambda), putchar('\n'); */
-    /* puts("------------"); */
+    scope_push_bond(child, bond_new(labeled ? label->s: "let-lambda",
+				    lambda));
+    sexpr_print(let), putchar('\n');
+    sexpr_print(lambda), putchar('\n');
 
     return eval_sexpr(child, let);
 }

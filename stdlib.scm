@@ -18,7 +18,7 @@
 (define cube (lambda (x) (* x (square x))))
 (define half (lambda (x) (/ x 2)))
 
-(define not (lambda (x) (if (nil? x) t nil)))
+(define not (lambda (x) (nil? x)))
 (define pair? (lambda (x) (not (nil? (cdr x)))))
 
 (define map (lambda (callback lis)
@@ -43,3 +43,13 @@
 	      (square x))))
 
 ((lambda (n) (+ n n)) 7)
+
+(let ((foo '+))
+  (let ((+ *))
+    (evaluate (list foo 2 3))))
+
+(define let-loop '(let loop ((n 1))
+		    (if (> n 10)
+			'()
+			(cons n
+			      (loop (+ n 1))))))
