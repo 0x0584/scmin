@@ -283,10 +283,12 @@ sexpr_t *native_cdr(sexpr_t * expr) {
 
 sexpr_t *native_set_car(sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
-    err_raise(ERR_ARG_TYPE, !ispair(car(expr)));
 
     if (err_log())
 	return sexpr_err();
+
+    if (!ispair(car(expr)))
+	return sexpr_nil();
 
     set_car(car(expr), cadr(expr));
 
@@ -295,12 +297,14 @@ sexpr_t *native_set_car(sexpr_t * expr) {
 
 sexpr_t *native_set_cdr(sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
-    err_raise(ERR_ARG_TYPE, !ispair(car(expr)));
 
     if (err_log())
 	return sexpr_err();
 
-    set_cdr(car(expr), cdr(expr));
+    if (!ispair(car(expr)))
+	return sexpr_nil();
+
+    set_cdr(car(expr), cadr(expr));
 
     return sexpr_true();
 }

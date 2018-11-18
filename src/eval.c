@@ -543,7 +543,7 @@ sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
      * (let ((x a)) (let ((b a)) (let ((c b)) body)))).
      */
 
-    puts("//////////"), sexpr_print(expr), puts("");
+    /* puts("//////////"), sexpr_print(expr), puts(""); */
 
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) < 1);
     err_raise(ERR_ARG_TYPE, (!islist(car(expr))
@@ -556,10 +556,10 @@ sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
     sexpr_t *bindings = labeled ? cadr(expr) : car(expr),
 	*symbol = labeled ? car(expr) : sexpr_symbol("let-lambda");
 
-    sexpr_print(bindings), puts("0");
-    sexpr_print(car(bindings)), puts("1");
-    sexpr_print(cdr(bindings)), puts("2");
-    sexpr_print(cadr(bindings)), puts("3");
+    /* sexpr_print(bindings), puts("0"); */
+    /* sexpr_print(car(bindings)), puts("1"); */
+    /* sexpr_print(cdr(bindings)), puts("2"); */
+    /* sexpr_print(cadr(bindings)), puts("3"); */
 
     /*
      * getting bindings
@@ -573,22 +573,22 @@ sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
 	? CONS(cons(symbol, CONS(car(bindings)))) : CONS(CONS(car(bindings))),
 	*body = CONS(labeled ? caddr(expr) : cadr(expr));
 
-    sexpr_print(let_asterisk), puts("4");
-    sexpr_print(body), puts("5");
+    /* sexpr_print(let_asterisk), puts("4"); */
+    /* sexpr_print(body), puts("5"); */
 
     if (!cadr(bindings)) {
 	/* set the body as cdr */
 	set_cdr(let_asterisk, body);
    } else {
 	sexpr_t * foo = cons(cdr(bindings), body);
-	sexpr_print(foo), puts("foo");
+	/* sexpr_print(foo), puts("foo"); */
 	sexpr_t* evaled = eval_let_asterisk(scope, foo);
 
-	sexpr_print(evaled), puts("evaled");
+	/* sexpr_print(evaled), puts("evaled"); */
 	set_cdr(let_asterisk, cons(evaled, body));
     }
 
-    sexpr_print(let_asterisk), puts("6");
+    /* sexpr_print(let_asterisk), puts("6"); */
 
     return eval_let(scope, let_asterisk);
 }

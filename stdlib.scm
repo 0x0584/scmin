@@ -3,66 +3,97 @@
 ;; does not need to be implemented in pure C, instead, it makes
 ;; real sense to be written in Scheme/Lisp
 
-(define caar (lambda (foo) (car (car foo))))
-(define cadr (lambda (foo) (car (cdr foo))))
-(define cdar (lambda (foo) (cdr (car foo))))
-(define cddr (lambda (foo) (cdr (cdr foo))))
-
+(define caar  (lambda (foo) (car (car foo))))
+(define cadr  (lambda (foo) (car (cdr foo))))
+(define cdar  (lambda (foo) (cdr (car foo))))
+(define cddr  (lambda (foo) (cdr (cdr foo))))
 (define caddr (lambda (foo) (car (cddr foo))))
-(define cddar (lambda (foo) (cddr (car foo))))
-
+(define cddar (lambda (foo) (cdr (cdar foo))))
 (define caadr (lambda (foo) (car (cadr foo))))
 (define cdaar (lambda (foo) (cdr (caar foo))))
-
+
 (define square (lambda (x) (* x x)))
-(define cube (lambda (x) (* x (square x))))
-(define half (lambda (x) (/ x 2)))
 
 (define not (lambda (x) (nil? x)))
 (define pair? (lambda (x) (not (nil? (cdr x)))))
+(define cube (lambda (x) (* x (square x))))
+(define half (lambda (x) (/ x 2)))
+
+(define fib
+  (lambda (n)
+    (if (= n 0)
+	1 (if (= n 1)
+	      1 (+ (fib (- n 2))
+		   (fib (- n 1)))))))
+
+(define fact
+  (lambda (n)
+    (if (<= n 1)
+	1 (* n (fact (- n 1))))))
+
+(define map
+  (lambda (callback lst)
+    (if (nil? lst)
+	'()
+	(cons (callback (car lst))
+	      (map callback (cdr lst))))))
+
+(define in
+  (lambda (lst foo)
+    (let loop ((res '()) (current lst))
+      (if (not (list? current))
+	  res
+	  (if (eq? (car current) foo)
+	      (set res t)
+	      (loop res (cdr current)))) res)))
 
-(define map (lambda (callback lis)
-	      (if (nil? lis)
-		  '()
-		  (cons (callback (car lis))
-			(map callback (cdr lis))))))
+;; used in testings
 
-(define in-list (lambda (lst foo)
-		  (let loop ((res '()) (current lst))
-		    (if (not (list? current))
-			res
-			(if (eq? (car current) foo)
-			    (set res t)
-			    (loop res (cdr current)))) res)))
-(define fib (lambda (n)
-	      (if (= n 0)
-		  1 (if (= n 1)
-			1 (+ (fib (- n 2)) (fib (- n 1)))))))
+(define add-five
+  (lambda (a)
+    (+ a 7)))	; not really
 
-(define fact (lambda (n)
-	       (if (<= n 1)
-		   1 (* n (fact (- n 1))))))
+(define f
+  (lambda (n)
+    (let ((x (add-five n)))
+      (square x))))
 
-;; test
-(define add-five (lambda (a) (+ a 7)))	; not really
-
-(define f (lambda (n)
-	    (let ((x (add-five n)))
-	      (square x))))
-
-((lambda (n) (+ n n)) 7)
+((lambda (n)
+   (+ n n)) 7)
 
 (let ((foo '+))
   (let ((+ *))
     (eval (list foo 2 3))))
 
-(define let-loop (lambda (init size inc)
-		   (let loop ((n init))
-		     (if (> n size)
-			 '()
-			 (cons n
-			       (loop (+ n inc)))))))
-(let ((a '())) (let ((b 4) (c 5)) (list a b c)))
+(define let-loop
+  (lambda (init size inc)
+    (let loop ((n init))
+      (if (> n size)
+	  '()
+	  (cons n
+		(loop (+ n inc)))))))
+(let ((a '()))
+  (let ((b 4) (c 5))
+    (list a b c)))
 
+;; testings
+(let* ((x 3) (y x))
+  y)
 
-(let* ((x 3) (y x)) y)
+(define append
+  (lambda (lst foo)
+      (if (nil? (cdr lst))
+	  (set-cdr lst foo)
+	  (append (cdr lst) foo))))
+
+(define append-to
+  (lambda (lst foo)
+      (if (nil? (cdr lst))
+	  (set-cdr lst (cons foo '()))
+	  (append-to (cdr lst) foo))))
+
+(define x '(1 2 3))
+(append-to x 7)
+(print x)
+
+;; (append-to '(1 2 3) 7)

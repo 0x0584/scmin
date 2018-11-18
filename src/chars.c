@@ -50,12 +50,12 @@ char stream_string(const string_t str, bool isget) {
 
 	return oldstr[index++];	/* move the index to the next character */
     } else {			/* ungetnc() stream backward */
-	if (index > 0)
-	    return oldstr[index--];
-	else if (index == 0)
-	    return oldstr[index];
-	else
+	if (oldstr == NULL)
 	    return EOF;		/* not reachable */
+	else if (index > 0)
+	    return oldstr[index--];
+	else
+	    return oldstr[index];
     }
 }
 
