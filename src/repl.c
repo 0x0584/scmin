@@ -12,12 +12,9 @@
  * @see lexer.c
  * @see parser.c
  * @see eval.c
- *
- * @todo stop the loop after hitting ^D not RETURN after finishing
- * the debugging process
  */
 
-#include "characters.h"
+#include "chars.h"
 #include "vector.h"
 #include "scope.h"
 

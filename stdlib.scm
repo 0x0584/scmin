@@ -13,20 +13,27 @@
 
 (define caadr (lambda (foo) (car (cadr foo))))
 (define cdaar (lambda (foo) (cdr (caar foo))))
-
+
 (define square (lambda (x) (* x x)))
 (define cube (lambda (x) (* x (square x))))
 (define half (lambda (x) (/ x 2)))
 
 (define not (lambda (x) (nil? x)))
 (define pair? (lambda (x) (not (nil? (cdr x)))))
-
+
 (define map (lambda (callback lis)
 	      (if (nil? lis)
 		  '()
 		  (cons (callback (car lis))
 			(map callback (cdr lis))))))
 
+(define in-list (lambda (lst foo)
+		  (let loop ((res '()) (current lst))
+		    (if (not (list? current))
+			res
+			(if (eq? (car current) foo)
+			    (set res t)
+			    (loop res (cdr current)))) res)))
 (define fib (lambda (n)
 	      (if (= n 0)
 		  1 (if (= n 1)
@@ -36,6 +43,7 @@
 	       (if (<= n 1)
 		   1 (* n (fact (- n 1))))))
 
+;; test
 (define add-five (lambda (a) (+ a 7)))	; not really
 
 (define f (lambda (n)
@@ -54,3 +62,7 @@
 			 '()
 			 (cons n
 			       (loop (+ n inc)))))))
+(let ((a '())) (let ((b 4) (c 5)) (list a b c)))
+
+
+(let* ((x 3) (y x)) y)

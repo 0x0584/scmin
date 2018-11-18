@@ -64,7 +64,7 @@ void bond_describe(object_t b);
 bool isbonded(scope_t *s,sexpr_t *);
 bond_t *resolve_bond(scope_t * s, sexpr_t * expr);
 void bind_lambda_args(scope_t *s,lambda_t *l, sexpr_t *args);
-bool isreserved(sexpr_t *expr);
+bool isreserved(scope_t *scope, sexpr_t *expr);
 
 scope_t *scope_init(scope_t * parent);
 void scope_describe(object_t s);

@@ -2,7 +2,7 @@
 #  define _SCMIN_CHARACTERS_H
 
 /**
- * @file characters.h
+ * @file chars.h
  *
  * @brief definitions of functions to handle string
  *

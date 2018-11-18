@@ -22,7 +22,11 @@
 
 #include "pair.h"
 #include "vector.h"
-#include "characters.h"
+#include "chars.h"
+
+#ifndef CONS
+#  define CONS(sexpr) cons((sexpr), sexpr_nil())
+#endif
 
 /**
  * @brief static array of predefined Scheme keywords
@@ -35,8 +39,10 @@ static keyword_t kwd[] = {
     {"set", eval_set},
     {"setq", eval_setq},
     {"let", eval_let},
+    {"let*", eval_let_asterisk},
     {"if", eval_if},
     {"lambda", eval_lambda},
+
     {NULL, NULL}
 };
 
@@ -78,10 +84,8 @@ static keyword_t kwd[] = {
  *
  * @return the evaluated s-expression
  *
- * @see #SYMBOLIC_EXPRESSION_TYPE
- * @see #LAMBDA_EXPRESSION
- * @see #NATIVE_EXPRESSION
- * @see scope.c
+ * @see sexpr.h
+ * @see scope.h
  *
  * @note this function may call itself recursively
  */
@@ -286,7 +290,7 @@ sexpr_t *eval_quote(scope_t * scope, sexpr_t * expr) {
 sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
     err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
-    err_raise(ERR_MDFY_RSRVD, isreserved(car(expr)));
+    err_raise(ERR_MDFY_RSRVD, isreserved(scope, car(expr)));
 
     if (err_log())
 	return sexpr_err();
@@ -364,7 +368,6 @@ sexpr_t *eval_lambda(scope_t * scope, sexpr_t * expr) {
 sexpr_t *eval_setq_or_set(scope_t * scope, sexpr_t * expr, bool quoted) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
     err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
-    err_raise(ERR_MDFY_RSRVD, isreserved(car(expr)));
 
     if (err_log())
 	return sexpr_err();
@@ -430,7 +433,7 @@ sexpr_t *eval_eval(scope_t * scope, sexpr_t * expr) {
 /**
  * @brief define temporary symbols to be used in the next s-expression(s)
  *
- * the let operator let us define temporary symbol which is really handy
+ * the `let` operator let us define temporary symbol which is really handy
  * when writing lambdas or other s-expressions.
  *
  * for example `(let ((x foo) (y bar)) body)` with Lisp magic is equivalent
@@ -449,22 +452,22 @@ sexpr_t *eval_eval(scope_t * scope, sexpr_t * expr) {
  * specified
  */
 sexpr_t *eval_let(scope_t * scope, sexpr_t * expr) {
-    sexpr_t *label = car(expr);	/* let could possibly has label */
-    bool labeled = issymbol(label);
-
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) < 2);
-    err_raise(ERR_ARG_TYPE, !islist(label) && !labeled);
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) < 1);
+    err_raise(ERR_ARG_TYPE, !islist(car(expr)) && !issymbol(car(expr)));
 
     if (err_log())
 	return sexpr_err();
 
-#define CONS(sexpr) cons((sexpr), sexpr_nil())	/* turn expr into (expr) */
+    bool labeled = issymbol(car(expr));
 
-    sexpr_t *let = CONS(labeled ? label : sexpr_symbol("let-lambda"));
-    sexpr_t *args = NULL, *tmp = NULL, *tail = NULL;
+    sexpr_t *args = NULL, *atail = NULL;
+    sexpr_t *params = NULL, *ptail = NULL;
 
-    tmp = labeled ? cadr(expr) : car(expr);
-
+    sexpr_t *tmp = labeled ? cadr(expr) : car(expr),
+	*symbol = labeled ? car(expr) : sexpr_symbol("let-lambda"),
+	*body = labeled ? caddr(expr) : cadr(expr),
+	*let = cons(symbol, sexpr_nil());
+
     while (!isnil(tmp)) {
 	sexpr_t *arg = caar(tmp), *param = cadar(tmp);
 
@@ -474,26 +477,121 @@ sexpr_t *eval_let(scope_t * scope, sexpr_t * expr) {
 	if (err_log())
 	    return sexpr_err();
 
+	/* TODO: create that fucking sexpr_append() */
+	/* create that straming application */
+
 	/* appending the params to the whole let-lambda
 	 * so that it would look like: (let-lambda param ...) */
-	set_cdr(let, CONS(param));
+	if (!params)
+	    params = CONS(param);
+	else
+	    set_cdr(ptail, CONS(param));
 
 	/* collecting let-lambda args
 	 * which are the arg in (let ((arg param) ...) body) */
 	if (!args)
 	    args = CONS(arg);
 	else
-	    set_cdr(tail, CONS(arg));
+	    set_cdr(atail, CONS(arg));
 
-	tail = args, tmp = cdr(tmp);
+	atail = args, ptail = params, tmp = cdr(tmp);
     }
 
-#undef CONS
-
-    sexpr_t *lambda = lambda_new(args, labeled ? caddr(expr) : cadr(expr));
     scope_t *child = scope_init(scope);
-    scope_push_bond(child, bond_new(labeled ? label->s: "let-lambda",
-				    lambda));
+    scope_push_bond(child, bond_new(symbol->s, lambda_new(args, body)));
+    set_cdr(let, params);
 
     return eval_sexpr(child, let);
 }
+
+/**
+ * @brief define temporary symbols related to be used in the next
+ * s-expression(s)
+ *
+ * the `let*` operator is like normal let but we can define symbols that
+ * call each other except of the root symbol.
+ *
+ * for example `(let* ((x foo) (y (symbol? x))) body)` and again with
+ * some help of Lisp magic is equivalent to something close to normal
+ * let `(let ((x foo)) (let ((y symbol? x)) body))`.
+ *
+ * the main idea behind `let*` is to call let for each bonded symbol
+ *
+ * @param scope a scope
+ * @param expr the expression to evaluate
+ *
+ * @return a s-expression evaluation of a let s-expression
+ *
+ * @see lambda.h
+ * @see eval_let()
+ * @note let* is defined as: `(let* [label] ((arg param) ...) body)`
+ * @note bindings cannot refer to other binding in upper levels.
+ * e.g. `(let* ((x y) (y 10)) body)` is not correct
+ */
+sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
+
+    /* FIXME: find a way to create let for each argument
+     *
+     * the idea is to collect evaluated versions
+     *
+     * (let* ((x a) (b a) (c b)) body)
+     *		      V
+     * (let ((x a)) (let* ((b a) (c b)) body))
+     *		      V
+     * (let ((x a)) (let ((b a)) (let ((c b)) body)))
+     *		      V
+     * (let ((x a)) (let ((b a)) (let ((c b)) body)))).
+     */
+
+    puts("//////////"), sexpr_print(expr), puts("");
+
+    err_raise(ERR_ARG_COUNT, sexpr_length(expr) < 1);
+    err_raise(ERR_ARG_TYPE, (!islist(car(expr))
+			     && !issymbol(car(expr))));
+
+    if (err_log())
+	return sexpr_err();
+
+    bool labeled = issymbol(car(expr));
+    sexpr_t *bindings = labeled ? cadr(expr) : car(expr),
+	*symbol = labeled ? car(expr) : sexpr_symbol("let-lambda");
+
+    sexpr_print(bindings), puts("0");
+    sexpr_print(car(bindings)), puts("1");
+    sexpr_print(cdr(bindings)), puts("2");
+    sexpr_print(cadr(bindings)), puts("3");
+
+    /*
+     * getting bindings
+     */
+    err_raise(ERR_ARG_TYPE, !islist(car(bindings)));
+
+    if (err_log())
+	return sexpr_err();
+
+    sexpr_t *let_asterisk = labeled
+	? CONS(cons(symbol, CONS(car(bindings)))) : CONS(CONS(car(bindings))),
+	*body = CONS(labeled ? caddr(expr) : cadr(expr));
+
+    sexpr_print(let_asterisk), puts("4");
+    sexpr_print(body), puts("5");
+
+    if (!cadr(bindings)) {
+	/* set the body as cdr */
+	set_cdr(let_asterisk, body);
+   } else {
+	sexpr_t * foo = cons(cdr(bindings), body);
+	sexpr_print(foo), puts("foo");
+	sexpr_t* evaled = eval_let_asterisk(scope, foo);
+
+	sexpr_print(evaled), puts("evaled");
+	set_cdr(let_asterisk, cons(evaled, body));
+    }
+
+    sexpr_print(let_asterisk), puts("6");
+
+    return eval_let(scope, let_asterisk);
+}
+
+
+#undef CONS

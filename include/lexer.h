@@ -15,11 +15,11 @@
 
 #  include "main.h"
 #  include "token.h"
-#  include "characters.h"
+#  include "chars.h"
 
 vector_t *read_tokens(string_t code);
 vector_t *read_stream_tokens(const string_t filename);
-token_t *next_token(string_t code);
+token_t *read_next_token(string_t code);
 string_t read_string(string_t code);
 string_t read_number(string_t code);
 string_t read_symbol(string_t code);

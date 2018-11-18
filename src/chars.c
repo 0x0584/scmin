@@ -1,5 +1,5 @@
 /**
- * @file characters.c
+ * @file chars.c
  *
  * @brief contains declarations of useful character handling functionalities.
  *
@@ -8,7 +8,7 @@
  * been on last time.
  */
 
-#include "characters.h"
+#include "chars.h"
 
 /**
  * @brief when it's called, if the same parameter `str` was passed, it

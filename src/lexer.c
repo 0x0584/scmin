@@ -9,7 +9,7 @@
  * read_tokens() it collects after calling file_as_string()
  * to get the actual code.
  *
- * next_token() is used as a stepping function over the possible
+ * read_next_token() is used as a stepping function over the possible
  * tokens in the provided code. if no token is found or or it didn't
  * match the Scheme grammar, it returns an TOK_ERR type of token
  *
@@ -20,13 +20,13 @@
  * @see lexer.h about further documentation for each function
  * @see token.h information about Tokens
  * @see vector.h for information about Vectors
- * @see characters.h for information about getting strings
+ * @see chars.h for information about getting strings
  *
  */
 
 #include "lexer.h"
 
-#include "characters.h"
+#include "chars.h"
 #include "vector.h"
 
 /**
@@ -39,17 +39,12 @@
 vector_t *read_tokens(const string_t src) {
     vector_t *tokens = vector_new(token_free, token_print, NULL);
     token_t *token = NULL;
-    bool islastloop = false, isfirstloop = true;
+    bool islastloop = false;
     string_t code = src;
     int depth = 0;
 
     /* reading the tokens in the code on after the other  */
-    while ((token = next_token(code))) {
-	if (isfirstloop && token->type != TOK_L_PAREN) {
-	    token_free(token);
-	    goto FAILED;
-	}
-
+    while ((token = read_next_token(code))) {
 	switch (token->type) {
 	case TOK_ERR:		/* error while lexing */
 	    err_raise(ERR_TOK_ERR, true);
@@ -78,7 +73,7 @@ vector_t *read_tokens(const string_t src) {
 	if (err_log())
 	    goto FAILED;
 
-	vector_push(tokens, token), isfirstloop = false;
+	vector_push(tokens, token);
 
 	if (islastloop)
 	    break;
@@ -131,7 +126,7 @@ vector_t *read_stream_tokens(const string_t filename) {
  *
  * @note this function modifies the static values in of getnc()
  */
-token_t *next_token(const string_t code) {
+token_t *read_next_token(const string_t code) {
     token_type type;
     string_t vbuffer = NULL;
     bool accept_null = false;

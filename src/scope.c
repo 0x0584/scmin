@@ -170,11 +170,36 @@ void bind_lambda_args(scope_t * scope, lambda_t * l, sexpr_t * args) {
     }
 }
 
-bool isreserved(sexpr_t *expr) {
+bool isreserved(scope_t *scope, sexpr_t *expr) {
     if (isnumber(expr) || isstring(expr))
 	return true;
 
-    /* TODO: check bonds too after fixing undef */
+    err_raise(ERR_ARG_TYPE, !issymbol(expr));
+
+    if (err_log())
+	return true;
+
+    string_t keyword[] = {
+	"quote", "eval",
+	"define", "undef",
+	"set", "setq",
+	"let", "let*",
+	"if", "lambda",
+	NULL
+    };
+
+    int i;
+
+    for (i = 0; keyword[i]; ++i) {
+	if (!strcmp(keyword[i], expr->s))
+	    return true;
+    }
+
+    for (i = 0; i < scope->bonds->size; ++i) {
+	bond_t *b = vector_get(scope->bonds, i);
+	if (!strcmp(b->symbol, expr->s))
+	    return true;
+    }
 
     return false;
 }

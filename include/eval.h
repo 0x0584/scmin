@@ -59,6 +59,7 @@ sexpr_t *eval_setq(scope_t * scope, sexpr_t * expr);
 sexpr_t *eval_undef(scope_t * scope, sexpr_t * expr);
 sexpr_t *eval_eval(scope_t * scope, sexpr_t * expr);
 sexpr_t *eval_let(scope_t * scope, sexpr_t * expr);
+sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr);
 
 void eval_testing();
 #endif				/* _SCMIN_EVAL_H */

@@ -5,11 +5,11 @@
  *
  * @see lexer.h
  * @see token.h
- * @see characters.h
+ * @see chars.h
  */
 
 #include "token.h"
-#include "characters.h"
+#include "chars.h"
 
 /**
  * @brief predicts the type of a token
@@ -18,7 +18,7 @@
  *
  * @return a token type
  *
- * @see characters.h
+ * @see chars.h
  */
 token_type predict_token_type(string_t code) {
     token_type type = TOK_ERR;

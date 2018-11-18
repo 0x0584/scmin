@@ -25,14 +25,14 @@
 /**
  * @brief debugging is ON
  */
-#  define DEBUG_ON		(0)
+#  define DEBUG_ON		(1)
 
 /**
  * @brief debugging is OFF
  */
-#  define DEBUG_OFF		(1)
+#  define DEBUG_OFF		(0)
 
-#  define DEBUG_FULL		DEBUG_ON
+#  define DEBUG_FULL		DEBUG_OFF
 
 /**
  * @brief garbage collector debugging information
@@ -50,7 +50,7 @@
  * @brief lexer debugging information
  * @see lexer.c
  */
-#  define DEBUG_LEXER		DEBUG_ON
+#  define DEBUG_LEXER		DEBUG_OFF
 
 /**
  * @brief parser debugging information
@@ -62,7 +62,7 @@
  * @brief eval debugging information
  * @see eval.c
  */
-#  define DEBUG_EVALUATOR	DEBUG_OFF
+#  define DEBUG_EVALUATOR	DEBUG_ON
 
 /**
  * @brief repl debugging information
@@ -112,7 +112,7 @@ typedef enum SCHEME_ERROR {
     /**
      * @brief unexpected END OF FILE occurred
      * @see lexer.c
-     * @see characters.c
+     * @see chars.c
      */
     ERR_EOF_ERR,
 
@@ -180,7 +180,7 @@ typedef enum SCHEME_ERROR {
 
     /**
      * @brief could not open the file stream
-     * @see characters.c
+     * @see chars.c
      */
     ERR_FILE_ERR,
 
@@ -211,7 +211,12 @@ typedef struct ERROR {
     /**
      * @brief error message
      */
-    char *errmsg;
+    string_t errmsg;
+
+    /**
+     * @brief condtion raising the error
+     */
+    string_t cond;
 
     /**
      * @brief a defined interpreter errors error
@@ -219,7 +224,19 @@ typedef struct ERROR {
     serror_t err;
 } error_t;
 
-void err_raise(serror_t err, bool cond);
+/**
+ * @brief if `cond` is true, then raise `err`
+ *
+ * `err` should be one of the predefined errors
+ *
+ * @param err the error to raise
+ * @param cond `true` or `false`
+ *
+ * @see #error_log
+ */
+#define err_raise(err, cond) err_raisee(err, (cond), __LINE__, __FILE__, #cond)
+
+void err_raisee(serror_t err, bool cond, int line, string_t file, string_t msg);
 void err_free(object_t o);
 void err_print(object_t o);
 int err_log(void);

@@ -18,6 +18,10 @@
 #include "scope.h"
 #include "pair.h"
 
+/**
+ * @brief limiting the stack size after each cleaning up so that we can
+ * call the GC less often
+ */
 static long gc_stack_limit = 0x0584;
 
 /**
@@ -113,7 +117,7 @@ void gc_log(bool iscleanup) {
  * @brief test whether there is some space left
  *
  * @details this is basically a test if the currently allocated space is
- * less than #GC_RATIO
+ * less than gc_stack_limit
  *
  * @return `true` if there is some space left
  */
