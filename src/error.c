@@ -51,7 +51,8 @@ error_t errs[] = {
     {NULL, NULL, ERR_NO_ERROR}
 };
 
-void err_raisee(serror_t err, bool cond, int line, string_t file, string_t msg) {
+void err_raisee(serror_t err, bool cond, int line, string_t file,
+		string_t msg) {
     int i;
 
     /* initializing the error log */
@@ -123,5 +124,6 @@ void err_print(object_t o) {
 	return;
 
     error_t *r = o;
-    fprintf(stdout, "ERROR%d: %s %s", r->err, r->errmsg, r->cond);
+    fprintf(stdout, "ERROR%d: %s %s", r->err, r->errmsg,
+	    DEBUG_FULL ? r->cond : "");
 }

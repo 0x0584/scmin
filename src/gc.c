@@ -198,8 +198,8 @@ void gc_sweep_sexprs(vector_t * v) {
     int size = v->size;
 
     if (DEBUG_FULL) {
-	puts(" -*- sexprs stack before -*- ");
-	vector_print(v);
+	/* puts(" -*- sexprs stack before -*- "); */
+	/* vector_print(v); */
     }
 #endif
 
@@ -223,8 +223,8 @@ void gc_sweep_sexprs(vector_t * v) {
 
 #if DEBUG_GC == DEBUG_ON
     if (DEBUG_FULL) {
-	puts("\n -*- final sexprs stack -*- ");
-	vector_print(v);
+	/* puts("\n -*- final sexprs stack -*- "); */
+	/* vector_print(v); */
     }
 
     gc_sweep_log(size, v->size);
@@ -278,8 +278,8 @@ void gc_sweep_lambdas(vector_t * v) {
     int size = v->size;
 
     if (DEBUG_FULL) {
-	puts(" -*- lambda stack before -*- ");
-	vector_print(v);
+	/* puts(" -*- lambda stack before -*- "); */
+	/* vector_print(v); */
     }
 #endif
 
@@ -302,8 +302,8 @@ void gc_sweep_lambdas(vector_t * v) {
 
 #if DEBUG_GC == DEBUG_ON
     if (DEBUG_FULL) {
-	puts("\n -*- final lambdas stack -*- ");
-	vector_print(v);
+	/* puts("\n -*- final lambdas stack -*- "); */
+	/* vector_print(v); */
     }
 
     gc_sweep_log(size, v->size);
@@ -365,8 +365,8 @@ void gc_sweep_scopes(vector_t * v) {
     int size = v->size;
 
     if (DEBUG_FULL) {
-	puts(" -*- scope stack before -*- ");
-	vector_print(v);
+	/* puts(" -*- scope stack before -*- "); */
+	/* vector_print(v); */
     }
 #endif
 
@@ -389,8 +389,8 @@ void gc_sweep_scopes(vector_t * v) {
 
 #if DEBUG_GC == DEBUG_ON
     if (DEBUG_FULL) {
-	puts("\n -*- final scopes stack -*- ");
-	vector_print(v);
+	/* puts("\n -*- final scopes stack -*- "); */
+	/* vector_print(v); */
     }
 
     gc_sweep_log(size, v->size);
