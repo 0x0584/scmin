@@ -21,10 +21,10 @@
 
 (define fib
   (lambda (n)
-    (if (= n 0)
-	1 (if (= n 1)
-	      1 (+ (fib (- n 2))
-		   (fib (- n 1)))))))
+    (if (< n 0)
+	'()
+	(if (or (= n 0) (= n 1) )
+	    1 (+ (fib (- n 2)) (fib (- n 1)))))))
 
 (define fact
   (lambda (n)
@@ -53,11 +53,13 @@
       (if (nil? (cdr lst))
 	  (set-cdr lst foo)
 	  (append (cdr lst) foo))
-      (print lst))))
+      lst)))
 
 (define append-to
   (lambda (lst foo)
-      (append lst (cons foo '()))))
+    (begin
+      (append lst (cons foo '()))
+      lst)))
 
 
 ;; used in testings
@@ -83,12 +85,11 @@
     (let loop ((n init))
       (if (> n size)
 	  '()
-	  (cons n
-		(loop (+ n inc)))))))
+	  (cons n (loop (+ n inc)))))))
 (let ((a '()))
   (let ((b 4) (c 5))
     (list a b c)))
 
 ;; testings
-(let* ((x 3) (y x))
-  y)
+;; (let* ((x 3) (y x))
+;;   y)

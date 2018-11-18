@@ -1,4 +1,4 @@
-;; FIXME: implement those functions
+;; FIXME: implement string functions
 ;; string is an elementary datatype, it represents the usual
 ;; idea of character sequence, which are stored in a c-array
 

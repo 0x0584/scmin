@@ -171,6 +171,9 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     if (op->l->isnative)	/* call the native function */
 	result = op->l->native->func(args);
     else {			/* evaluate the lambda's body */
+	/* sexpr_print(args), */
+	/*     sexpr_print(op->l->args), putchar('\n') ; */
+
 	err_raise(ERR_LMBD_ARGS,
 		  sexpr_length(args) != sexpr_length(op->l->args));
 
@@ -305,11 +308,26 @@ sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
     sexpr_t *evaled = NULL, *symbol = car(expr);
     bond_t bond = { symbol->s, NULL, false };
 
+    /* TODO: if symbol is already exists, set it instead
+     * we cannot call set since reserved raise an error */
     if (vector_find(scope->bonds, &bond) != NULL)
 	return eval_set(scope, expr);
 
+
     evaled = eval_sexpr(scope, cadr(expr));
+
+    err_raise(ERR_RSLT_NULL, !evaled);
+    err_raise(ERR_ERR, iserror(evaled));
+
+    if (err_log())
+	return sexpr_err();
+
     scope_push_bond(scope, bond_new(symbol->s, evaled));
+
+#if DEBUG_EVALUATOR == DEBUG_ON
+    sexpr_print(evaled), putchar('\n');
+    scope_describe(scope);
+#endif
 
     return symbol;
 
@@ -401,7 +419,7 @@ sexpr_t *eval_setq(scope_t * scope, sexpr_t * expr) {
 }
 
 /*
- * FIXME: dereference the bond instead of setting the s-expr to nil
+ * : dereference the bond instead of setting the s-expr to nil
  *
  * since setting it to nil makes x resolves to nil not x
  */
@@ -426,7 +444,7 @@ sexpr_t *eval_undef(scope_t * scope, sexpr_t * expr) {
 }
 
 /*
- * TODO: recreate this function in pure lisp
+ * FIXME: recreate this function in pure lisp
  */
 sexpr_t *eval_eval(scope_t * scope, sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
@@ -476,30 +494,36 @@ sexpr_t *eval_let(scope_t * scope, sexpr_t * expr) {
 	*let = cons(symbol, sexpr_nil());
 
     while (!isnil(tmp)) {
-	sexpr_t *arg = caar(tmp), *param = cadar(tmp);
+	if (isnil(car(tmp))) {
+	    args = sexpr_nil(), params = sexpr_nil();
+	    break;
+	}
 
-	err_raise(ERR_ARG_TYPE, !islist(car(tmp)));	/* (arg param) */
-	err_raise(ERR_ARG_TYPE, !issymbol(arg));
+	/* getting (arg param) */
+	err_raise(ERR_ARG_TYPE, !islist(car(tmp)));
+	err_raise(ERR_ARG_TYPE, !issymbol(caar(tmp)));
 
 	if (err_log())
 	    return sexpr_err();
 
-	/* TODO: create that fucking sexpr_append() */
+	/* FIXME: create that fucking sexpr_append() */
 	/* create that straming application */
+	sexpr_t *arg = CONS(caar(tmp)), *param = CONS(cadar(tmp));
 
 	/* appending the params to the whole let-lambda
 	 * so that it would look like: (let-lambda param ...) */
+
 	if (!params)
-	    params = CONS(param);
+	    params = param;
 	else
-	    set_cdr(ptail, CONS(param));
+	    set_cdr(ptail, param);
 
 	/* collecting let-lambda args
 	 * which are the arg in (let ((arg param) ...) body) */
 	if (!args)
-	    args = CONS(arg);
+	    args = arg;
 	else
-	    set_cdr(atail, CONS(arg));
+	    set_cdr(atail, arg);
 
 	atail = args, ptail = params, tmp = cdr(tmp);
     }
@@ -534,6 +558,8 @@ sexpr_t *eval_let(scope_t * scope, sexpr_t * expr) {
  * @note let* is defined as: `(let* [label] ((arg param) ...) body)`
  * @note bindings cannot refer to other binding in upper levels.
  * e.g. `(let* ((x y) (y 10)) body)` is not correct
+ *
+ * @bug this is not working as expected
  */
 sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
 

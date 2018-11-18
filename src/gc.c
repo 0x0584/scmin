@@ -7,6 +7,11 @@
  * @details contains definitions to handle scopes, lambdas and s-expressions
  *
  * @todo figure out how to eliminate code-redundancy
+ *
+ * @bug when a s-expression used inside the evaluation is returned, it's
+ * out of context so the GC would clean it while it's being used in another
+ * context. indeed causing errors.
+ * e.g. `(define foo (append-to (list 1 2 3) 5))` or `(define x (define y 1))`
  */
 
 #include "gc.h"
@@ -190,6 +195,9 @@ void gc_setmark_sexpr(sexpr_t * expr, bool mark) {
     }
 }
 
+/*
+ * TODO: some sexpression are clean while being used.
+ */
 void gc_sweep_sexprs(vector_t * v) {
     int i;
     sexpr_t *tmp;

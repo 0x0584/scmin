@@ -329,7 +329,7 @@ void vector_print(object_t o) {
 	if (v->objs[i] == NULL)
 	    continue;
 
-	puts(separator);
+	puts("");
 
 	if (v->print_obj)
 	    v->print_obj(v->objs[i]);
@@ -337,7 +337,9 @@ void vector_print(object_t o) {
 	    printf("%p -- %d\n", v->objs[i], i);
 
 	if (i == v->size - 1)
-	    puts(separator);
+	    puts("");
+
+	puts("");
     }
 }
 

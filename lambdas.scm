@@ -8,7 +8,7 @@
 ;; or lambdas can be used directly
 ((lambda (a b) (* a b)) 5 3)		; 15
 
-;; TODO: add some syntactic sugar expressions
+;; FIXME: add some syntactic sugar expressions
 ;; this is also not working
 ;; (defun fuzz (x y) (+ x y))		; bar
 ;; (defun (buzz x y) (- x y))		; bar

@@ -396,9 +396,10 @@ void sexpr_print(object_t o) {
 void _sexpr_print(object_t o) {
     sexpr_t *expr = (sexpr_t *) o, *tmp = expr;
 
-    if (expr == NULL)
+    if (expr == NULL){
+	putchar('^');
 	return;
-
+    }
     if (islambda(expr)) {
 	lambda_print(expr->l);
 	return;
@@ -446,8 +447,10 @@ void lambda_describe(object_t o) {
 void lambda_print(object_t o) {
     lambda_t *l = o;
 
-    if (l == NULL)
+    if (l == NULL){
+	putchar('^');
 	return;
+    }
 
     putchar('(');
 

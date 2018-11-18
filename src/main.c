@@ -1,5 +1,31 @@
 /**
  * @mainpage A Minimal Lisp/Scheme Interpreter
+ *
+ * @section intro_sec About
+ *
+ * This is a basic Lisp (technically Scheme) interpreter that was written
+ * in C for educational purposes, programming for me is a passion, sort of
+ * art, thus; this is just for fun and learning new stuff. and what could
+ * be more wonderful than writing your own lisp interpreter.
+ *
+ * for the purpure learning more, Lisp and Scheme are the same for the moment,
+ * so the code written in here is a mix between teh two languages.
+ *
+ * there might be an undefined number of *bugs* in here, i'm aware of some
+ * and some remain unknown.
+
+ * @section run_sec Running the program
+ *
+ * nothing more simple than a make command:
+ *
+ * ```shell
+ * $ make && ./scmin
+ * ```
+ * @subsection debug Debugging the program
+ *
+ * You might want to turn debigging on for each phase, for example to
+ * turn evaluation debbuging, set the #DEBUG_EVALUATOR to DEBUG_ON and
+ * recompile
  */
 
 /**

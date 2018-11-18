@@ -58,7 +58,7 @@ char stream_string(const string_t str, bool isget) {
 	    return oldstr[index];
     }
 }
-
+
 /**
  * @brief takes input from the stream and format it as a string
  *
@@ -98,7 +98,7 @@ string_t file_as_string(const char *filename) {
 
     return buffer;
 }
-
+
 string_t stdin_as_string(void) {
     const size_t INPUT_SIZE_LIMIT = (2 << 10);
     string_t buffer = malloc(INPUT_SIZE_LIMIT * sizeof(char));
@@ -123,7 +123,7 @@ string_t stdin_as_string(void) {
 
     return reduce_string_size(buffer);
 }
-
+
 /**
  * @brief basically calling stream_string() with `str` and
  * pass `isget` as `true`
@@ -160,7 +160,7 @@ char ungetnc(void) {
 string_t reduce_string_size(string_t str) {
     return realloc(str, (1 + strlen(str)) * sizeof(char));
 }
-
+
 /**
  * @brief takes any possible white-spaces from the `code` string
  *
@@ -209,8 +209,7 @@ bool clean_comments(string_t code) {
 
     return c != EOF;
 }
-
-
+
 bool clean_source_code(string_t code) {
     char c = 0x00;
 

@@ -32,7 +32,7 @@
  */
 #  define DEBUG_OFF		(0)
 
-#  define DEBUG_FULL		DEBUG_OFF
+#  define DEBUG_FULL		DEBUG_ON
 
 /**
  * @brief garbage collector debugging information

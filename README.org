@@ -34,9 +34,9 @@
 
    + programming for me is a passion, sort of art, thus; this is just for fun and learning new stuff. and what could be more wonderful than writing your own lisp interpreter.
 
-   + for the purpure learning more, Lisp and Scheme are the same for the moment, so the code written in here is a mix between teh two languages
+   + for the purpose learning more, Lisp and Scheme are the same for the moment, so the code written in here is a mix between the two languages
 
-   + there might be an undefined number of *bugs* in here, i'm aware of some and some remain unknown.
+   + there might be an undefined number of *bugs* in here, I'm aware of some and some remain unknown.
 
 * Lisp as a programming language
 
@@ -92,10 +92,22 @@
     (fib foo)					; 144
 
     ;; let operator
-    (let ((foo (list 1 2 3))) (cadr foo))	; 2
+    (let ((foo (list 1 2 3)))
+      (cadr foo))				; 2
+
+    ;; loop usign labeled let
+    (let loop ((n 0))
+      (if (> n 5)
+	  '()
+	  (cons n
+		(loop (+ n 1)))))		; (0 1 2 3 4 5)
 
     ;; map operator
-    (map (lambda (n) (+ n 2)) '(1 2 3))		; (3 4 5)
+    (map fib (let ((x '(1 2 3)))
+	       (let ((y 9))
+		 (append-to x y))))		; (1 2 3 55)
+
+    ;; for more library functions check stdlib.scm
   #+END_SRC
 
 * A basic Lisp Interpreter
