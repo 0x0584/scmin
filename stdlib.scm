@@ -46,6 +46,19 @@
 	  (if (eq? (car current) foo)
 	      (set res t)
 	      (loop res (cdr current)))) res)))
+
+(define append
+  (lambda (lst foo)
+    (begin
+      (if (nil? (cdr lst))
+	  (set-cdr lst foo)
+	  (append (cdr lst) foo))
+      (print lst))))
+
+(define append-to
+  (lambda (lst foo)
+      (append lst (cons foo '()))))
+
 
 ;; used in testings
 
@@ -79,21 +92,3 @@
 ;; testings
 (let* ((x 3) (y x))
   y)
-
-(define append
-  (lambda (lst foo)
-      (if (nil? (cdr lst))
-	  (set-cdr lst foo)
-	  (append (cdr lst) foo))))
-
-(define append-to
-  (lambda (lst foo)
-      (if (nil? (cdr lst))
-	  (set-cdr lst (cons foo '()))
-	  (append-to (cdr lst) foo))))
-
-(define x '(1 2 3))
-(append-to x 7)
-(print x)
-
-;; (append-to '(1 2 3) 7)

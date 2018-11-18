@@ -2,8 +2,11 @@
 #include "sexpr.h"
 
 sexpr_t *cons(sexpr_t * car, sexpr_t * cdr) {
-    assert(car != NULL);
-    assert(cdr != NULL);
+    err_raise(ERR_ARG_TYPE, car == NULL);
+    err_raise(ERR_ARG_TYPE, cdr == NULL);
+
+    if (err_log())
+	return sexpr_err();
 
     sexpr_t *expr = sexpr_new(LISP_PAIR);
 

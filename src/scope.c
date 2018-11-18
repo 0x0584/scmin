@@ -170,7 +170,7 @@ void bind_lambda_args(scope_t * scope, lambda_t * l, sexpr_t * args) {
     }
 }
 
-bool isreserved(scope_t *scope, sexpr_t *expr) {
+bool isreserved(scope_t * scope, sexpr_t * expr) {
     if (isnumber(expr) || isstring(expr))
 	return true;
 
@@ -180,11 +180,11 @@ bool isreserved(scope_t *scope, sexpr_t *expr) {
 	return true;
 
     string_t keyword[] = {
-	"quote", "eval",
-	"define", "undef",
-	"set", "setq",
-	"let", "let*",
-	"if", "lambda",
+	"quote", "eval", "define",
+	"undef", "set", "setq",
+	"let", "let*", "if",
+	"lambda", "begin",
+
 	NULL
     };
 

@@ -62,7 +62,7 @@
  * @brief eval debugging information
  * @see eval.c
  */
-#  define DEBUG_EVALUATOR	DEBUG_ON
+#  define DEBUG_EVALUATOR	DEBUG_OFF
 
 /**
  * @brief repl debugging information
@@ -200,7 +200,9 @@ typedef enum SCHEME_ERROR {
      * @brief when modifying reserved words such as numbers ans string literals
      * @todo include constants too (after finding the correct syntax)
      */
-    ERR_MDFY_RSRVD
+    ERR_MDFY_RSRVD,
+
+    ERR_ERR
 } serror_t;
 
 /**
@@ -234,9 +236,10 @@ typedef struct ERROR {
  *
  * @see #error_log
  */
-#define err_raise(err, cond) err_raisee(err, (cond), __LINE__, __FILE__, #cond)
+#  define err_raise(err, cond) err_raisee(err, (cond), __LINE__, __FILE__, #cond)
 
-void err_raisee(serror_t err, bool cond, int line, string_t file, string_t msg);
+void err_raisee(serror_t err, bool cond, int line, string_t file,
+		string_t msg);
 void err_free(object_t o);
 void err_print(object_t o);
 int err_log(void);

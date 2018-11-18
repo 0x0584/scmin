@@ -32,6 +32,7 @@
  * @brief static array of predefined Scheme keywords
  */
 static keyword_t kwd[] = {
+    {"begin", eval_begin},
     {"quote", eval_quote},
     {"eval", eval_eval},
     {"define", eval_define},
@@ -91,7 +92,7 @@ static keyword_t kwd[] = {
  */
 sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     if (expr == NULL)
-	return sexpr_nil();
+	return sexpr_err();
 
     sexpr_t *result = NULL, *op = NULL;	/* operator */
     bond_t *b = NULL;
@@ -138,18 +139,23 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     /* ==================== ==================== ==================== */
 
     sexpr_t *args = NULL, *tail = NULL;
-    sexpr_t *foo = expr, *bar = NULL, *nil = sexpr_nil();
+    sexpr_t *foo = expr, *arg = NULL, *nil = sexpr_nil();
 
     /* creating a list of arguments */
     while (!isnil(foo = cdr(foo))) {
-	bar = cons(eval_sexpr(scope, car(foo)), nil);
+	arg = cons(eval_sexpr(scope, car(foo)), nil);
+
+	err_raise(ERR_ERR, iserror(arg));
+
+	if(err_log())
+	    goto FAILED;
 
 	if (!args)
-	    args = bar;
+	    args = arg;
 	else
-	    set_cdr(tail, bar);
+	    set_cdr(tail, arg);
 
-	tail = bar;
+	tail = arg;
     }
 
 #if DEBUG_EVALUATOR == DEBUG_ON
@@ -180,6 +186,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
   RET:
 
     err_raise(ERR_RSLT_NULL, !result);
+    err_raise(ERR_ERR, iserror(result));
 
     if (err_log())
 	goto FAILED;
@@ -593,5 +600,21 @@ sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
     return eval_let(scope, let_asterisk);
 }
 
+sexpr_t *eval_begin(scope_t * scope, sexpr_t * expr) {
+    sexpr_t *evaled = NULL, *tmp = expr;
 
+    while (!isnil(tmp)) {
+	evaled = eval_sexpr(scope, car(tmp));
+
+	err_raise(ERR_RSLT_NULL, !evaled);
+	err_raise(ERR_ERR, iserror(evaled));
+
+	if (err_log())
+	    return sexpr_err();
+
+	tmp = cdr(tmp);
+    }
+
+    return evaled;
+}
 #undef CONS

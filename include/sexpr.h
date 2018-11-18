@@ -158,6 +158,7 @@ bool islambda(sexpr_t * expr);
 bool ispair(sexpr_t * expr);
 bool islist(sexpr_t * expr);
 bool isnative(sexpr_t * expr);
+bool iserror(sexpr_t * expr);
 
 sexpr_t *sexpr_new(type_t type);
 void sexpr_describe(object_t expr);

@@ -18,6 +18,10 @@
 #include "pair.h"
 #include "native.h"
 
+bool iserror(sexpr_t * expr) {
+    return expr == NULL ? true : expr->type == LISP_ERR;
+}
+
 /**
  * @brief test if `expr` is `nil`
  *

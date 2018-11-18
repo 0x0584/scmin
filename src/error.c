@@ -46,10 +46,11 @@ error_t errs[] = {
     {"CANNOT SET SYMBOL", NULL, ERR_CANNOT_SET},
     {"OPERATOR NOT FOUND", NULL, ERR_OP_NOT_FOUND},
     {"CANNOT ALTER RESERVED SYMBOLS OR LITERALS", NULL, ERR_MDFY_RSRVD},
+    {"ABORT THE EVALUATION!", NULL, ERR_ERR},
 
     {NULL, NULL, ERR_NO_ERROR}
 };
-
+
 void err_raisee(serror_t err, bool cond, int line, string_t file, string_t msg) {
     int i;
 
@@ -67,7 +68,7 @@ void err_raisee(serror_t err, bool cond, int line, string_t file, string_t msg) 
 	    errs[i].cond = malloc(0x0584);
 	    snprintf(errs[i].cond, 0x0584, "(%s) at %s:%d",
 		     msg, file, line);
-	    reduce_string_size(errs[i].cond);
+	    errs[i].cond = reduce_string_size(errs[i].cond);
 	    vector_push(error_log, &errs[i]);
 	    break;
 	}
@@ -90,7 +91,7 @@ int err_log(void) {
 
     return size;
 }
-
+
 /**
  * @brief frees the #error_log and set it to `NULL`
  */
