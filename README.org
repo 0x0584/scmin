@@ -1,42 +1,18 @@
-* About
+* NOTES
+   
+  #+BEGIN_QUOTE   
+  Programming for me is a passion, sort of art, thus; this is just for fun and learning new stuff. And what could be more wonderful than writing your own lisp interpreter. For the purpose learning more, Lisp and Scheme are the same for the moment, so the code written in here is a mix between the two languages. There might be an undefined number of *bugs* in here, I'm aware of some and some remain unknown.
+  #+END_QUOTE
 
-  This is a basic Lisp (technically Scheme) interpreter that was written in C for educational purposes with the following features:
+  The source code contains documentation, you can either read it in each file, reading the man pages or extract the documentation using [[http://www.doxygen.org/][Doxygen]] as HTML or LaTex. Compilation requires =make= and done as follows:
 
-  + [X] Lexing Phase
-    + [X] read and split text containing Scheme/Lisp syntax into tokens
-    + [X] extract values like strings and numerical literals
+  #+BEGIN_SRC shell
+    $ make				# compile the code
+    $ make clean			# removes the objects and the executable
+    $ make build			# same as make clean && make 
+  #+END_SRC
 
-  + [-] Parsing Phase
-    + [X] parse the tokens into a s-expression object
-    + [-] replace some syntactic sugar while parsing
-      + [X] =(quote expr)= and ='expr=
-      + [ ] =(define f (lambda (args) (body)))= and =(define (f args) (body))=
-      + [ ] =(define f (lambda (args) (body)))= and =(defun f (args) (body))=
-
-  + [X] Evaluation Phase
-    + [X] evaluate the parsed s-expression object
-    + [X] support recursion
-
-  + [X] syntax support
-    + [X] arithmetic operators =+=, =-=, =*= and =/=
-    + [X] arithmetic comparison operators
-    + [X] cons-pairs operators =cons=, =car=, =cdr=, =set-car= and =set-cdr=
-    + [X] logical operators =and=, =or= and =not=
-    + [X] defining symbols that hold values using =define=
-      + [X] remove them using =undef=
-      + [X] modify their values using =set= and =setq=
-    + [X] conditioning using =if= and logical operators  =and=, =or=, =not=
-    + [X] support lambda expressions
-  + [X] memory is handled via a garbage collector
-  + [ ] +support simple objects+
-
-** NOTES
-
-   + programming for me is a passion, sort of art, thus; this is just for fun and learning new stuff. and what could be more wonderful than writing your own lisp interpreter.
-
-   + for the purpose learning more, Lisp and Scheme are the same for the moment, so the code written in here is a mix between the two languages
-
-   + there might be an undefined number of *bugs* in here, I'm aware of some and some remain unknown.
+  The intepreter's standard library function are stored in =stdlib.scm=, the other files are just for testings
 
 * Lisp as a programming language
 
@@ -153,3 +129,35 @@
    #+BEGIN_QUOTE
    /NOTE:/ See =eval.{h,c}= for additional information on the evaluation process and related function definitions.
    #+END_QUOTE
+
+* Build State
+
+  This is a basic Lisp (technically Scheme) interpreter that was written in C for educational purposes with the following features:
+
+  + [X] Lexing Phase
+    + [X] read and split text containing Scheme/Lisp syntax into tokens
+    + [X] extract values like strings and numerical literals
+
+  + [-] Parsing Phase
+    + [X] parse the tokens into a s-expression object
+    + [-] replace some syntactic sugar while parsing
+      + [X] =(quote expr)= and ='expr=
+      + [ ] =(define f (lambda (args) (body)))= and =(define (f args) (body))=
+      + [ ] =(define f (lambda (args) (body)))= and =(defun f (args) (body))=
+
+  + [X] Evaluation Phase
+    + [X] evaluate the parsed s-expression object
+    + [X] support recursion
+
+  + [X] syntax support
+    + [X] arithmetic operators =+=, =-=, =*= and =/=
+    + [X] arithmetic comparison operators
+    + [X] cons-pairs operators =cons=, =car=, =cdr=, =set-car= and =set-cdr=
+    + [X] logical operators =and=, =or= and =not=
+    + [X] defining symbols that hold values using =define=
+      + [X] remove them using =undef=
+      + [X] modify their values using =set= and =setq=
+    + [X] conditioning using =if= and logical operators  =and=, =or=, =not=
+    + [X] support lambda expressions
+  + [X] memory is handled via a garbage collector
+  + [ ] +support simple objects+

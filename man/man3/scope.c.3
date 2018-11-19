@@ -1,0 +1,131 @@
+.TH "src/scope.c" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/scope.c \- contains definitions of scope functionalities including bonds  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'scope\&.h'\fP
+.br
+\fC#include 'pair\&.h'\fP
+.br
+\fC#include 'native\&.h'\fP
+.br
+\fC#include 'vector\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBbond_t\fP * \fBbond_new\fP (\fBstring_t\fP symbol, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBbond_t\fP * \fBbond_new_const\fP (\fBstring_t\fP key, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "void \fBbond_free\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "bool \fBbond_cmp\fP (\fBobject_t\fP o1, \fBobject_t\fP o2)"
+.br
+.ti -1c
+.RI "void \fBbond_describe\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "\fBbond_t\fP * \fBresolve_bond\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "bool \fBisbonded\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "void \fBbind_lambda_args\fP (\fBscope_t\fP *scope, \fBlambda_t\fP *l, \fBsexpr_t\fP *args)"
+.br
+.ti -1c
+.RI "bool \fBisreserved\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBscope_t\fP * \fBscope_init\fP (\fBscope_t\fP *parent)"
+.br
+.ti -1c
+.RI "\fBscope_t\fP * \fBget_global_scope\fP (void)"
+.br
+.ti -1c
+.RI "\fBscope_t\fP * \fBglobal_scope_init\fP (void)"
+.br
+.ti -1c
+.RI "void \fBscope_describe\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "void \fBsetglobal\fP (\fBsexpr_t\fP *sexpr, bool isglobal)"
+.br
+.ti -1c
+.RI "bool \fBsetglobalbond\fP (\fBscope_t\fP *scope, \fBbond_t\fP *bond, bool isglobal)"
+.br
+.ti -1c
+.RI "void \fBscope_push_bond\fP (\fBscope_t\fP *scope, \fBbond_t\fP *bond)"
+.br
+.RI "push new bonds or replace old ones "
+.in -1c
+.SH "Detailed Description"
+.PP 
+contains definitions of scope functionalities including bonds 
+
+
+.PP
+\fBTodo\fP
+.RS 4
+find a way to remap multiple symbols to the same value, much like pointers 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "void bind_lambda_args (\fBscope_t\fP * scope, \fBlambda_t\fP * l, \fBsexpr_t\fP * args)"
+
+.SS "bool bond_cmp (\fBobject_t\fP o1, \fBobject_t\fP o2)"
+
+.SS "void bond_describe (\fBobject_t\fP o)"
+
+.SS "void bond_free (\fBobject_t\fP o)"
+
+.SS "\fBbond_t\fP* bond_new (\fBstring_t\fP symbol, \fBsexpr_t\fP * expr)"
+
+.SS "\fBbond_t\fP* bond_new_const (\fBstring_t\fP key, \fBsexpr_t\fP * expr)"
+
+.SS "\fBscope_t\fP* get_global_scope (void)"
+
+.SS "\fBscope_t\fP* global_scope_init (void)"
+
+.SS "bool isbonded (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.SS "bool isreserved (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.SS "\fBbond_t\fP* resolve_bond (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.SS "void scope_describe (\fBobject_t\fP o)"
+
+.SS "\fBscope_t\fP* scope_init (\fBscope_t\fP * parent)"
+
+.SS "void scope_push_bond (\fBscope_t\fP * scope, \fBbond_t\fP * bond)"
+
+.PP
+push new bonds or replace old ones here we set global scope bond members as global so that they won't be cleaned up while cleaning
+.PP
+\fBParameters:\fP
+.RS 4
+\fIscope\fP the scope to push into 
+.br
+\fIbond\fP a bond to push 
+.RE
+.PP
+
+.SS "void setglobal (\fBsexpr_t\fP * sexpr, bool isglobal)"
+
+.SS "bool setglobalbond (\fBscope_t\fP * scope, \fBbond_t\fP * bond, bool isglobal)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

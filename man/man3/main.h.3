@@ -1,0 +1,510 @@
+.TH "include/main.h" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/main.h \- definition of debugging symbols and error types  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <assert\&.h>\fP
+.br
+\fC#include <stdio\&.h>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <stdbool\&.h>\fP
+.br
+\fC#include <math\&.h>\fP
+.br
+\fC#include <string\&.h>\fP
+.br
+\fC#include <ctype\&.h>\fP
+.br
+\fC#include <time\&.h>\fP
+.br
+\fC#include 'types\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBERROR\fP"
+.br
+.RI "binding an error with the correspondent message "
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBDEBUG_ON\fP   (1)"
+.br
+.RI "debugging is ON "
+.ti -1c
+.RI "#define \fBDEBUG_OFF\fP   (0)"
+.br
+.RI "debugging is OFF "
+.ti -1c
+.RI "#define \fBDEBUG_FULL\fP   \fBDEBUG_ON\fP"
+.br
+.ti -1c
+.RI "#define \fBDEBUG_GC\fP   \fBDEBUG_ON\fP"
+.br
+.RI "garbage collector debugging information "
+.ti -1c
+.RI "#define \fBDEBUG_VECTOR\fP   \fBDEBUG_OFF\fP"
+.br
+.RI "vector debugging information "
+.ti -1c
+.RI "#define \fBDEBUG_LEXER\fP   \fBDEBUG_OFF\fP"
+.br
+.RI "lexer debugging information "
+.ti -1c
+.RI "#define \fBDEBUG_PARSER\fP   \fBDEBUG_OFF\fP"
+.br
+.RI "parser debugging information "
+.ti -1c
+.RI "#define \fBDEBUG_EVALUATOR\fP   \fBDEBUG_OFF\fP"
+.br
+.RI "eval debugging information "
+.ti -1c
+.RI "#define \fBDEBUG_REPL\fP   \fBDEBUG_OFF\fP"
+.br
+.RI "repl debugging information "
+.ti -1c
+.RI "#define \fBSTD_SCHEME_LIB\fP   'stdlib\&.scm'"
+.br
+.RI "the interpreter's standard Scheme/Lisp library "
+.ti -1c
+.RI "#define \fBerr_raise\fP(err,  cond)   \fBerr_raisee\fP(err, (cond), __LINE__, __FILE__, #cond)"
+.br
+.RI "if \fCcond\fP is true, then raise \fCerr\fP "
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef enum \fBSCHEME_ERROR\fP \fBserror_t\fP"
+.br
+.RI "possible errors to catch by the interpreter "
+.ti -1c
+.RI "typedef struct \fBERROR\fP \fBerror_t\fP"
+.br
+.RI "binding an error with the correspondent message "
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBSCHEME_ERROR\fP { \fBERR_NO_ERROR\fP = -1, \fBERR_PRNS_CLS\fP, \fBERR_PRNS_BLNC\fP, \fBERR_TOK_ERR\fP, \fBERR_EOF_ERR\fP, \fBERR_SIZE_ERR\fP, \fBERR_SYM_ERR\fP, \fBERR_NUM_SIGN\fP, \fBERR_NUM_PRD\fP, \fBERR_NUM_DIG\fP, \fBERR_DIVID_ZERO\fP, \fBERR_ARG_TYPE\fP, \fBERR_ARG_COUNT\fP, \fBERR_LMBD_ARGS\fP, \fBERR_RSLT_NULL\fP, \fBERR_FILE_ERR\fP, \fBERR_CANNOT_SET\fP, \fBERR_OP_NOT_FOUND\fP, \fBERR_MDFY_RSRVD\fP, \fBERR_ERR\fP }
+.RI "possible errors to catch by the interpreter ""
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBerr_raisee\fP (\fBserror_t\fP err, bool cond, int line, \fBstring_t\fP file, \fBstring_t\fP msg)"
+.br
+.ti -1c
+.RI "void \fBerr_free\fP (\fBobject_t\fP o)"
+.br
+.RI "does nothing "
+.ti -1c
+.RI "void \fBerr_print\fP (\fBobject_t\fP o)"
+.br
+.RI "outputs an error on the screen "
+.ti -1c
+.RI "int \fBerr_log\fP (void)"
+.br
+.RI "prints the list of raised errors "
+.ti -1c
+.RI "void \fBerr_clean\fP (void)"
+.br
+.RI "frees the \fBerror_log\fP and set it to \fCNULL\fP "
+.in -1c
+.SH "Detailed Description"
+.PP 
+definition of debugging symbols and error types 
+
+
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define DEBUG_EVALUATOR   \fBDEBUG_OFF\fP"
+
+.PP
+eval debugging information 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBeval\&.c\fP 
+.RE
+.PP
+
+.SS "#define DEBUG_FULL   \fBDEBUG_ON\fP"
+
+.SS "#define DEBUG_GC   \fBDEBUG_ON\fP"
+
+.PP
+garbage collector debugging information 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBgc\&.c\fP 
+.RE
+.PP
+
+.SS "#define DEBUG_LEXER   \fBDEBUG_OFF\fP"
+
+.PP
+lexer debugging information 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBlexer\&.c\fP 
+.RE
+.PP
+
+.SS "#define DEBUG_OFF   (0)"
+
+.PP
+debugging is OFF 
+.SS "#define DEBUG_ON   (1)"
+
+.PP
+debugging is ON 
+.SS "#define DEBUG_PARSER   \fBDEBUG_OFF\fP"
+
+.PP
+parser debugging information 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBparser\&.c\fP 
+.RE
+.PP
+
+.SS "#define DEBUG_REPL   \fBDEBUG_OFF\fP"
+
+.PP
+repl debugging information 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBrepl\&.c\fP 
+.RE
+.PP
+
+.SS "#define DEBUG_VECTOR   \fBDEBUG_OFF\fP"
+
+.PP
+vector debugging information 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBvector\&.c\fP 
+.RE
+.PP
+
+.SS "#define err_raise(err, cond)   \fBerr_raisee\fP(err, (cond), __LINE__, __FILE__, #cond)"
+
+.PP
+if \fCcond\fP is true, then raise \fCerr\fP \fCerr\fP should be one of the predefined errors
+.PP
+\fBParameters:\fP
+.RS 4
+\fIerr\fP the error to raise 
+.br
+\fIcond\fP \fCtrue\fP or \fCfalse\fP
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBerror_log\fP 
+.RE
+.PP
+
+.SS "#define STD_SCHEME_LIB   'stdlib\&.scm'"
+
+.PP
+the interpreter's standard Scheme/Lisp library this file contains many essential functions written in Scheme/Lisp 
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef struct \fBERROR\fP  \fBerror_t\fP"
+
+.PP
+binding an error with the correspondent message 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBerror\&.c\fP 
+.RE
+.PP
+
+.SS "typedef enum \fBSCHEME_ERROR\fP  \fBserror_t\fP"
+
+.PP
+possible errors to catch by the interpreter different errors that would occur during the process of evaluating a s-expression 
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "enum \fBSCHEME_ERROR\fP"
+
+.PP
+possible errors to catch by the interpreter different errors that would occur during the process of evaluating a s-expression 
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIERR_NO_ERROR \fP\fP
+this indicates that there is no error; everything is fine 
+.TP
+\fB\fIERR_PRNS_CLS \fP\fP
+no closing parenthesis is found 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBlexer\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_PRNS_BLNC \fP\fP
+parenthesis are not balanced 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBlexer\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_TOK_ERR \fP\fP
+token error; general error 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBlexer\&.c\fP 
+.PP
+\fBtoken\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_EOF_ERR \fP\fP
+unexpected END OF FILE occurred 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBlexer\&.c\fP 
+.PP
+\fBchars\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_SIZE_ERR \fP\fP
+token passed the size limit \fBTOK_SIZE_LIMIT\fP 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBlexer\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_SYM_ERR \fP\fP
+symbol contains some unexpected characters 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBlexer\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_NUM_SIGN \fP\fP
+number contains multiple signs 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBlexer\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_NUM_PRD \fP\fP
+number contains multiple periods 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBlexer\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_NUM_DIG \fP\fP
+number contains illegal characters 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBlexer\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_DIVID_ZERO \fP\fP
+dividing by zero 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBlexer\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_ARG_TYPE \fP\fP
+the argument type is not correct 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBnative\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_ARG_COUNT \fP\fP
+the arguments count is not correct 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBnative\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_LMBD_ARGS \fP\fP
+cannot bind lambda arguments 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBeval\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_RSLT_NULL \fP\fP
+result should not be \fCNULL\fP 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBeval\&.c\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+not sure if this would ever be raised but, better have it than not 
+.RE
+.PP
+
+.TP
+\fB\fIERR_FILE_ERR \fP\fP
+could not open the file stream 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBchars\&.c\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_CANNOT_SET \fP\fP
+using set on an unbounded symbol 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBeval_set()\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_OP_NOT_FOUND \fP\fP
+operator not found 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBeval_sexpr()\fP 
+.RE
+.PP
+
+.TP
+\fB\fIERR_MDFY_RSRVD \fP\fP
+when modifying reserved words such as numbers ans string literals 
+.PP
+\fBTodo\fP
+.RS 4
+include constants too (after finding the correct syntax) 
+.RE
+.PP
+
+.TP
+\fB\fIERR_ERR \fP\fP
+.SH "Function Documentation"
+.PP 
+.SS "void err_clean (void)"
+
+.PP
+frees the \fBerror_log\fP and set it to \fCNULL\fP 
+.SS "void err_free (\fBobject_t\fP o)"
+
+.PP
+does nothing 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP the error
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+just to create a vector properly 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBvector\&.c\fP 
+.RE
+.PP
+
+.SS "int err_log (void)"
+
+.PP
+prints the list of raised errors 
+.PP
+\fBReturns:\fP
+.RS 4
+the number of errors 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+\fBerror_log\fP is free'd after calling this function 
+.RE
+.PP
+
+.SS "void err_print (\fBobject_t\fP o)"
+
+.PP
+outputs an error on the screen 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP the error 
+.RE
+.PP
+
+.SS "void err_raisee (\fBserror_t\fP err, bool cond, int line, \fBstring_t\fP file, \fBstring_t\fP msg)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

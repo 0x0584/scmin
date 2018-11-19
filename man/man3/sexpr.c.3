@@ -1,0 +1,511 @@
+.TH "src/sexpr.c" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/sexpr.c \- declaration of s-expression and lambda functions  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'sexpr\&.h'\fP
+.br
+\fC#include 'pair\&.h'\fP
+.br
+\fC#include 'native\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "bool \fBiserror\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "bool \fBisnil\fP (\fBsexpr_t\fP *expr)"
+.br
+.RI "test if \fCexpr\fP is \fCnil\fP "
+.ti -1c
+.RI "bool \fBistrue\fP (\fBsexpr_t\fP *expr)"
+.br
+.RI "test if \fCexpr\fP is \fBnot\fP \fCnil\fP "
+.ti -1c
+.RI "bool \fBisatom\fP (\fBsexpr_t\fP *expr)"
+.br
+.RI "test if \fCexpr\fP is an atom such as \fC1412\fP or \fC'string'\fP or \fCfoo-bar\fP "
+.ti -1c
+.RI "bool \fBissymbol\fP (\fBsexpr_t\fP *expr)"
+.br
+.RI "test if \fCexpr\fP is a symbol "
+.ti -1c
+.RI "bool \fBisnumber\fP (\fBsexpr_t\fP *expr)"
+.br
+.RI "test if \fCexpr\fP is a number "
+.ti -1c
+.RI "bool \fBisstring\fP (\fBsexpr_t\fP *expr)"
+.br
+.RI "test if \fCexpr\fP is a string "
+.ti -1c
+.RI "bool \fBispair\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "bool \fBislist\fP (\fBsexpr_t\fP *expr)"
+.br
+.RI "lists is a chain of \fBLISP_PAIR\fP of s-expression with a \fBLISP_NIL\fP "
+.ti -1c
+.RI "bool \fBislambda\fP (\fBsexpr_t\fP *expr)"
+.br
+.RI "test if \fCexpr\fP is a lambda "
+.ti -1c
+.RI "bool \fBisnative\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBsexpr_new\fP (\fBtype_t\fP type)"
+.br
+.RI "allocates memory for a new s-expression "
+.ti -1c
+.RI "int \fBsexpr_length\fP (\fBsexpr_t\fP *expr)"
+.br
+.RI "determines the length of \fCexpr\fP "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBsexpr_err\fP (void)"
+.br
+.RI "creates an error s-expression "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBsexpr_nil\fP (void)"
+.br
+.RI "creating a \fCnil\fP s-expression "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBsexpr_true\fP (void)"
+.br
+.RI "creating a symbol s-expression of \fCt\fP "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBsexpr_symbol\fP (\fBstring_t\fP symbol)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBsexpr_number\fP (\fBnumber_t\fP number)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBsexpr_string\fP (\fBstring_t\fP string)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBlambda_new_native\fP (\fBsexpr_t\fP *args, \fBnlambda_t\fP *func)"
+.br
+.RI "allocates memory and initialize a new \fBnative\fP lambda after calling \fBsexpr_new()\fP "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBlambda_new\fP (\fBsexpr_t\fP *args, \fBsexpr_t\fP *body)"
+.br
+.RI "allocates memory and initialize a new lambda after calling \fBsexpr_new()\fP "
+.ti -1c
+.RI "void \fBprint_tabs\fP (int ntabs)"
+.br
+.RI "a helper function used by \fBsexpr_describe()\fP "
+.ti -1c
+.RI "void \fBsexpr_describe\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "void \fBsexpr_print\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "void \fB_sexpr_print\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "void \fBlambda_describe\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "void \fBlambda_print\fP (\fBobject_t\fP o)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+declaration of s-expression and lambda functions 
+
+functions are divided functions to determine the type such as \fBisnil()\fP or \fBisatom()\fP and also functions to create a s-expression such as \fBsexpr_new()\fP and some handy functions like \fBsexpr_nil()\fP or \fBsexpr_true()\fP\&.
+.PP
+and functions to handle lambdas such as \fBlambda_new()\fP, \fBlambda_print()\fP
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsexpr\&.h\fP 
+.PP
+\fBpair\&.h\fP 
+.PP
+\fBnative\&.h\fP 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "void _sexpr_print (\fBobject_t\fP o)"
+
+.SS "bool isatom (\fBsexpr_t\fP * expr)"
+
+.PP
+test if \fCexpr\fP is an atom such as \fC1412\fP or \fC'string'\fP or \fCfoo-bar\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIexpr\fP s-expression 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCtrue\fP if \fCexpr\fP was of type either \fBLISP_NUMBER\fP, \fBLISP_STRING\fP or \fBLISP_SYMBOL\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+\fBLISP_NIL\fP is \fBnot\fP an atom 
+.RE
+.PP
+
+.SS "bool iserror (\fBsexpr_t\fP * expr)"
+
+.SS "bool islambda (\fBsexpr_t\fP * expr)"
+
+.PP
+test if \fCexpr\fP is a lambda 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIexpr\fP s-expression 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCtrue\fP if \fCexpr\fP was of type \fBLISP_LAMBDA\fP
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsexpr\&.h\fP 
+.RE
+.PP
+
+.SS "bool islist (\fBsexpr_t\fP * expr)"
+
+.PP
+lists is a chain of \fBLISP_PAIR\fP of s-expression with a \fBLISP_NIL\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIexpr\fP s-expression 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCtrue\fP if \fCexpr\fP was a list
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBpair\&.h\fP 
+.RE
+.PP
+
+.SS "bool isnative (\fBsexpr_t\fP * expr)"
+
+.PP
+\fBParameters:\fP
+.RS 4
+\fIexpr\fP s-expression 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCtrue\fP if \fCexpr\fP was a native lambda
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsexpr\&.h\fP 
+.PP
+\fBnative\&.h\fP 
+.RE
+.PP
+
+.SS "bool isnil (\fBsexpr_t\fP * expr)"
+
+.PP
+test if \fCexpr\fP is \fCnil\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIexpr\fP s-expression 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCtrue\fP if \fCexpr\fP was of type \fBLISP_NIL\fP 
+.RE
+.PP
+
+.SS "bool isnumber (\fBsexpr_t\fP * expr)"
+
+.PP
+test if \fCexpr\fP is a number 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIexpr\fP s-expression 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCtrue\fP if \fCexpr\fP was of type \fBLISP_NUMBER\fP 
+.RE
+.PP
+
+.SS "bool ispair (\fBsexpr_t\fP * expr)"
+
+.PP
+\fBParameters:\fP
+.RS 4
+\fIexpr\fP s-expression 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCtrue\fP if \fCexpr\fP was of type \fBLISP_PAIR\fP
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBpair\&.h\fP 
+.RE
+.PP
+
+.SS "bool isstring (\fBsexpr_t\fP * expr)"
+
+.PP
+test if \fCexpr\fP is a string 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIexpr\fP s-expression 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCtrue\fP if \fCexpr\fP was of type \fBLISP_STRING\fP 
+.RE
+.PP
+
+.SS "bool issymbol (\fBsexpr_t\fP * expr)"
+
+.PP
+test if \fCexpr\fP is a symbol 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIexpr\fP s-expression 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCtrue\fP if \fCexpr\fP was \fBLISP_SYMBOL\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+\fBLISP_NIL\fP is \fBnot\fP a symbol 
+.RE
+.PP
+
+.SS "bool istrue (\fBsexpr_t\fP * expr)"
+
+.PP
+test if \fCexpr\fP is \fBnot\fP \fCnil\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIexpr\fP s-expression 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCtrue\fP if \fCexpr\fP was of \fBnot\fP type \fBLISP_NIL\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+only \fBLISP_NIL\fP is considered as \fCfalse\fP anything else is \fCtrue\fP 
+.RE
+.PP
+
+.SS "void lambda_describe (\fBobject_t\fP o)"
+
+.SS "\fBsexpr_t\fP* lambda_new (\fBsexpr_t\fP * args, \fBsexpr_t\fP * body)"
+
+.PP
+allocates memory and initialize a new lambda after calling \fBsexpr_new()\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIargs\fP a list of lambda's arguments 
+.br
+\fIbody\fP a s-expression to interpret when calling this lambda
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+a s-expression of type \fBLISP_LAMBDA\fP
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBLAMBDA_EXPRESSION\fP 
+.PP
+\fBSYMBOLIC_EXPRESSION\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+initializing \fCisnative\fP to \fCfalse\fP 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* lambda_new_native (\fBsexpr_t\fP * args, \fBnlambda_t\fP * func)"
+
+.PP
+allocates memory and initialize a new \fBnative\fP lambda after calling \fBsexpr_new()\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIargs\fP a list of lambda's arguments 
+.br
+\fIfunc\fP a native C function
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+a s-expression of type \fBLISP_LAMBDA\fP
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBSYMBOLIC_EXPRESSION\fP 
+.PP
+\fBLAMBDA_EXPRESSION\fP 
+.PP
+\fBLAMBDA_NATIVE\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+initializing \fCis native\fP to \fCtrue\fP 
+.RE
+.PP
+
+.SS "void lambda_print (\fBobject_t\fP o)"
+
+.SS "void print_tabs (int ntabs)"
+
+.PP
+a helper function used by \fBsexpr_describe()\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIntabs\fP number of tabs to print 
+.RE
+.PP
+
+.SS "void sexpr_describe (\fBobject_t\fP o)"
+
+.SS "\fBsexpr_t\fP* sexpr_err (void)"
+
+.PP
+creates an error s-expression basically calling \fBsexpr_new()\fP passing \fBLISP_ERR\fP
+.PP
+\fBReturns:\fP
+.RS 4
+error s-expression
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBerror\&.c\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+error s-expression is returned after error occurrence 
+.RE
+.PP
+
+.SS "int sexpr_length (\fBsexpr_t\fP * expr)"
+
+.PP
+determines the length of \fCexpr\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIexpr\fP s-expression
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+the length of \fCexpr\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+\fC(1 2 (3 4) 6)\fP is of size \fC4\fP 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* sexpr_new (\fBtype_t\fP type)"
+
+.PP
+allocates memory for a new s-expression basically, this is the way to allocate memory for a new s-expression because this function allocates memory using the built-in GC allocation
+.PP
+\fBParameters:\fP
+.RS 4
+\fItype\fP s-expression type like \fBLISP_NUMBER\fP or \fBLISP_SYMBOL\fP
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBSYMBOLIC_EXPRESSION_TYPE\fP 
+.PP
+\fBSYMBOLIC_EXPRESSION\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+if \fCtype\fP was \fBLISP_LAMBDA\fP, it allocates memory for the lambda as well 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* sexpr_nil (void)"
+
+.PP
+creating a \fCnil\fP s-expression basically calling \fBsexpr_new()\fP passing \fBLISP_NIL\fP and initializing its text
+.PP
+\fBReturns:\fP
+.RS 4
+\fCnil\fP s-expression 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* sexpr_number (\fBnumber_t\fP number)"
+
+.SS "void sexpr_print (\fBobject_t\fP o)"
+
+.SS "\fBsexpr_t\fP* sexpr_string (\fBstring_t\fP string)"
+
+.SS "\fBsexpr_t\fP* sexpr_symbol (\fBstring_t\fP symbol)"
+
+.SS "\fBsexpr_t\fP* sexpr_true (void)"
+
+.PP
+creating a symbol s-expression of \fCt\fP basically calling \fBsexpr_new()\fP passing \fBLISP_SYMBOL\fP and initializing its text with \fC't'\fP
+.PP
+\fBReturns:\fP
+.RS 4
+error s-expression 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

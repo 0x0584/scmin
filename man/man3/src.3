@@ -1,0 +1,69 @@
+.TH "src Directory Reference" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src Directory Reference
+.SH SYNOPSIS
+.br
+.PP
+.SS "Files"
+
+.in +1c
+.ti -1c
+.RI "file \fBchars\&.c\fP"
+.br
+.RI "contains declarations of useful character handling functionalities\&. "
+.ti -1c
+.RI "file \fBerror\&.c\fP"
+.br
+.RI "declaration of error handling functionalities "
+.ti -1c
+.RI "file \fBeval\&.c\fP"
+.br
+.RI "declarations of the core evaluation functions, those would take a parsed s-expressions and evaluate them into another s-expression\&. "
+.ti -1c
+.RI "file \fBgc\&.c\fP"
+.br
+.RI "a simple Garbage Collector implementation of the mark-and-sweep algorithm "
+.ti -1c
+.RI "file \fBlexer\&.c\fP"
+.br
+.RI "contains declarations of functionalities to verify the grammar of a Scheme-like code and get all tokens in there "
+.ti -1c
+.RI "file \fBmain\&.c\fP"
+.br
+.RI "this is the main entry point, basically would initialize the environment, then check if there are any sent-arguments to process\&. "
+.ti -1c
+.RI "file \fBnative\&.c\fP"
+.br
+.ti -1c
+.RI "file \fBpair\&.c\fP"
+.br
+.ti -1c
+.RI "file \fBparser\&.c\fP"
+.br
+.RI "contains the declaration of parsing functionalities "
+.ti -1c
+.RI "file \fBrepl\&.c\fP"
+.br
+.RI "contains definitions of Read Eval Print Loop functionalities "
+.ti -1c
+.RI "file \fBscope\&.c\fP"
+.br
+.RI "contains definitions of scope functionalities including bonds "
+.ti -1c
+.RI "file \fBsexpr\&.c\fP"
+.br
+.RI "declaration of s-expression and lambda functions "
+.ti -1c
+.RI "file \fBtoken\&.c\fP"
+.br
+.RI "token functionalities needed by the lexing functions "
+.ti -1c
+.RI "file \fBtst\&.c\fP"
+.br
+.ti -1c
+.RI "file \fBvector\&.c\fP"
+.br
+.RI "declarations of vector related the functions to create/update and free vectors "
+.in -1c

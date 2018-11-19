@@ -1,0 +1,174 @@
+.TH "src/native.c" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/native.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include '\&.\&./include/native\&.h'\fP
+.br
+\fC#include '\&.\&./include/sexpr\&.h'\fP
+.br
+\fC#include '\&.\&./include/pair\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_add\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_minus\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_times\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_divid\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_or\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_and\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_ispair\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_iseq\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_isatom\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_isnil\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_istrue\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_isstring\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_isnumber\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_issymbol\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_islambda\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_islist\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_cons\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_car\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_cdr\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_set_car\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_set_cdr\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_list\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_length\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_eq\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_less\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_greater\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_less_eq\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_greater_eq\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_sqrt\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBnative_print\fP (\fBsexpr_t\fP *expr)"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "\fBsexpr_t\fP* native_add (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_and (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_car (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_cdr (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_cons (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_divid (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_eq (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_greater (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_greater_eq (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_isatom (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_iseq (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_islambda (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_islist (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_isnil (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_isnumber (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_ispair (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_isstring (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_issymbol (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_istrue (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_length (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_less (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_less_eq (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_list (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_minus (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_or (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_print (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_set_car (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_set_cdr (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_sqrt (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* native_times (\fBsexpr_t\fP * expr)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

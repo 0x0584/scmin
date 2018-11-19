@@ -1,0 +1,424 @@
+.TH "include/eval.h" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/eval.h \- declaration of evaluation-related functions  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'types\&.h'\fP
+.br
+\fC#include 'gc\&.h'\fP
+.br
+\fC#include 'sexpr\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBKEYWORD\fP"
+.br
+.RI "pairing keywords with their corespondent C functions\&. "
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef \fBsexpr_t\fP *(* \fBk_func\fP) (\fBscope_t\fP *s, \fBsexpr_t\fP *expr)"
+.br
+.RI "keyword function prototype "
+.ti -1c
+.RI "typedef struct \fBKEYWORD\fP \fBkeyword_t\fP"
+.br
+.RI "pairing keywords with their corespondent C functions\&. "
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_sexpr\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.RI "evaluate an expression \fCexpr\fP within a given \fCscope\fP "
+.ti -1c
+.RI "\fBvector_t\fP * \fBeval_sexprs\fP (\fBvector_t\fP *exprs)"
+.br
+.RI "just like \fBeval_sexpr()\fP, but with a vector of s-expressions "
+.ti -1c
+.RI "\fBk_func\fP \fBeval_keyword\fP (\fBsexpr_t\fP *expr)"
+.br
+.RI "determines whether a \fCexpr\fP s-expression is a keyword or not "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_quote\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.RI "returns the expression as it is "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_define\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.RI "define a symbol to hold a sexpr "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_if\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.RI "performers a conditional based on the \fBcar()\fP of \fCexpr\fP "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_lambda\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.RI "creates lambda from \fCexpr\fP "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_set\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_setq\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_undef\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_eval\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_let\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.RI "define temporary symbols to be used in the next s-expression(s) "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_let_asterisk\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.RI "define temporary symbols related to be used in the next s-expression(s) "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_begin\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "void \fBeval_testing\fP ()"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+declaration of evaluation-related functions 
+
+
+.PP
+\fBSee also:\fP
+.RS 4
+src/keywords\&.c 
+.RE
+.PP
+
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef \fBsexpr_t\fP*(* k_func) (\fBscope_t\fP *s, \fBsexpr_t\fP *expr)"
+
+.PP
+keyword function prototype keywords need a scope that holds data, and also a s-expression to operate on
+.PP
+\fBParameters:\fP
+.RS 4
+\fIs\fP a container scope 
+.br
+\fIexpr\fP expression to operate on
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+return of the keyword operation as s-expression
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+keywords may need to evaluate expr and 
+.RE
+.PP
+
+.SS "typedef struct \fBKEYWORD\fP  \fBkeyword_t\fP"
+
+.PP
+pairing keywords with their corespondent C functions\&. 
+.PP
+\fBNote:\fP
+.RS 4
+those functions shall not be called directly 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "\fBsexpr_t\fP* eval_begin (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* eval_define (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.PP
+define a symbol to hold a sexpr evaluates the \fBcadr()\fP \fCexpr\fP and then creates a new bind with the result and the symbol in the \fBcar()\fP of \fCexpr\fP
+.PP
+\fBParameters:\fP
+.RS 4
+\fIscope\fP the containing scope 
+.br
+\fIexpr\fP the expression to evaluate
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+the defined s-expression
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBscope\&.h\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+\fCdefine\fP defines a symbol \fC(define symbol expr)\fP 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* eval_eval (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* eval_if (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.PP
+performers a conditional based on the \fBcar()\fP of \fCexpr\fP the condition is the \fBcar()\fP of \fCexpr\fP, if it was \fCtrue\fP, checked using \fBistrue()\fP, then \fBcadr()\fP is evaluated, otherwise the \fBcaddr()\fP if evaluated instead\&.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIscope\fP the containing scope 
+.br
+\fIexpr\fP the expression to evaluate
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+the evaluate of expression that satisfies the condition
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsexpr\&.h\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+conditions are done as \fC(if (expr) (foo) (bar))\fP\&. \fCfoo\fP is evaluated when \fCexpr\fP is not \fCnil\fP, otherwise evaluate \fCbar\fP 
+.RE
+.PP
+
+.SS "\fBk_func\fP eval_keyword (\fBsexpr_t\fP * expr)"
+
+.PP
+determines whether a \fCexpr\fP s-expression is a keyword or not 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIexpr\fP s-expression
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCNULL\fP if the \fCexpr\fP is not a keyword, or the keyword's correspondent function otherwise 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* eval_lambda (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.PP
+creates lambda from \fCexpr\fP initialize a non native lambda, \fBcar()\fP are the args and \fBcadr()\fP is the body
+.PP
+\fBParameters:\fP
+.RS 4
+\fIscope\fP a scope (see notes) 
+.br
+\fIexpr\fP the expression to evaluate
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+a s-expression contains a lambda
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsexpr\&.h\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+\fClambdas\fP are defined as \fC(lambda (args) (body))\fP 
+.PP
+the \fCscope\fP is not used but since lambda is a keyword so the function signature must contain a scope\&. 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* eval_let (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.PP
+define temporary symbols to be used in the next s-expression(s) the \fClet\fP operator let us define temporary symbol which is really handy when writing lambdas or other s-expressions\&.
+.PP
+for example \fC(let ((x foo) (y bar)) body)\fP with Lisp magic is equivalent to \fC((lambda (x y) body) foo bar)\fP\&. this function does the same by evaluating that lambda (called \fClet-lambda\fP in here)\&.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIscope\fP a scope 
+.br
+\fIexpr\fP the expression to evaluate
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+a s-expression evaluation of a let s-expression
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+lambda\&.h 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+let is defined as: \fC(let [label] ((arg param) \&.\&.\&.) body)\fP 
+.PP
+is label is not specified, let-lambda is used instead and can be used to call the let-lambda recursively same as if label was specified 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* eval_let_asterisk (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.PP
+define temporary symbols related to be used in the next s-expression(s) the \fClet*\fP operator is like normal let but we can define symbols that call each other except of the root symbol\&.
+.PP
+for example \fC(let* ((x foo) (y (symbol? x))) body)\fP and again with some help of Lisp magic is equivalent to something close to normal let \fC(let ((x foo)) (let ((y symbol? x)) body))\fP\&.
+.PP
+the main idea behind \fClet*\fP is to call let for each bonded symbol
+.PP
+\fBParameters:\fP
+.RS 4
+\fIscope\fP a scope 
+.br
+\fIexpr\fP the expression to evaluate
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+a s-expression evaluation of a let s-expression
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+lambda\&.h 
+.PP
+\fBeval_let()\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+let* is defined as: \fC(let* [label] ((arg param) \&.\&.\&.) body)\fP 
+.PP
+bindings cannot refer to other binding in upper levels\&. e\&.g\&. \fC(let* ((x y) (y 10)) body)\fP is not correct
+.RE
+.PP
+\fBBug\fP
+.RS 4
+this is not working as expected 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* eval_quote (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.PP
+returns the expression as it is quote gives the ability to just pass s-expression without evaluating them, and since \fCexpr\fP must be the \fBcdr()\fP of \fC'expr\fP, we need to return the \fBcar()\fP which is what we really want, and not \fCexpr\fP directly because we'll return the terminating nil as well\&.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIscope\fP the containing scope 
+.br
+\fIexpr\fP the expression to evaluate
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+expr without evaluation 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+quote is defined as (quote expr) 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* eval_set (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* eval_setq (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* eval_sexpr (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.PP
+evaluate an expression \fCexpr\fP within a given \fCscope\fP before evaluating each expression, we need to determine its type, there are native/predefined expression that would be executed directly using a predefined C function\&. and other expressions that are written in pure Scheme/Lisp that need to be evaluated
+.PP
+the first thing to do is to determine the type whether it's a normal s-expression or it does has an operator:
+.PP
+.IP "\(bu" 2
+if the expression is a keyword, we pass the \fBcdr()\fP, i\&.e\&. the args to the related function returned by \fBeval_keyword()\fP so that it runs evaluation on it's own and returns an evaluated s-expression\&.
+.IP "\(bu" 2
+if the expression is bonded to a symbol, resolve the bond using \fBresolve_bond()\fP and return the result\&.
+.IP "\(bu" 2
+if the expression is an atom, we just return it\&. (if symbol is not bonded it would be returned laterally)
+.PP
+.PP
+if none of the above situation was true, then it's must has an operator; so we get the operator (evaluating the \fBcar()\fP of the expression) and then we collect an evaluated version of the args by calling \fBeval_sexpr()\fP on each \fBcadr()\fP until we reach the end i\&.e\&. a \fCnil\fP at the end\&.
+.PP
+next, we look to see if the operator was a native one, if so; we call the related native function passing the arguments\&. otherwise we create a new scope (child scope of the current scope) then bind the lambda arguments using \fBbind_lambda_args()\fP to the arguments in the child scope and evaluate the lambda's body passing the new child scope\&. finally, the last result is returned
+.PP
+\fBParameters:\fP
+.RS 4
+\fIscope\fP the containing scope 
+.br
+\fIexpr\fP a s-expression to evaluate
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+the evaluated s-expression
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBsexpr\&.h\fP 
+.PP
+\fBscope\&.h\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+this function may call itself recursively 
+.RE
+.PP
+
+.SS "\fBvector_t\fP* eval_sexprs (\fBvector_t\fP * sexprs)"
+
+.PP
+just like \fBeval_sexpr()\fP, but with a vector of s-expressions 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsexprs\fP a vector of s-expressions
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+a vector of the evaluated s-expressions
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBeval_sexpr()\fP 
+.PP
+\fBvector\&.h\fP 
+.RE
+.PP
+
+.SS "void eval_testing ()"
+
+.SS "\fBsexpr_t\fP* eval_undef (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

@@ -1,0 +1,218 @@
+.TH "include/token.h" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/token.h \- definition of functionalities to handle tokens and their types  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'main\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBTOKEN\fP"
+.br
+.RI "a token is composed from a type and a value stored in the buffer with a depth in the s-expr "
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBTOK_SIZE_LIMIT\fP   (2 << 8)"
+.br
+.RI "limit of token characters "
+.ti -1c
+.RI "#define \fBTOK_LIMIT\fP(index)   (index > \fBTOK_SIZE_LIMIT\fP \- 1)"
+.br
+.RI "a macro to test if the \fBTOK_SIZE_LIMIT\fP was reached "
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef enum \fBTOKEN_TYPE\fP \fBtoken_type\fP"
+.br
+.RI "set of token types "
+.ti -1c
+.RI "typedef struct \fBTOKEN\fP \fBtoken_t\fP"
+.br
+.RI "a token is composed from a type and a value stored in the buffer with a depth in the s-expr "
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBTOKEN_TYPE\fP { \fBTOK_L_PAREN\fP = 0, \fBTOK_R_PAREN\fP, \fBTOK_QUOTE\fP, \fBTOK_STRING\fP, \fBTOK_NUMBER\fP, \fBTOK_SYMBOL\fP, \fBTOK_ERR\fP, \fBTOK_EOL\fP }
+.RI "set of token types ""
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBtoken_type\fP \fBpredict_token_type\fP (\fBstring_t\fP src)"
+.br
+.RI "predicts the type of a token "
+.ti -1c
+.RI "\fBtoken_t\fP * \fBtoken_new\fP (\fBtoken_type\fP type, \fBstring_t\fP vbuffer, int depth)"
+.br
+.RI "allocate and initialize a new token "
+.ti -1c
+.RI "void \fBtoken_print\fP (\fBobject_t\fP t)"
+.br
+.RI "display the token to the screen "
+.ti -1c
+.RI "void \fBtoken_free\fP (\fBobject_t\fP o)"
+.br
+.RI "free the memory occupied by token "
+.in -1c
+.SH "Detailed Description"
+.PP 
+definition of functionalities to handle tokens and their types 
+
+
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define TOK_LIMIT(index)   (index > \fBTOK_SIZE_LIMIT\fP \- 1)"
+
+.PP
+a macro to test if the \fBTOK_SIZE_LIMIT\fP was reached 
+.SS "#define TOK_SIZE_LIMIT   (2 << 8)"
+
+.PP
+limit of token characters 
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef struct \fBTOKEN\fP  \fBtoken_t\fP"
+
+.PP
+a token is composed from a type and a value stored in the buffer with a depth in the s-expr 
+.SS "typedef enum \fBTOKEN_TYPE\fP  \fBtoken_type\fP"
+
+.PP
+set of token types 
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "enum \fBTOKEN_TYPE\fP"
+
+.PP
+set of token types 
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fITOK_L_PAREN \fP\fP
+left parenthesis \fC(\fP 
+.TP
+\fB\fITOK_R_PAREN \fP\fP
+right parenthesis \fC)\fP 
+.TP
+\fB\fITOK_QUOTE \fP\fP
+quote \fC'\fP 
+.TP
+\fB\fITOK_STRING \fP\fP
+anything between two \fC"\fP 
+.TP
+\fB\fITOK_NUMBER \fP\fP
+any number like \fC1412\fP 
+.TP
+\fB\fITOK_SYMBOL \fP\fP
+anything else such as \fCfoo\fP or \fCstring?\fP 
+.TP
+\fB\fITOK_ERR \fP\fP
+flag a lexing issue 
+.TP
+\fB\fITOK_EOL \fP\fP
+END OF LEXING\&. 
+.SH "Function Documentation"
+.PP 
+.SS "\fBtoken_type\fP predict_token_type (\fBstring_t\fP code)"
+
+.PP
+predicts the type of a token 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcode\fP to be passed to \fBgetnc()\fP
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+a token type
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBchars\&.h\fP 
+.RE
+.PP
+
+.SS "void token_free (\fBobject_t\fP o)"
+
+.PP
+free the memory occupied by token it frees also the token's buffer if it was not \fCNULL\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP the token to print
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBvector\&.h\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+the reason why the token's type here is object_t instead of token is because this is used as printing function by \fBvector_print()\fP 
+.RE
+.PP
+
+.SS "\fBtoken_t\fP* token_new (\fBtoken_type\fP type, \fBstring_t\fP vbuffer, int depth)"
+
+.PP
+allocate and initialize a new token 
+.PP
+\fBParameters:\fP
+.RS 4
+\fItype\fP one of the types in \fBTOKEN_TYPE\fP 
+.br
+\fIvbuffer\fP token as text 
+.br
+\fIdepth\fP how many parenthesis are there
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+the initialized token 
+.RE
+.PP
+
+.SS "void token_print (\fBobject_t\fP o)"
+
+.PP
+display the token to the screen display the token as DEPTH - TYPE - BUFFER to the stdout using stdio printf
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP the token to print
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBvector\&.h\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+the reason why the token's type here is object_t instead of token is because this is used as printing function by \fBvector_print()\fP 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

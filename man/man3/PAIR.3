@@ -1,0 +1,50 @@
+.TH "PAIR" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+PAIR \- the cons cells  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <pair\&.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBcar\fP"
+.br
+.RI "the head of the list "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBcdr\fP"
+.br
+.RI "the rest of teh list "
+.ti -1c
+.RI "bool \fBislist\fP"
+.br
+.RI "\fCtrue\fP if this is a list and not a pair "
+.in -1c
+.SH "Detailed Description"
+.PP 
+the cons cells 
+
+containning the car and cdr which both holds the head and teh rest of teh list 
+.SH "Field Documentation"
+.PP 
+.SS "\fBsexpr_t\fP* car"
+
+.PP
+the head of the list 
+.SS "\fBsexpr_t\fP* cdr"
+
+.PP
+the rest of teh list 
+.SS "bool islist"
+
+.PP
+\fCtrue\fP if this is a list and not a pair 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

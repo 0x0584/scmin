@@ -1,0 +1,82 @@
+.TH "src/pair.c" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/pair.c
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'pair\&.h'\fP
+.br
+\fC#include 'sexpr\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBcons\fP (\fBsexpr_t\fP *\fBcar\fP, \fBsexpr_t\fP *\fBcdr\fP)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBcar\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBcdr\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "void \fBset_cdr\fP (\fBsexpr_t\fP *expr, \fBsexpr_t\fP *\fBcdr\fP)"
+.br
+.ti -1c
+.RI "void \fBset_car\fP (\fBsexpr_t\fP *expr, \fBsexpr_t\fP *\fBcar\fP)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBcaar\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBcdar\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBcadr\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBcddr\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBcaddr\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBcdadr\fP (\fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBcadar\fP (\fBsexpr_t\fP *expr)"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "\fBsexpr_t\fP* caar (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* cadar (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* caddr (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* cadr (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* car (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* cdadr (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* cdar (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* cddr (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* cdr (\fBsexpr_t\fP * expr)"
+
+.SS "\fBsexpr_t\fP* cons (\fBsexpr_t\fP * car, \fBsexpr_t\fP * cdr)"
+
+.SS "void set_car (\fBsexpr_t\fP * expr, \fBsexpr_t\fP * car)"
+
+.SS "void set_cdr (\fBsexpr_t\fP * expr, \fBsexpr_t\fP * cdr)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

@@ -1,0 +1,138 @@
+.TH "src/token.c" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/token.c \- token functionalities needed by the lexing functions  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'token\&.h'\fP
+.br
+\fC#include 'chars\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBtoken_type\fP \fBpredict_token_type\fP (\fBstring_t\fP code)"
+.br
+.RI "predicts the type of a token "
+.ti -1c
+.RI "\fBtoken_t\fP * \fBtoken_new\fP (\fBtoken_type\fP type, \fBstring_t\fP vbuffer, int depth)"
+.br
+.RI "allocate and initialize a new token "
+.ti -1c
+.RI "void \fBtoken_print\fP (\fBobject_t\fP o)"
+.br
+.RI "display the token to the screen "
+.ti -1c
+.RI "void \fBtoken_free\fP (\fBobject_t\fP o)"
+.br
+.RI "free the memory occupied by token "
+.in -1c
+.SH "Detailed Description"
+.PP 
+token functionalities needed by the lexing functions 
+
+
+.PP
+\fBSee also:\fP
+.RS 4
+\fBlexer\&.h\fP 
+.PP
+\fBtoken\&.h\fP 
+.PP
+\fBchars\&.h\fP 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "\fBtoken_type\fP predict_token_type (\fBstring_t\fP code)"
+
+.PP
+predicts the type of a token 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcode\fP to be passed to \fBgetnc()\fP
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+a token type
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBchars\&.h\fP 
+.RE
+.PP
+
+.SS "void token_free (\fBobject_t\fP o)"
+
+.PP
+free the memory occupied by token it frees also the token's buffer if it was not \fCNULL\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP the token to print
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBvector\&.h\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+the reason why the token's type here is object_t instead of token is because this is used as printing function by \fBvector_print()\fP 
+.RE
+.PP
+
+.SS "\fBtoken_t\fP* token_new (\fBtoken_type\fP type, \fBstring_t\fP vbuffer, int depth)"
+
+.PP
+allocate and initialize a new token 
+.PP
+\fBParameters:\fP
+.RS 4
+\fItype\fP one of the types in \fBTOKEN_TYPE\fP 
+.br
+\fIvbuffer\fP token as text 
+.br
+\fIdepth\fP how many parenthesis are there
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+the initialized token 
+.RE
+.PP
+
+.SS "void token_print (\fBobject_t\fP o)"
+
+.PP
+display the token to the screen display the token as DEPTH - TYPE - BUFFER to the stdout using stdio printf
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP the token to print
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBvector\&.h\fP 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+the reason why the token's type here is object_t instead of token is because this is used as printing function by \fBvector_print()\fP 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

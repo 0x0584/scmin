@@ -1,0 +1,218 @@
+.TH "src/gc.c" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/gc.c \- a simple Garbage Collector implementation of the mark-and-sweep algorithm  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'gc\&.h'\fP
+.br
+\fC#include 'vector\&.h'\fP
+.br
+\fC#include 'sexpr\&.h'\fP
+.br
+\fC#include 'native\&.h'\fP
+.br
+\fC#include 'scope\&.h'\fP
+.br
+\fC#include 'pair\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBgc_init\fP (void)"
+.br
+.RI "initialize the Garbage Collector's vectors "
+.ti -1c
+.RI "void \fBgc_clean\fP (void)"
+.br
+.RI "free's the Garbage Collect vectors from the memory, also free's the error log "
+.ti -1c
+.RI "long \fBgc_allocated_scopes_size\fP ()"
+.br
+.ti -1c
+.RI "long \fBgc_allocated_size\fP (void)"
+.br
+.RI "returns the size of currently allocated memory in Bytes "
+.ti -1c
+.RI "void \fBgc_sweep_log\fP (int a, int b)"
+.br
+.ti -1c
+.RI "void \fBgc_log\fP (bool iscleanup)"
+.br
+.ti -1c
+.RI "bool \fBgc_has_space_left\fP (void)"
+.br
+.RI "test whether there is some space left "
+.ti -1c
+.RI "void \fBgc_collect\fP (bool iscleanup)"
+.br
+.RI "collects the objects in the garbage collector by calling sweeping functions "
+.ti -1c
+.RI "void \fBgc_setmark_sexpr\fP (\fBsexpr_t\fP *expr, bool mark)"
+.br
+.ti -1c
+.RI "void \fBgc_sweep_sexprs\fP (\fBvector_t\fP *v)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBgc_alloc_sexpr\fP (void)"
+.br
+.ti -1c
+.RI "void \fBgc_free_sexpr\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "void \fBgc_setmark_lambda\fP (\fBlambda_t\fP *l, bool mark)"
+.br
+.ti -1c
+.RI "void \fBgc_sweep_lambdas\fP (\fBvector_t\fP *v)"
+.br
+.ti -1c
+.RI "\fBlambda_t\fP * \fBgc_alloc_lambda\fP (void)"
+.br
+.ti -1c
+.RI "void \fBgc_free_lambda\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "void \fBgc_setmark_scope\fP (\fBscope_t\fP *s, bool mark)"
+.br
+.ti -1c
+.RI "void \fBgc_sweep_scopes\fP (\fBvector_t\fP *v)"
+.br
+.ti -1c
+.RI "\fBscope_t\fP * \fBgc_alloc_scope\fP (void)"
+.br
+.ti -1c
+.RI "void \fBgc_free_scope\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "void \fBgc_debug_memory\fP (void)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "\fBvector_t\fP * \fBerror_log\fP"
+.br
+.RI "the error log "
+.in -1c
+.SH "Detailed Description"
+.PP 
+a simple Garbage Collector implementation of the mark-and-sweep algorithm 
+
+contains definitions to handle scopes, lambdas and s-expressions
+.PP
+\fBTodo\fP
+.RS 4
+figure out how to eliminate code-redundancy
+.RE
+.PP
+.PP
+\fBBug\fP
+.RS 4
+when a s-expression used inside the evaluation is returned, it's out of context so the GC would clean it while it's being used in another context\&. indeed causing errors\&. e\&.g\&. \fC(define foo (append-to (list 1 2 3) 5))\fP or \fC(define x (define y 1))\fP 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "\fBlambda_t\fP* gc_alloc_lambda (void)"
+
+.SS "\fBscope_t\fP* gc_alloc_scope (void)"
+
+.SS "\fBsexpr_t\fP* gc_alloc_sexpr (void)"
+
+.SS "long gc_allocated_scopes_size ()"
+
+.SS "long gc_allocated_size (void)"
+
+.PP
+returns the size of currently allocated memory in Bytes sum of all bytes allocated by the global vectors
+.PP
+\fBReturns:\fP
+.RS 4
+size of allocated memory by the GC 
+.RE
+.PP
+
+.SS "void gc_clean (void)"
+
+.PP
+free's the Garbage Collect vectors from the memory, also free's the error log 
+.SS "void gc_collect (bool iscleanup)"
+
+.PP
+collects the objects in the garbage collector by calling sweeping functions calls the following functions, \fBgc_sweep_sexprs()\fP, \fBgc_sweep_lambdas()\fP and \fBgc_sweep_scopes()\fP
+.PP
+\fBParameters:\fP
+.RS 4
+\fIiscleanup\fP whether to collect directly of see if there is some space left 
+.RE
+.PP
+
+.SS "void gc_debug_memory (void)"
+
+.SS "void gc_free_lambda (\fBobject_t\fP o)"
+
+.SS "void gc_free_scope (\fBobject_t\fP o)"
+
+.SS "void gc_free_sexpr (\fBobject_t\fP o)"
+
+.SS "bool gc_has_space_left (void)"
+
+.PP
+test whether there is some space left this is basically a test if the currently allocated space is less than gc_stack_limit
+.PP
+\fBReturns:\fP
+.RS 4
+\fCtrue\fP if there is some space left 
+.RE
+.PP
+
+.SS "void gc_init (void)"
+
+.PP
+initialize the Garbage Collector's vectors 
+.SS "void gc_log (bool iscleanup)"
+
+.SS "void gc_setmark_lambda (\fBlambda_t\fP * l, bool mark)"
+
+.SS "void gc_setmark_scope (\fBscope_t\fP * s, bool mark)"
+
+.SS "void gc_setmark_sexpr (\fBsexpr_t\fP * expr, bool mark)"
+
+.SS "void gc_sweep_lambdas (\fBvector_t\fP * v)"
+
+.SS "void gc_sweep_log (int a, int b)"
+
+.SS "void gc_sweep_scopes (\fBvector_t\fP * v)"
+
+.SS "void gc_sweep_sexprs (\fBvector_t\fP * v)"
+
+.SH "Variable Documentation"
+.PP 
+.SS "\fBvector_t\fP* error_log"
+
+.PP
+the error log 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBerror\&.c\fP
+.RE
+.PP
+the error log
+.PP
+\fBSee also:\fP
+.RS 4
+\fBerror\&.c\fP 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

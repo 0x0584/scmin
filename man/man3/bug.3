@@ -1,0 +1,12 @@
+.TH "bug" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+bugBug List 
+ \- 
+.IP "\fBGlobal \fBeval_let_asterisk\fP (scope_t *scope, sexpr_t *expr)\fP" 1c
+this is not working as expected  
+.IP "\fBFile \fBgc\&.c\fP \fP" 1c
+when a s-expression used inside the evaluation is returned, it's out of context so the GC would clean it while it's being used in another context\&. indeed causing errors\&. e\&.g\&. \fC(define foo (append-to (list 1 2 3) 5))\fP or \fC(define x (define y 1))\fP 
+.PP
+

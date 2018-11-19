@@ -1,0 +1,82 @@
+.TH "VECTOR" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+VECTOR \- implementation of Vector data structure using an Objects[]  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <vector\&.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "int \fBcapacity\fP"
+.br
+.RI "maximum size before reallocating new space "
+.ti -1c
+.RI "int \fBsize\fP"
+.br
+.RI "the current size, i\&.e\&. count, of the vector "
+.ti -1c
+.RI "\fBobject_t\fP * \fBobjs\fP"
+.br
+.RI "array of Objects of size capacity "
+.ti -1c
+.RI "\fBoperation_t\fP \fBfree_obj\fP"
+.br
+.RI "function pointer to a free-like function "
+.ti -1c
+.RI "\fBoperation_t\fP \fBprint_obj\fP"
+.br
+.RI "function pointer to a print function "
+.ti -1c
+.RI "\fBdebug_t\fP \fBdbg_obj\fP"
+.br
+.RI "function pointer to a debugging function "
+.ti -1c
+.RI "\fBcompare_t\fP \fBcmp_obj\fP"
+.br
+.RI "function pointer to a comparison function "
+.in -1c
+.SH "Detailed Description"
+.PP 
+implementation of Vector data structure using an Objects[] 
+
+each vector has a capacity and a size, as well as own printing function and free 
+.SH "Field Documentation"
+.PP 
+.SS "int capacity"
+
+.PP
+maximum size before reallocating new space 
+.SS "\fBcompare_t\fP cmp_obj"
+
+.PP
+function pointer to a comparison function 
+.SS "\fBdebug_t\fP dbg_obj"
+
+.PP
+function pointer to a debugging function 
+.SS "\fBoperation_t\fP free_obj"
+
+.PP
+function pointer to a free-like function 
+.SS "\fBobject_t\fP* objs"
+
+.PP
+array of Objects of size capacity 
+.SS "\fBoperation_t\fP print_obj"
+
+.PP
+function pointer to a print function 
+.SS "int size"
+
+.PP
+the current size, i\&.e\&. count, of the vector 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

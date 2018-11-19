@@ -1,0 +1,84 @@
+.TH "LAMBDA_EXPRESSION" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+LAMBDA_EXPRESSION \- the lambda expression is an expression that takes expressions as arguments, i\&.e\&. a function  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <sexpr\&.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBgc_info\fP \fBgci\fP"
+.br
+.RI "garbage collector information "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBargs\fP"
+.br
+.RI "the lambdas arguments (un-bonded symbols only) "
+.ti -1c
+.RI "bool \fBisnative\fP"
+.br
+.RI "true if the lambda is defined nativly in C "
+.ti -1c
+.RI "union {"
+.br
+.ti -1c
+.RI "   \fBnlambda_t\fP * \fBnative\fP"
+.br
+.RI "native lambda defined in C "
+.ti -1c
+.RI "   \fBsexpr_t\fP * \fBbody\fP"
+.br
+.RI "the lambda's body "
+.ti -1c
+.RI "}; "
+.br
+.RI "the lambda could be either native or a body as s-expression "
+.in -1c
+.SH "Detailed Description"
+.PP 
+the lambda expression is an expression that takes expressions as arguments, i\&.e\&. a function 
+
+
+.PP
+\fBNote:\fP
+.RS 4
+lambdas are defined as (lambda (args) (body)) 
+.RE
+.PP
+
+.SH "Field Documentation"
+.PP 
+.SS "union { \&.\&.\&. } "
+
+.PP
+the lambda could be either native or a body as s-expression 
+.SS "\fBsexpr_t\fP* args"
+
+.PP
+the lambdas arguments (un-bonded symbols only) 
+.SS "\fBsexpr_t\fP* body"
+
+.PP
+the lambda's body 
+.SS "\fBgc_info\fP gci"
+
+.PP
+garbage collector information 
+.SS "bool isnative"
+
+.PP
+true if the lambda is defined nativly in C 
+.SS "\fBnlambda_t\fP* native"
+
+.PP
+native lambda defined in C 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

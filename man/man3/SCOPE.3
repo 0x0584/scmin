@@ -1,0 +1,61 @@
+.TH "SCOPE" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+SCOPE \- a scope is a environment where the evaluation gets its predefined expression (i\&.e\&. bonds)  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <scope\&.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBgc_info\fP \fBgci\fP"
+.br
+.ti -1c
+.RI "\fBvector_t\fP * \fBbonds\fP"
+.br
+.RI "a vector of scope's bonds "
+.ti -1c
+.RI "\fBscope_t\fP * \fBparent\fP"
+.br
+.RI "a scope may have a parent or not "
+.in -1c
+.SH "Detailed Description"
+.PP 
+a scope is a environment where the evaluation gets its predefined expression (i\&.e\&. bonds) 
+
+
+.PP
+\fBNote:\fP
+.RS 4
+the global scope has no parent \fC(parent == NULL)\fP 
+.RE
+.PP
+
+.SH "Field Documentation"
+.PP 
+.SS "\fBvector_t\fP* bonds"
+
+.PP
+a vector of scope's bonds 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBVECTOR\fP 
+.RE
+.PP
+
+.SS "\fBgc_info\fP gci"
+Garbage Collection information 
+.SS "\fBscope_t\fP* parent"
+
+.PP
+a scope may have a parent or not 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

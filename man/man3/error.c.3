@@ -1,0 +1,170 @@
+.TH "src/error.c" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/error.c \- declaration of error handling functionalities  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'main\&.h'\fP
+.br
+\fC#include 'vector\&.h'\fP
+.br
+\fC#include 'chars\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBerr_raisee\fP (\fBserror_t\fP err, bool cond, int line, \fBstring_t\fP file, \fBstring_t\fP msg)"
+.br
+.ti -1c
+.RI "int \fBerr_log\fP (void)"
+.br
+.RI "prints the list of raised errors "
+.ti -1c
+.RI "void \fBerr_clean\fP (void)"
+.br
+.RI "frees the \fBerror_log\fP and set it to \fCNULL\fP "
+.ti -1c
+.RI "void \fBerr_free\fP (\fBobject_t\fP o)"
+.br
+.RI "does nothing "
+.ti -1c
+.RI "void \fBerr_print\fP (\fBobject_t\fP o)"
+.br
+.RI "outputs an error on the screen "
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "\fBvector_t\fP * \fBerror_log\fP = NULL"
+.br
+.RI "the error log of the occurred errors "
+.ti -1c
+.RI "\fBerror_t\fP \fBerrs\fP []"
+.br
+.RI "initializing errors and their messages "
+.in -1c
+.SH "Detailed Description"
+.PP 
+declaration of error handling functionalities 
+
+\fBerr_raise()\fP is called in the different stages of evaluations, indeed while lexing, parsing and evaluating\&. \fBerr_log()\fP would print the occurring errors\&. 
+.SH "Function Documentation"
+.PP 
+.SS "void err_clean (void)"
+
+.PP
+frees the \fBerror_log\fP and set it to \fCNULL\fP 
+.SS "void err_free (\fBobject_t\fP o)"
+
+.PP
+does nothing 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP the error
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+just to create a vector properly 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBvector\&.c\fP 
+.RE
+.PP
+
+.SS "int err_log (void)"
+
+.PP
+prints the list of raised errors 
+.PP
+\fBReturns:\fP
+.RS 4
+the number of errors 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+\fBerror_log\fP is free'd after calling this function 
+.RE
+.PP
+
+.SS "void err_print (\fBobject_t\fP o)"
+
+.PP
+outputs an error on the screen 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP the error 
+.RE
+.PP
+
+.SS "void err_raisee (\fBserror_t\fP err, bool cond, int line, \fBstring_t\fP file, \fBstring_t\fP msg)"
+
+.SH "Variable Documentation"
+.PP 
+.SS "\fBvector_t\fP* error_log = NULL"
+
+.PP
+the error log of the occurred errors the error log
+.PP
+\fBSee also:\fP
+.RS 4
+\fBerror\&.c\fP 
+.RE
+.PP
+
+.SS "\fBerror_t\fP errs[]"
+\fBInitial value:\fP
+.PP
+.nf
+= {
+    {"PARENS ARE NOT BALANCED", NULL, ERR_PRNS_BLNC},
+    {"STARTING WITH A CLOSING PAREN", NULL, ERR_PRNS_CLS},
+
+    {"TOKEN IS NOT CORRECT", NULL, ERR_TOK_ERR},
+    {"UNEXPECTED EOF IS REACHED", NULL, ERR_EOF_ERR},
+    {"SIZE LIMIT IS REACHED", NULL, ERR_SIZE_ERR},
+    {"SYMBOL CONTAINS BAD CHARACTERS", NULL, ERR_SYM_ERR},
+
+    {"NUMBER HAS MULTIPLE SIGNS", NULL, ERR_NUM_SIGN},
+    {"NUMBER HAS MULTIPLE PERIODS", NULL, ERR_NUM_PRD},
+    {"DIVIDING BY ZERO", NULL, ERR_DIVID_ZERO},
+    {"NUMBER HAS ALPHA CHARACTERS", NULL, ERR_NUM_DIG},
+
+    {"ARGUMENT TYPE IS NOT CORRECT", NULL, ERR_ARG_TYPE},
+    {"ARGUMENT COUNT IS NOT CORRECT", NULL, ERR_ARG_COUNT},
+    {"CANNOT BIND LAMBDA ARGS", NULL, ERR_LMBD_ARGS},
+
+    {"FINAL RESULT SHOULD NOT BE NULL", NULL, ERR_RSLT_NULL},
+    {"FILE NOT FOUND", NULL, ERR_FILE_ERR},
+
+    {"CANNOT SET SYMBOL", NULL, ERR_CANNOT_SET},
+    {"OPERATOR NOT FOUND", NULL, ERR_OP_NOT_FOUND},
+    {"CANNOT ALTER RESERVED SYMBOLS OR LITERALS", NULL, ERR_MDFY_RSRVD},
+    {"ABORT THE EVALUATION!", NULL, ERR_ERR},
+
+    {NULL, NULL, ERR_NO_ERROR}
+}
+.fi
+.PP
+initializing errors and their messages 
+.PP
+\fBSee also:\fP
+.RS 4
+\fBmain\&.h\fP 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

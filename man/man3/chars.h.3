@@ -1,0 +1,198 @@
+.TH "include/chars.h" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/chars.h \- definitions of functions to handle string  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'main\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "char \fBstream_string\fP (const \fBstring_t\fP str, bool isget)"
+.br
+.RI "when it's called, if the same parameter \fCstr\fP was passed, it would return the characters of \fCstr\fP successively each time\&. "
+.ti -1c
+.RI "\fBstring_t\fP \fBfile_as_string\fP (const char *filename)"
+.br
+.RI "takes input from the stream and format it as a string "
+.ti -1c
+.RI "\fBstring_t\fP \fBstdin_as_string\fP (void)"
+.br
+.ti -1c
+.RI "char \fBungetnc\fP (void)"
+.br
+.RI "basically calling \fBstream_string()\fP with \fCstr\fP and pass \fCisget\fP as \fCfalse\fP "
+.ti -1c
+.RI "char \fBgetnc\fP (const \fBstring_t\fP str)"
+.br
+.RI "basically calling \fBstream_string()\fP with \fCstr\fP and pass \fCisget\fP as \fCtrue\fP "
+.ti -1c
+.RI "\fBstring_t\fP \fBreduce_string_size\fP (\fBstring_t\fP str)"
+.br
+.RI "reallocate the memory so that the size of \fCstr\fP matches strlen() takes a dynamically allocated string, and reduce it's size to fit the optimal size, i\&.e\&. its length plus the null character \fC\\0\fP "
+.ti -1c
+.RI "bool \fBclean_comments\fP (\fBstring_t\fP code)"
+.br
+.RI "takes any possible comments from the \fCcode\fP string "
+.ti -1c
+.RI "bool \fBclean_whitespaces\fP (\fBstring_t\fP code)"
+.br
+.RI "takes any possible white-spaces from the \fCcode\fP string "
+.ti -1c
+.RI "bool \fBclean_source_code\fP (\fBstring_t\fP code)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+definitions of functions to handle string 
+
+providing a manner to retrieve characters of a string as sequence using \fBgetnc()\fP and \fBungetnc()\fP which are based on \fBstream_string()\fP 
+.SH "Function Documentation"
+.PP 
+.SS "bool clean_comments (\fBstring_t\fP code)"
+
+.PP
+takes any possible comments from the \fCcode\fP string this is really setting the index in \fBgetnc()\fP to the line not starting with \fC;\fP
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcode\fP a string containing Scheme-like syntax
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCfalse\fP if we reach the \fCEOF\fP
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+gentc() 
+.RE
+.PP
+
+.SS "bool clean_source_code (\fBstring_t\fP code)"
+
+.SS "bool clean_whitespaces (\fBstring_t\fP code)"
+
+.PP
+takes any possible white-spaces from the \fCcode\fP string this is really setting the index in \fBgetnc()\fP to the first non-white-spaced character
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcode\fP a string containing Scheme/Lisp syntax
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+\fCfalse\fP if we reach the \fCEOF\fP
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+gentc() 
+.RE
+.PP
+
+.SS "\fBstring_t\fP file_as_string (const char * filename)"
+
+.PP
+takes input from the stream and format it as a string 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIfilename\fP to get characters from
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+the content of what was typed 
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+it stops after hitting \fC(\\r || \\n)\fP 
+.RE
+.PP
+
+.SS "char getnc (const \fBstring_t\fP str)"
+
+.PP
+basically calling \fBstream_string()\fP with \fCstr\fP and pass \fCisget\fP as \fCtrue\fP 
+.PP
+\fBReturns:\fP
+.RS 4
+the next character in the stream
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBstream_string()\fP 
+.RE
+.PP
+
+.SS "\fBstring_t\fP reduce_string_size (\fBstring_t\fP str)"
+
+.PP
+reallocate the memory so that the size of \fCstr\fP matches strlen() takes a dynamically allocated string, and reduce it's size to fit the optimal size, i\&.e\&. its length plus the null character \fC\\0\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIstr\fP a dynamically allocated string
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+optimal-size string 
+.RE
+.PP
+
+.SS "\fBstring_t\fP stdin_as_string (void)"
+
+.SS "char stream_string (const \fBstring_t\fP str, bool isget)"
+
+.PP
+when it's called, if the same parameter \fCstr\fP was passed, it would return the characters of \fCstr\fP successively each time\&. holds two static variables, one for the old string and one for the current index\&. if \fColdstr == str\fP that means that the string is the same as the previous time and we return the current character and then increment index\&. otherwise, we set the \fColdstr\fP to \fCstr\fP, and we return the first character\&. if \fCfalse\fP, we return than this is the old string, we look for the \fCisget\fP\&. if \fCisget\fP was \fCtrue\fP, return the current character, otherwise, decrement the index
+.PP
+\fBParameters:\fP
+.RS 4
+\fIstr\fP a string to keep track on 
+.br
+\fIisget\fP take or push back current character
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+the desired character
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+string must not be \fCNULL\fP 
+.RE
+.PP
+
+.SS "char ungetnc (void)"
+
+.PP
+basically calling \fBstream_string()\fP with \fCstr\fP and pass \fCisget\fP as \fCfalse\fP 
+.PP
+\fBReturns:\fP
+.RS 4
+the previously streamed character in the stream
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBstream_string()\fP 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

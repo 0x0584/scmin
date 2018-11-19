@@ -1,0 +1,147 @@
+.TH "include/scope.h" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/scope.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'sexpr\&.h'\fP
+.br
+\fC#include 'gc\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBSCOPE_BOND\fP"
+.br
+.RI "a symbol that would be related to a s-expression "
+.ti -1c
+.RI "struct \fBSCOPE\fP"
+.br
+.RI "a scope is a environment where the evaluation gets its predefined expression (i\&.e\&. bonds) "
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBSCOPE_BOND\fP \fBbond_t\fP"
+.br
+.RI "a symbol that would be related to a s-expression "
+.ti -1c
+.RI "typedef struct \fBSCOPE\fP \fBscope_t\fP"
+.br
+.RI "a scope is a environment where the evaluation gets its predefined expression (i\&.e\&. bonds) "
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBbond_t\fP * \fBbond_new\fP (\fBstring_t\fP key, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "void \fBbond_free\fP (\fBobject_t\fP b)"
+.br
+.ti -1c
+.RI "bool \fBbond_cmp\fP (\fBobject_t\fP o1, \fBobject_t\fP o2)"
+.br
+.ti -1c
+.RI "void \fBbond_describe\fP (\fBobject_t\fP b)"
+.br
+.ti -1c
+.RI "bool \fBisbonded\fP (\fBscope_t\fP *s, \fBsexpr_t\fP *)"
+.br
+.ti -1c
+.RI "\fBbond_t\fP * \fBresolve_bond\fP (\fBscope_t\fP *s, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "void \fBbind_lambda_args\fP (\fBscope_t\fP *s, \fBlambda_t\fP *l, \fBsexpr_t\fP *args)"
+.br
+.ti -1c
+.RI "bool \fBisreserved\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.br
+.ti -1c
+.RI "\fBscope_t\fP * \fBscope_init\fP (\fBscope_t\fP *parent)"
+.br
+.ti -1c
+.RI "void \fBscope_describe\fP (\fBobject_t\fP s)"
+.br
+.ti -1c
+.RI "\fBscope_t\fP * \fBget_global_scope\fP (void)"
+.br
+.ti -1c
+.RI "void \fBscope_push_bond\fP (\fBscope_t\fP *s, \fBbond_t\fP *b)"
+.br
+.RI "push new bonds or replace old ones "
+.ti -1c
+.RI "void \fBsetglobal\fP (\fBsexpr_t\fP *sexpr, bool isglobal)"
+.br
+.in -1c
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef struct \fBSCOPE_BOND\fP  \fBbond_t\fP"
+
+.PP
+a symbol that would be related to a s-expression when evaluating a symbol who's like \fCsymbol\fP, \fCsexpr\fP is returned instead\&. this is done using \fBresolve_bond()\fP
+.PP
+\fBNote:\fP
+.RS 4
+this might be used as \fCHashMap\fP also as Strings too, have a Global String context, since a \fCHashMap\fP has \fCO(1)\fP complexity 
+.RE
+.PP
+
+.SS "typedef struct \fBSCOPE\fP  \fBscope_t\fP"
+
+.PP
+a scope is a environment where the evaluation gets its predefined expression (i\&.e\&. bonds) 
+.PP
+\fBNote:\fP
+.RS 4
+the global scope has no parent \fC(parent == NULL)\fP 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "void bind_lambda_args (\fBscope_t\fP * s, \fBlambda_t\fP * l, \fBsexpr_t\fP * args)"
+
+.SS "bool bond_cmp (\fBobject_t\fP o1, \fBobject_t\fP o2)"
+
+.SS "void bond_describe (\fBobject_t\fP b)"
+
+.SS "void bond_free (\fBobject_t\fP b)"
+
+.SS "\fBbond_t\fP* bond_new (\fBstring_t\fP key, \fBsexpr_t\fP * expr)"
+
+.SS "\fBscope_t\fP* get_global_scope (void)"
+
+.SS "bool isbonded (\fBscope_t\fP * s, \fBsexpr_t\fP *)"
+
+.SS "bool isreserved (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+
+.SS "\fBbond_t\fP* resolve_bond (\fBscope_t\fP * s, \fBsexpr_t\fP * expr)"
+
+.SS "void scope_describe (\fBobject_t\fP s)"
+
+.SS "\fBscope_t\fP* scope_init (\fBscope_t\fP * parent)"
+
+.SS "void scope_push_bond (\fBscope_t\fP * scope, \fBbond_t\fP * bond)"
+
+.PP
+push new bonds or replace old ones here we set global scope bond members as global so that they won't be cleaned up while cleaning
+.PP
+\fBParameters:\fP
+.RS 4
+\fIscope\fP the scope to push into 
+.br
+\fIbond\fP a bond to push 
+.RE
+.PP
+
+.SS "void setglobal (\fBsexpr_t\fP * sexpr, bool isglobal)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

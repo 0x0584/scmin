@@ -1,0 +1,464 @@
+.TH "include/vector.h" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/vector.h \- definition of Vector Data Structure functionalities  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'main\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBVECTOR\fP"
+.br
+.RI "implementation of Vector data structure using an Objects[] "
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBVECTOR_DEFAULT_CAPACITY\fP   (2<<4)"
+.br
+.RI "vector default capacity "
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef void * \fBobject_t\fP"
+.br
+.RI "defining objects by a generic pointer "
+.ti -1c
+.RI "typedef void(* \fBoperation_t\fP) (\fBobject_t\fP o)"
+.br
+.RI "any operation to apply on a vector member "
+.ti -1c
+.RI "typedef bool(* \fBcompare_t\fP) (\fBobject_t\fP a, \fBobject_t\fP b)"
+.br
+.RI "comparison between the vector members "
+.ti -1c
+.RI "typedef void(* \fBdebug_t\fP) (FILE *stream, \fBobject_t\fP o)"
+.br
+.RI "debugging an object o "
+.ti -1c
+.RI "typedef struct \fBVECTOR\fP \fBvector_t\fP"
+.br
+.RI "implementation of Vector data structure using an Objects[] "
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBvector_t\fP * \fBvector_new\fP (\fBoperation_t\fP free_obj, \fBoperation_t\fP print_obj, \fBcompare_t\fP cmp_obj)"
+.br
+.RI "allocates the memory for the new vector and its members "
+.ti -1c
+.RI "void \fBvector_free\fP (\fBobject_t\fP o)"
+.br
+.RI "frees \fCo\fP and its objects "
+.ti -1c
+.RI "\fBvector_t\fP * \fBvector_compact\fP (\fBvector_t\fP *v)"
+.br
+.RI "eliminating the \fCNULL\fP Objects and set \fCv\fP size and capacity to the new count of the objects "
+.ti -1c
+.RI "void \fBvector_set\fP (\fBvector_t\fP *v, int i, \fBobject_t\fP o)"
+.br
+.RI "changes the values of the \fCi-th\fP Object in \fCv\fP by the new object \fCo\fP "
+.ti -1c
+.RI "\fBobject_t\fP \fBvector_get\fP (\fBvector_t\fP *v, int i)"
+.br
+.RI "retrieve the \fCi-th\fP Object from \fCv\fP objects\&. "
+.ti -1c
+.RI "\fBobject_t\fP \fBvector_add\fP (\fBvector_t\fP *v, \fBobject_t\fP o, int i)"
+.br
+.RI "adds \fCo\fP in the \fCi-th\fP index of \fCv\fP object's array, it also increments the \fCv\fP size "
+.ti -1c
+.RI "void \fBvector_del\fP (\fBvector_t\fP *v, int i)"
+.br
+.RI "removes \fCo\fP in the \fCi-th\fP index of \fCv\fP object's array, it also decrements the \fCv\fP size "
+.ti -1c
+.RI "\fBobject_t\fP \fBvector_push\fP (\fBvector_t\fP *v, \fBobject_t\fP o)"
+.br
+.RI "same functionality as LIFO push "
+.ti -1c
+.RI "\fBobject_t\fP \fBvector_pop\fP (\fBvector_t\fP *v)"
+.br
+.RI "same functionally as a LIFO pop "
+.ti -1c
+.RI "\fBobject_t\fP \fBvector_peek\fP (\fBvector_t\fP *v)"
+.br
+.RI "same functionality as FIFO peek "
+.ti -1c
+.RI "\fBobject_t\fP \fBvector_find\fP (\fBvector_t\fP *v, \fBobject_t\fP o)"
+.br
+.RI "if \fCo\fP matches any object in \fCv\fP, we return it "
+.ti -1c
+.RI "void \fBvector_print\fP (\fBobject_t\fP v)"
+.br
+.RI "prints the \fCv\fP elements using \fCprint_obj()\fP "
+.ti -1c
+.RI "void \fBvector_set_debug\fP (\fBvector_t\fP *v, \fBdebug_t\fP dbg)"
+.br
+.RI "sets the debugging function "
+.ti -1c
+.RI "void \fBvector_debug\fP (FILE *stream, \fBvector_t\fP *v)"
+.br
+.RI "same as \fBvector_print()\fP but with \fCv's\fP dbg_obj() instead of print_obj() "
+.ti -1c
+.RI "void \fBvector_testing\fP (void)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+definition of Vector Data Structure functionalities 
+
+the vector holds an Array of objects (basically \fCvoid *\fP pointers) which point to the desired objects\&. when \fBvector_free()\fP is called, it free the objects first using the free_obj(), if not, it will use the default free() 
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define VECTOR_DEFAULT_CAPACITY   (2<<4)"
+
+.PP
+vector default capacity 
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef bool(* compare_t) (\fBobject_t\fP a, \fBobject_t\fP b)"
+
+.PP
+comparison between the vector members 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIa\fP first object 
+.br
+\fIb\fP second object
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+true if the objects match, false otherwise 
+.RE
+.PP
+
+.SS "typedef void(* debug_t) (FILE *stream, \fBobject_t\fP o)"
+
+.PP
+debugging an object o 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIstream\fP stream to debug into 
+.br
+\fIo\fP object to debug 
+.RE
+.PP
+
+.SS "typedef void* \fBobject_t\fP"
+
+.PP
+defining objects by a generic pointer 
+.SS "typedef void(* operation_t) (\fBobject_t\fP o)"
+
+.PP
+any operation to apply on a vector member 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP the object 
+.RE
+.PP
+
+.SS "typedef struct \fBVECTOR\fP  \fBvector_t\fP"
+
+.PP
+implementation of Vector data structure using an Objects[] each vector has a capacity and a size, as well as own printing function and free 
+.SH "Function Documentation"
+.PP 
+.SS "\fBobject_t\fP vector_add (\fBvector_t\fP * v, \fBobject_t\fP o, int i)"
+
+.PP
+adds \fCo\fP in the \fCi-th\fP index of \fCv\fP object's array, it also increments the \fCv\fP size if the the we reach the maximum capacity of the \fCv\fP, then we reallocate the memory adding \fBVECTOR_DEFAULT_CAPACITY\fP to the current capacity
+.PP
+\fBParameters:\fP
+.RS 4
+\fIv\fP Vector 
+.br
+\fIo\fP Object 
+.br
+\fIi\fP index where to put \fCo\fP
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+the added object \fCo\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+\fCi\fP must be within the current capacity of \fCv\fP 
+.RE
+.PP
+
+.SS "\fBvector_t\fP* vector_compact (\fBvector_t\fP * v)"
+
+.PP
+eliminating the \fCNULL\fP Objects and set \fCv\fP size and capacity to the new count of the objects this function implements the following algorithm compacts the vector while preserving its order, the idea is to keep the \fCNULLs\fP at the end and bringing the objects to the front while preserving the order\&.
+.PP
+.IP "1." 4
+remove \fCNULLs\fP from the back while decreasing the size
+.IP "2." 4
+starting at the front this time
+.IP "  \(bu" 4
+look for the first \fCNULL\fP, saved as \fCindex_A\fP
+.IP "  \(bu" 4
+look for first object, saved as \fCindex_B\fP
+.PP
+
+.IP "3." 4
+swap objects in \fCindex_A\fP and \fCindex_B\fP
+.IP "4." 4
+repeat start again at \fCindex_A\fP
+.PP
+.PP
+\fBParameters:\fP
+.RS 4
+\fIv\fP the vector to compact
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+same vector \fCv\fP but now it's compacted 
+.RE
+.PP
+
+.SS "void vector_debug (FILE * stream, \fBvector_t\fP * v)"
+
+.PP
+same as \fBvector_print()\fP but with \fCv's\fP dbg_obj() instead of print_obj() along with the array index of each object and it's memory address\&. this could be used also to write into a file (it must be handled outside)
+.PP
+\fBParameters:\fP
+.RS 4
+\fIstream\fP where to output 
+.br
+\fIv\fP vector to debug
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBvector_print()\fP 
+.RE
+.PP
+
+.SS "void vector_del (\fBvector_t\fP * v, int i)"
+
+.PP
+removes \fCo\fP in the \fCi-th\fP index of \fCv\fP object's array, it also decrements the \fCv\fP size calls \fCv's\fP \fCfree_obj()\fP (if not \fCNULL\fP) to free \fCo\fP if it was not \fCNULL\fP
+.PP
+\fBParameters:\fP
+.RS 4
+\fIv\fP Vector 
+.br
+\fIi\fP index of object to be deleted
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+reallocates the objects array if necessary 
+.RE
+.PP
+
+.SS "\fBobject_t\fP vector_find (\fBvector_t\fP * v, \fBobject_t\fP o)"
+
+.PP
+if \fCo\fP matches any object in \fCv\fP, we return it using \fCv\fP \fCcmp_obj()\fP, \fCo\fP is compared with every object in the objects array, if there's a match, we return it
+.PP
+\fBParameters:\fP
+.RS 4
+\fIv\fP vector of objects 
+.br
+\fIo\fP the object to match
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+NULL if no object was found, or the object otherwise
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+\fCcmp_obj()\fP is required, otherwise NULL would be returned 
+.RE
+.PP
+
+.SS "void vector_free (\fBobject_t\fP o)"
+
+.PP
+frees \fCo\fP and its objects if \fCo\fP has a specific free function, i\&.e\&. \fCfree_obj()\fP, then a loop through all the object to free each one using \fCfree_obj()\fP
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP Vector
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+the reason why the parameter is an object instead of a vector, is to make it possible to create a vector of vectors 
+.RE
+.PP
+
+.SS "\fBobject_t\fP vector_get (\fBvector_t\fP * v, int i)"
+
+.PP
+retrieve the \fCi-th\fP Object from \fCv\fP objects\&. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIv\fP Vector 
+.br
+\fIi\fP index of the Object
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+the \fCi-th\fP object or NULL otherwise
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+\fCNULL\fP is returned if \fC(i < 0 || i > v->size)\fP was true, i\&.e\&. out of range 
+.RE
+.PP
+
+.SS "\fBvector_t\fP* vector_new (\fBoperation_t\fP free_obj, \fBoperation_t\fP print_obj, \fBcompare_t\fP cmp_obj)"
+
+.PP
+allocates the memory for the new vector and its members 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIfree_obj\fP a function to free the Object\&. 
+.br
+\fIprint_obj\fP a function to print the Object\&. 
+.br
+\fIcmp_obj\fP a function to compare the vector's objects
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+a new Vector
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+\fCcmp_obj\fP is required by \fBvector_find()\fP 
+.RE
+.PP
+
+.SS "\fBobject_t\fP vector_peek (\fBvector_t\fP * v)"
+
+.PP
+same functionality as FIFO peek 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIv\fP Vector
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+the peeked object 
+.RE
+.PP
+
+.SS "\fBobject_t\fP vector_pop (\fBvector_t\fP * v)"
+
+.PP
+same functionally as a LIFO pop 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIv\fP Vector
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+the popped object 
+.RE
+.PP
+
+.SS "void vector_print (\fBobject_t\fP o)"
+
+.PP
+prints the \fCv\fP elements using \fCprint_obj()\fP or just the index and the address if \fCprint_obj()\fP was \fCNULL\fP
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP Vector
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+the reason why the argument is an object is to make it possible to use it within vector of vectors 
+.RE
+.PP
+
+.SS "\fBobject_t\fP vector_push (\fBvector_t\fP * v, \fBobject_t\fP o)"
+
+.PP
+same functionality as LIFO push 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIv\fP Vector 
+.br
+\fIo\fP Object
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+calls \fBvector_add()\fP directly, since a LIFO push is the default adding method 
+.RE
+.PP
+
+.SS "void vector_set (\fBvector_t\fP * v, int i, \fBobject_t\fP o)"
+
+.PP
+changes the values of the \fCi-th\fP Object in \fCv\fP by the new object \fCo\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIv\fP Vector 
+.br
+\fIo\fP Object 
+.br
+\fIi\fP index where to put \fCo\fP 
+.RE
+.PP
+
+.SS "void vector_set_debug (\fBvector_t\fP * v, \fBdebug_t\fP dbg)"
+
+.PP
+sets the debugging function 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIv\fP vector 
+.br
+\fIdbg\fP debugging function
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+this is the only way to set the debugging function 
+.RE
+.PP
+
+.SS "void vector_testing (void)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

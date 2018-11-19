@@ -1,0 +1,57 @@
+.TH "ERROR" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+ERROR \- binding an error with the correspondent message  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <main\&.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBstring_t\fP \fBerrmsg\fP"
+.br
+.RI "error message "
+.ti -1c
+.RI "\fBstring_t\fP \fBcond\fP"
+.br
+.RI "condtion raising the error "
+.ti -1c
+.RI "\fBserror_t\fP \fBerr\fP"
+.br
+.RI "a defined interpreter errors error "
+.in -1c
+.SH "Detailed Description"
+.PP 
+binding an error with the correspondent message 
+
+
+.PP
+\fBSee also:\fP
+.RS 4
+\fBerror\&.c\fP 
+.RE
+.PP
+
+.SH "Field Documentation"
+.PP 
+.SS "\fBstring_t\fP cond"
+
+.PP
+condtion raising the error 
+.SS "\fBserror_t\fP err"
+
+.PP
+a defined interpreter errors error 
+.SS "\fBstring_t\fP errmsg"
+
+.PP
+error message 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

@@ -1,0 +1,189 @@
+.TH "include/lexer.h" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/lexer.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'main\&.h'\fP
+.br
+\fC#include 'token\&.h'\fP
+.br
+\fC#include 'chars\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBvector_t\fP * \fBread_tokens\fP (\fBstring_t\fP code)"
+.br
+.ti -1c
+.RI "\fBvector_t\fP * \fBread_stream_tokens\fP (const \fBstring_t\fP filename)"
+.br
+.ti -1c
+.RI "\fBtoken_t\fP * \fBread_next_token\fP (\fBstring_t\fP code)"
+.br
+.RI "move through all the tokens in a giving \fCcode\fP\&. "
+.ti -1c
+.RI "\fBstring_t\fP \fBread_string\fP (\fBstring_t\fP code)"
+.br
+.ti -1c
+.RI "\fBstring_t\fP \fBread_number\fP (\fBstring_t\fP code)"
+.br
+.ti -1c
+.RI "\fBstring_t\fP \fBread_symbol\fP (\fBstring_t\fP code)"
+.br
+.ti -1c
+.RI "void \fBlexer_testing\fP (void)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+this file contains declarations of functionalities to verify the grammar of a Scheme-like code and get all tokens in there and then using read_tokes() or \fBread_stream_tokens()\fP, it collects the tokens in a into a Vector
+.PP
+\fBSee also:\fP
+.RS 4
+\fBtoken\&.h\fP 
+.PP
+\fBvector\&.h\fP 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "void lexer_testing (void)"
+
+.SS "\fBtoken_t\fP* read_next_token (const \fBstring_t\fP code)"
+
+.PP
+move through all the tokens in a giving \fCcode\fP\&. first, it calls \fBclean_comments()\fP and \fBclean_whitespaces()\fP to clean the \fCcode\fP\&. after that, using \fBgetnc()\fP to keep track on the stream, it gets a character\&. it calls \fBpredict_token_type()\fP to determine the type of the next token\&. the it calls one of the read functions based on the result\&.
+.PP
+\fBReturns:\fP
+.RS 4
+a Token
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBgetnc()\fP 
+.PP
+\fBtoken\&.h\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+this function modifies the static values in of \fBgetnc()\fP 
+.RE
+.PP
+
+.SS "\fBstring_t\fP read_number (const \fBstring_t\fP code)"
+reads the token value from \fCcode\fP as number
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcode\fP a Scheme/Lisp syntax
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+value of the token if type matches, or \fCNULL\fP otherwise
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBgetnc()\fP 
+.PP
+\fBtoken\&.h\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+this function modifies the static values in of \fBgetnc()\fP 
+.RE
+.PP
+
+.SS "\fBvector_t\fP* read_stream_tokens (const \fBstring_t\fP filename)"
+this function reads a characters from \fCstream\fP, convert them into a string and call \fBread_tokens()\fP
+.PP
+\fBParameters:\fP
+.RS 4
+\fIfilename\fP a string containing Scheme-like syntax
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+a Vector of tokens 
+.RE
+.PP
+
+.SS "\fBstring_t\fP read_string (const \fBstring_t\fP code)"
+reads the token value from \fCcode\fP as string
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcode\fP a Scheme/Lisp syntax
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+value of the token if type matches, or \fCNULL\fP otherwise
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBgetnc()\fP 
+.PP
+\fBtoken\&.h\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+this function modifies the static values in of \fBgetnc()\fP 
+.RE
+.PP
+
+.SS "\fBstring_t\fP read_symbol (const \fBstring_t\fP code)"
+reads the token value from \fCcode\fP as symbol
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcode\fP a Scheme/Lisp syntax
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+value of the token if type matches, or \fCNULL\fP otherwise
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBgetnc()\fP 
+.PP
+\fBtoken\&.h\fP
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+this function modifies the static values in of \fBgetnc()\fP 
+.RE
+.PP
+
+.SS "\fBvector_t\fP* read_tokens (const \fBstring_t\fP src)"
+this function reads a \fCcode\fP string, i\&.e\&. source code
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsrc\fP a string containing Scheme-like syntax
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+a Vector of tokens 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

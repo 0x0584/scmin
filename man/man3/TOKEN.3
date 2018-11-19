@@ -1,0 +1,48 @@
+.TH "TOKEN" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+TOKEN \- a token is composed from a type and a value stored in the buffer with a depth in the s-expr  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <token\&.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBtoken_type\fP \fBtype\fP"
+.br
+.RI "the token type "
+.ti -1c
+.RI "\fBstring_t\fP \fBvbuffer\fP"
+.br
+.RI "the content of the token as string "
+.ti -1c
+.RI "int \fBdepth\fP"
+.br
+.RI "depth of the token within the expression "
+.in -1c
+.SH "Detailed Description"
+.PP 
+a token is composed from a type and a value stored in the buffer with a depth in the s-expr 
+.SH "Field Documentation"
+.PP 
+.SS "int depth"
+
+.PP
+depth of the token within the expression 
+.SS "\fBtoken_type\fP type"
+
+.PP
+the token type 
+.SS "\fBstring_t\fP vbuffer"
+
+.PP
+the content of the token as string 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

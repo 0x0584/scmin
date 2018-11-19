@@ -1,0 +1,92 @@
+.TH "src/parser.c" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/parser.c \- contains the declaration of parsing functionalities  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'parser\&.h'\fP
+.br
+\fC#include 'vector\&.h'\fP
+.br
+\fC#include 'token\&.h'\fP
+.br
+\fC#include 'pair\&.h'\fP
+.br
+\fC#include 'sexpr\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBparse_sexpr\fP (\fBvector_t\fP *tokens)"
+.br
+.RI "this function is responsible of turning a set of tokens into a s-expression\&. "
+.ti -1c
+.RI "\fBvector_t\fP * \fBparse_sexprs\fP (\fBvector_t\fP *vtokens)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBparse_as_list\fP (\fBvector_t\fP *tokens)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBparse_as_quote\fP (\fBvector_t\fP *tokens)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBparse_as_number\fP (\fBstring_t\fP value)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBparse_as_string\fP (\fBstring_t\fP value)"
+.br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBparse_as_symbol\fP (\fBstring_t\fP value)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+contains the declaration of parsing functionalities 
+
+the main method here is \fBparse_sexpr()\fP
+.PP
+\fBSee also:\fP
+.RS 4
+\fBvector\&.h\fP 
+.PP
+\fBtoken\&.h\fP 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "\fBsexpr_t\fP* parse_as_list (\fBvector_t\fP * tokens)"
+
+.SS "\fBsexpr_t\fP* parse_as_number (\fBstring_t\fP value)"
+
+.SS "\fBsexpr_t\fP* parse_as_quote (\fBvector_t\fP * tokens)"
+
+.SS "\fBsexpr_t\fP* parse_as_string (\fBstring_t\fP value)"
+
+.SS "\fBsexpr_t\fP* parse_as_symbol (\fBstring_t\fP value)"
+
+.SS "\fBsexpr_t\fP* parse_sexpr (\fBvector_t\fP * tokens)"
+
+.PP
+this function is responsible of turning a set of tokens into a s-expression\&. first it reads a set of tokens and then it parses each one as described below:
+.PP
+.IP "\(bu" 2
+if it was a list, then \fBparse_as_list()\fP
+.IP "\(bu" 2
+if it was either a number/string/symbol then parse_as_x()
+.IP "\(bu" 2
+if it was was quote then \fBparse_as_quote()\fP
+.IP "\(bu" 2
+if the token was and error-token, then stop the process! 
+.PP
+
+.SS "\fBvector_t\fP* parse_sexprs (\fBvector_t\fP * vtokens)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

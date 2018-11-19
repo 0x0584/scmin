@@ -1,0 +1,163 @@
+.TH "include/gc.h" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/gc.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'main\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBGC_INFO\fP"
+.br
+.RI "information about the garbage collection "
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBGC_INFO\fP \fBgc_info\fP"
+.br
+.RI "information about the garbage collection "
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBgc_init\fP (void)"
+.br
+.RI "initialize the Garbage Collector's vectors "
+.ti -1c
+.RI "void \fBgc_clean\fP (void)"
+.br
+.RI "free's the Garbage Collect vectors from the memory, also free's the error log "
+.ti -1c
+.RI "void \fBgc_collect\fP (bool iscleanup)"
+.br
+.RI "collects the objects in the garbage collector by calling sweeping functions "
+.ti -1c
+.RI "void \fBgc_log\fP (bool iscleanup)"
+.br
+.ti -1c
+.RI "long \fBgc_allocated_size\fP (void)"
+.br
+.RI "returns the size of currently allocated memory in Bytes "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBgc_alloc_sexpr\fP (void)"
+.br
+.ti -1c
+.RI "void \fBgc_free_sexpr\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "void \fBgc_setmark_sexpr\fP (\fBsexpr_t\fP *expr, bool mark)"
+.br
+.ti -1c
+.RI "void \fBgc_sweep_sexprs\fP (\fBvector_t\fP *v)"
+.br
+.ti -1c
+.RI "\fBlambda_t\fP * \fBgc_alloc_lambda\fP (void)"
+.br
+.ti -1c
+.RI "void \fBgc_free_lambda\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "void \fBgc_setmark_lambda\fP (\fBlambda_t\fP *lambda, bool mark)"
+.br
+.ti -1c
+.RI "void \fBgc_sweep_lambdas\fP (\fBvector_t\fP *v)"
+.br
+.ti -1c
+.RI "\fBscope_t\fP * \fBgc_alloc_scope\fP (void)"
+.br
+.ti -1c
+.RI "void \fBgc_free_scope\fP (\fBobject_t\fP o)"
+.br
+.ti -1c
+.RI "void \fBgc_setmark_scope\fP (\fBscope_t\fP *scope, bool mark)"
+.br
+.ti -1c
+.RI "void \fBgc_sweep_scopes\fP (\fBvector_t\fP *v)"
+.br
+.ti -1c
+.RI "void \fBgc_debug_memory\fP (void)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+this file contains definitions of functionalities to handle memory with a minimal garbage colelctor using mark and sweep algorithm\&.
+.PP
+the algorithm is about marking the created object to false at first, then after sweeping the memory, we clean the false-marked ones and setting the true-marked ones to true 
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef struct \fBGC_INFO\fP  \fBgc_info\fP"
+
+.PP
+information about the garbage collection 
+.SH "Function Documentation"
+.PP 
+.SS "\fBlambda_t\fP* gc_alloc_lambda (void)"
+
+.SS "\fBscope_t\fP* gc_alloc_scope (void)"
+
+.SS "\fBsexpr_t\fP* gc_alloc_sexpr (void)"
+
+.SS "long gc_allocated_size (void)"
+
+.PP
+returns the size of currently allocated memory in Bytes sum of all bytes allocated by the global vectors
+.PP
+\fBReturns:\fP
+.RS 4
+size of allocated memory by the GC 
+.RE
+.PP
+
+.SS "void gc_clean (void)"
+
+.PP
+free's the Garbage Collect vectors from the memory, also free's the error log 
+.SS "void gc_collect (bool iscleanup)"
+
+.PP
+collects the objects in the garbage collector by calling sweeping functions calls the following functions, \fBgc_sweep_sexprs()\fP, \fBgc_sweep_lambdas()\fP and \fBgc_sweep_scopes()\fP
+.PP
+\fBParameters:\fP
+.RS 4
+\fIiscleanup\fP whether to collect directly of see if there is some space left 
+.RE
+.PP
+
+.SS "void gc_debug_memory (void)"
+
+.SS "void gc_free_lambda (\fBobject_t\fP o)"
+
+.SS "void gc_free_scope (\fBobject_t\fP o)"
+
+.SS "void gc_free_sexpr (\fBobject_t\fP o)"
+
+.SS "void gc_init (void)"
+
+.PP
+initialize the Garbage Collector's vectors 
+.SS "void gc_log (bool iscleanup)"
+
+.SS "void gc_setmark_lambda (\fBlambda_t\fP * lambda, bool mark)"
+
+.SS "void gc_setmark_scope (\fBscope_t\fP * scope, bool mark)"
+
+.SS "void gc_setmark_sexpr (\fBsexpr_t\fP * expr, bool mark)"
+
+.SS "void gc_sweep_lambdas (\fBvector_t\fP * v)"
+
+.SS "void gc_sweep_scopes (\fBvector_t\fP * v)"
+
+.SS "void gc_sweep_sexprs (\fBvector_t\fP * v)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

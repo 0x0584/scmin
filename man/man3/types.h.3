@@ -1,0 +1,103 @@
+.TH "include/types.h" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/types.h \- contains all types used in the project  
+
+.SH SYNOPSIS
+.br
+.PP
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBGC_INFO\fP \fBgc_info\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBVECTOR\fP \fBvector_t\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBSCOPE\fP \fBscope_t\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBSCOPE_BOND\fP \fBbond_t\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBTOKEN\fP \fBtoken_t\fP"
+.br
+.ti -1c
+.RI "typedef enum \fBTOKEN_TYPE\fP \fBtoken_type\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBPAIR\fP \fBpair_t\fP"
+.br
+.ti -1c
+.RI "typedef double \fBnumber_t\fP"
+.br
+.ti -1c
+.RI "typedef char * \fBstring_t\fP"
+.br
+.ti -1c
+.RI "typedef void * \fBobject_t\fP"
+.br
+.ti -1c
+.RI "typedef enum \fBSYMBOLIC_EXPRESSION_TYPE\fP \fBtype_t\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBSYMBOLIC_EXPRESSION\fP \fBsexpr_t\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBLAMBDA_EXPRESSION\fP \fBlambda_t\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBLAMBDA_NATIVE\fP \fBnlambda_t\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBKEYWORD\fP \fBkeyword_t\fP"
+.br
+.ti -1c
+.RI "typedef \fBsexpr_t\fP *(* \fBk_func\fP) (\fBscope_t\fP *, \fBsexpr_t\fP *)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+contains all types used in the project 
+
+the reason why this file exists is that there's no other simpler way to use functions from different files but to declaring all types in one place and then defining them in the 
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef struct \fBSCOPE_BOND\fP \fBbond_t\fP"
+
+.SS "typedef struct \fBGC_INFO\fP \fBgc_info\fP"
+
+.SS "typedef \fBsexpr_t\fP*(* k_func) (\fBscope_t\fP *, \fBsexpr_t\fP *)"
+
+.SS "typedef struct \fBKEYWORD\fP \fBkeyword_t\fP"
+
+.SS "typedef struct \fBLAMBDA_EXPRESSION\fP \fBlambda_t\fP"
+
+.SS "typedef struct \fBLAMBDA_NATIVE\fP \fBnlambda_t\fP"
+
+.SS "typedef double \fBnumber_t\fP"
+
+.SS "typedef void* \fBobject_t\fP"
+
+.SS "typedef struct \fBPAIR\fP \fBpair_t\fP"
+
+.SS "typedef struct \fBSCOPE\fP \fBscope_t\fP"
+
+.SS "typedef struct \fBSYMBOLIC_EXPRESSION\fP \fBsexpr_t\fP"
+
+.SS "typedef char* \fBstring_t\fP"
+
+.SS "typedef struct \fBTOKEN\fP \fBtoken_t\fP"
+
+.SS "typedef enum \fBTOKEN_TYPE\fP \fBtoken_type\fP"
+
+.SS "typedef enum \fBSYMBOLIC_EXPRESSION_TYPE\fP \fBtype_t\fP"
+
+.SS "typedef struct \fBVECTOR\fP \fBvector_t\fP"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

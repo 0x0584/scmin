@@ -1,0 +1,59 @@
+.TH "LAMBDA_NATIVE" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+LAMBDA_NATIVE \- a native lambda is a symbol and native C function  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <native\&.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBstring_t\fP \fBsymbol\fP"
+.br
+.RI "a symbol to be bounded with "
+.ti -1c
+.RI "\fBsexpr_t\fP *(* \fBfunc\fP )(\fBsexpr_t\fP *args)"
+.br
+.RI "a C function that plays the role of a lambda "
+.in -1c
+.SH "Detailed Description"
+.PP 
+a native lambda is a symbol and native C function 
+
+native lambdas ad essentials to add basic features to the interpreter like \fC+\fP or \fCand\fP 
+.SH "Field Documentation"
+.PP 
+.SS "\fBsexpr_t\fP*(* func) (\fBsexpr_t\fP *args)"
+
+.PP
+a C function that plays the role of a lambda 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIargs\fP a list or arguments 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+evaluated expression
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBnative\&.c\fP 
+.RE
+.PP
+
+.SS "\fBstring_t\fP symbol"
+
+.PP
+a symbol to be bounded with 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

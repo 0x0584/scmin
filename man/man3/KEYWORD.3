@@ -1,0 +1,49 @@
+.TH "KEYWORD" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+KEYWORD \- pairing keywords with their corespondent C functions\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <eval\&.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBstring_t\fP \fBkeyword\fP"
+.br
+.RI "the Lisp/Scheme keyword such as quote or if "
+.ti -1c
+.RI "\fBk_func\fP \fBfunc\fP"
+.br
+.RI "the C function that is related to the keyword "
+.in -1c
+.SH "Detailed Description"
+.PP 
+pairing keywords with their corespondent C functions\&. 
+
+
+.PP
+\fBNote:\fP
+.RS 4
+those functions shall not be called directly 
+.RE
+.PP
+
+.SH "Field Documentation"
+.PP 
+.SS "\fBk_func\fP func"
+
+.PP
+the C function that is related to the keyword 
+.SS "\fBstring_t\fP keyword"
+
+.PP
+the Lisp/Scheme keyword such as quote or if 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

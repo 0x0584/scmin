@@ -1,0 +1,69 @@
+.TH "SCOPE_BOND" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+SCOPE_BOND \- a symbol that would be related to a s-expression  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <scope\&.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBstring_t\fP \fBsymbol\fP"
+.br
+.RI "this is a string that would be represent a symbol "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBsexpr\fP"
+.br
+.RI "a s-expression "
+.ti -1c
+.RI "bool \fBisconst\fP"
+.br
+.RI "if \fCtrue\fP the bond would be unchangeable "
+.in -1c
+.SH "Detailed Description"
+.PP 
+a symbol that would be related to a s-expression 
+
+when evaluating a symbol who's like \fCsymbol\fP, \fCsexpr\fP is returned instead\&. this is done using \fBresolve_bond()\fP
+.PP
+\fBNote:\fP
+.RS 4
+this might be used as \fCHashMap\fP also as Strings too, have a Global String context, since a \fCHashMap\fP has \fCO(1)\fP complexity 
+.RE
+.PP
+
+.SH "Field Documentation"
+.PP 
+.SS "bool isconst"
+
+.PP
+if \fCtrue\fP the bond would be unchangeable 
+.PP
+\fBTodo\fP
+.RS 4
+implement this 
+.RE
+.PP
+\fBWarning:\fP
+.RS 4
+\fBnot implemented!\fP 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* sexpr"
+
+.PP
+a s-expression 
+.SS "\fBstring_t\fP symbol"
+
+.PP
+this is a string that would be represent a symbol 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

@@ -1,0 +1,92 @@
+.TH "SYMBOLIC_EXPRESSION" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+SYMBOLIC_EXPRESSION \- a Lisp/Scheme s-expression contain it's type and the correspondant field  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <sexpr\&.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBgc_info\fP \fBgci\fP"
+.br
+.RI "garbage collector information "
+.ti -1c
+.RI "\fBtype_t\fP \fBtype\fP"
+.br
+.RI "s-expression type "
+.ti -1c
+.RI "union {"
+.br
+.ti -1c
+.RI "   \fBstring_t\fP \fBs\fP"
+.br
+.RI "string/atom "
+.ti -1c
+.RI "   \fBnumber_t\fP \fBn\fP"
+.br
+.RI "number "
+.ti -1c
+.RI "   \fBpair_t\fP * \fBc\fP"
+.br
+.RI "cons cell pair car/cdr "
+.ti -1c
+.RI "   \fBlambda_t\fP * \fBl\fP"
+.br
+.RI "lambda expression "
+.ti -1c
+.RI "}; "
+.br
+.RI "possible s-expression since each type require a differnt data type to hold data "
+.in -1c
+.SH "Detailed Description"
+.PP 
+a Lisp/Scheme s-expression contain it's type and the correspondant field 
+
+
+.PP
+\fBNote:\fP
+.RS 4
+the usage of union is to use memory efficiently 
+.RE
+.PP
+
+.SH "Field Documentation"
+.PP 
+.SS "union { \&.\&.\&. } "
+
+.PP
+possible s-expression since each type require a differnt data type to hold data 
+.SS "\fBpair_t\fP* c"
+
+.PP
+cons cell pair car/cdr 
+.SS "\fBgc_info\fP gci"
+
+.PP
+garbage collector information 
+.SS "\fBlambda_t\fP* l"
+
+.PP
+lambda expression 
+.SS "\fBnumber_t\fP n"
+
+.PP
+number 
+.SS "\fBstring_t\fP s"
+
+.PP
+string/atom 
+.SS "\fBtype_t\fP type"
+
+.PP
+s-expression type 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

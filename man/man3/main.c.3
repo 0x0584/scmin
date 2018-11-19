@@ -1,0 +1,58 @@
+.TH "src/main.c" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/main.c \- this is the main entry point, basically would initialize the environment, then check if there are any sent-arguments to process\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'main\&.h'\fP
+.br
+\fC#include 'gc\&.h'\fP
+.br
+\fC#include 'vector\&.h'\fP
+.br
+\fC#include 'sexpr\&.h'\fP
+.br
+\fC#include 'scope\&.h'\fP
+.br
+\fC#include 'lexer\&.h'\fP
+.br
+\fC#include 'parser\&.h'\fP
+.br
+\fC#include 'eval\&.h'\fP
+.br
+\fC#include 'repl\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBscmin_init\fP (void)"
+.br
+.ti -1c
+.RI "int \fBmain\fP (int argc, char **argv)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+this is the main entry point, basically would initialize the environment, then check if there are any sent-arguments to process\&. 
+
+
+.IP "\(bu" 2
+if so, it would evaluate them then quit with success (or failure if an error occurs while evaluating)\&.
+.IP "\(bu" 2
+if no argument was sent, a repl-system would set up on infinity loop 
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "int main (int argc, char ** argv)"
+
+.SS "void scmin_init (void)"
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.
