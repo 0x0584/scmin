@@ -47,7 +47,8 @@ void repl(void) {
 	if (buffer == NULL) {
 	    isfinished = true, putchar('\n');
 	    goto CLEAN;
-	} else if (*buffer == '\0') {
+	} else if (*buffer == '@') {
+	    free(buffer);
 	    putchar('\n');
 	    continue;
 	}

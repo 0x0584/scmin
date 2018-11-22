@@ -105,18 +105,23 @@ string_t stdin_as_string(void) {
     short index = 0, c;
 
     while ((c = getchar())) {
+	/* ^D with no content -> quitting */
 	if (c == EOF && index == 0) {
 	    free(buffer);
 	    return NULL;
-	} else if (c == EOF && index != 0) {
-	    free(buffer);
-	    buffer = malloc(sizeof(char));
-	    *buffer = '\0';
-	    return buffer;
-	} else if (c == '\n' || c == '\r') {
+	}
+	/* ^D with content -> discard input */
+	else if (c == EOF && index != 0) {
+	    buffer[0] = '@';
+	    break;
+	}
+	/* return or newline -> input terminated */
+	else if (c == '\r' || c == '\n') {
 	    buffer[index] = '\0';
 	    break;
-	} else {
+	}
+	/* add the character */
+	else {
 	    buffer[index++] = c;
 	}
     }

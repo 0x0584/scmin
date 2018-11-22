@@ -15,6 +15,8 @@
 
 #  include "main.h"
 
+/* #  define DEBUG_GC_FULL */
+
 /**
  *  @brief information about the garbage collection
  */

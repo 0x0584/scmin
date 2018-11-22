@@ -12,6 +12,15 @@
  * out of context so the GC would clean it while it's being used in another
  * context. indeed causing errors.
  * e.g. `(define foo (append-to (list 1 2 3) 5))` or `(define x (define y 1))`
+ *
+ * TODO: not cleaning lambdas return values
+ * ========================================
+ *
+ * the main problem is that when passing arguments to a lambda, there's passe
+ * by reference, so when we return them, it works until the GC runs a clean up,
+ * only then they're gone. since the return value is not marked. so the main
+ * idea is to mark the return value, so that when it's used somewhere else,
+ * it would be preserved, or else, get cleaned up in the next GC call.
  */
 
 #include "gc.h"
@@ -98,18 +107,18 @@ long gc_allocated_size(void) {
 }
 
 void gc_sweep_log(int a, int b) {
-printf("%-8s %8d - %-8s %8d - %-8s %8d\n",
-	   "before:", a, "after:", b, "diff:", b - a);
+printf("%-8s %8d * %-8s %8d * %-8s %8d\n",
+	   "before:", a, "after:", b, "diff:", b * a);
 }
 
 void gc_log(bool iscleanup) {
     printf("==%s====================================================\n",
 	   !iscleanup ? " # " : "===");
-    printf("%-8s %8d - %-8s %8d - %-8s %8d\n",
+    printf("%-8s %8d * %-8s %8d * %-8s %8d\n",
 	   "scopes:", gc_allocd_scopes->size,
 	   "lambdas:", gc_allocd_lambdas->size,
 	   "sexprs:",  gc_allocd_sexprs->size);
-    printf("%15ld B - %15ld B - %15ld B\nstack size: %13ld B - limit size: %13ld B\n",
+    printf("%15ld B * %15ld B * %15ld B\n=========================================================\nstack size: %13ld B * limit size: %13ld B\n",
 	   gc_allocated_scopes_size(),
 	   gc_allocd_lambdas->size * sizeof(lambda_t),
 	   gc_allocd_sexprs->size * sizeof(sexpr_t),
@@ -149,6 +158,13 @@ void gc_collect(bool iscleanup) {
     gc_log(iscleanup);
 #endif
 
+
+#if DEBUG_GC == DEBUG_ON
+    puts("===================== sweep sexprs ======================");
+#endif
+
+    gc_sweep_sexprs(gc_allocd_sexprs);
+
 #if DEBUG_GC == DEBUG_ON
     puts("===================== sweep scopes ======================");
 #endif
@@ -160,12 +176,6 @@ void gc_collect(bool iscleanup) {
 #endif
 
     gc_sweep_lambdas(gc_allocd_lambdas);
-
-#if DEBUG_GC == DEBUG_ON
-    puts("===================== sweep sexprs ======================");
-#endif
-
-    gc_sweep_sexprs(gc_allocd_sexprs);
 
 
     if (!gc_has_space_left())
@@ -205,10 +215,11 @@ void gc_sweep_sexprs(vector_t * v) {
 #if DEBUG_GC == DEBUG_ON
     int size = v->size;
 
-    if (DEBUG_FULL) {
-	/* puts(" -*- sexprs stack before -*- "); */
-	/* vector_print(v); */
-    }
+#ifdef DEBUG_GC_FULL
+	puts(" -*- sexprs stack before -*- ");
+	vector_print(v);
+	puts("==============================");
+#endif
 #endif
 
     for (i = 0; i < v->size; ++i) {
@@ -230,11 +241,11 @@ void gc_sweep_sexprs(vector_t * v) {
     vector_compact(v);
 
 #if DEBUG_GC == DEBUG_ON
-    if (DEBUG_FULL) {
-	/* puts("\n -*- final sexprs stack -*- "); */
-	/* vector_print(v); */
-    }
-
+#ifdef DEBUG_GC_FULL
+    puts("\n -*- final sexprs stack -*- ");
+	vector_print(v);
+	puts("==============================");
+#endif
     gc_sweep_log(size, v->size);
 #endif
 }
@@ -285,10 +296,10 @@ void gc_sweep_lambdas(vector_t * v) {
 #if DEBUG_GC == DEBUG_ON
     int size = v->size;
 
-    if (DEBUG_FULL) {
-	/* puts(" -*- lambda stack before -*- "); */
-	/* vector_print(v); */
-    }
+#ifdef DEBUG_GC_FULL
+	puts(" -*- lambda stack before -*- ");
+	vector_print(v);
+#endif
 #endif
 
     for (i = 0; i < v->size; ++i) {
@@ -309,10 +320,10 @@ void gc_sweep_lambdas(vector_t * v) {
     vector_compact(v);
 
 #if DEBUG_GC == DEBUG_ON
-    if (DEBUG_FULL) {
-	/* puts("\n -*- final lambdas stack -*- "); */
-	/* vector_print(v); */
-    }
+#ifdef DEBUG_GC_FULL
+	puts("\n -*- final lambdas stack -*- ");
+	vector_print(v);
+#endif
 
     gc_sweep_log(size, v->size);
 #endif
@@ -371,11 +382,11 @@ void gc_sweep_scopes(vector_t * v) {
 
 #if DEBUG_GC == DEBUG_ON
     int size = v->size;
-
-    if (DEBUG_FULL) {
-	/* puts(" -*- scope stack before -*- "); */
-	/* vector_print(v); */
-    }
+#ifdef DEBUG_GC_FULL
+	puts(" -*- scope stack before -*- ");
+	vector_print(v);
+	puts("==============================");
+#endif
 #endif
 
     for (i = 0; i < v->size; ++i) {
@@ -396,11 +407,11 @@ void gc_sweep_scopes(vector_t * v) {
     vector_compact(v);
 
 #if DEBUG_GC == DEBUG_ON
-    if (DEBUG_FULL) {
-	/* puts("\n -*- final scopes stack -*- "); */
-	/* vector_print(v); */
-    }
-
+#ifdef DEBUG_GC_FULL
+	puts("\n -*- final scopes stack -*- ");
+	vector_print(v);
+	puts("==============================");
+#endif
     gc_sweep_log(size, v->size);
 #endif
 }

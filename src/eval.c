@@ -147,7 +147,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
 	err_raise(ERR_ERR, iserror(arg));
 
-	if(err_log())
+	if (err_log())
 	    goto FAILED;
 
 	if (!args)
@@ -182,8 +182,12 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
 	scope_t *child = scope_init(scope);
 
+	gc_setmark_sexpr(args, true);
+
 	bind_lambda_args(child, op->l, args);
 	result = eval_sexpr(child, op->l->body);
+
+	gc_setmark_sexpr(result, true);
     }
 
   RET:
@@ -300,7 +304,6 @@ sexpr_t *eval_quote(scope_t * scope, sexpr_t * expr) {
 sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
     err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
-    err_raise(ERR_MDFY_RSRVD, isreserved(scope, car(expr)));
 
     if (err_log())
 	return sexpr_err();
@@ -603,8 +606,9 @@ sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
 	return sexpr_err();
 
     sexpr_t *let_asterisk = labeled
-	? CONS(cons(symbol, CONS(car(bindings)))) : CONS(CONS(car(bindings))),
-	*body = CONS(labeled ? caddr(expr) : cadr(expr));
+	? CONS(cons(symbol, CONS(car(bindings)))) :
+	CONS(CONS(car(bindings))), *body =
+	CONS(labeled ? caddr(expr) : cadr(expr));
 
     /* sexpr_print(let_asterisk), puts("4"); */
     /* sexpr_print(body), puts("5"); */
@@ -612,10 +616,10 @@ sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
     if (!cadr(bindings)) {
 	/* set the body as cdr */
 	set_cdr(let_asterisk, body);
-   } else {
-	sexpr_t * foo = cons(cdr(bindings), body);
+    } else {
+	sexpr_t *foo = cons(cdr(bindings), body);
 	/* sexpr_print(foo), puts("foo"); */
-	sexpr_t* evaled = eval_let_asterisk(scope, foo);
+	sexpr_t *evaled = eval_let_asterisk(scope, foo);
 
 	/* sexpr_print(evaled), puts("evaled"); */
 	set_cdr(let_asterisk, cons(evaled, body));
@@ -643,4 +647,5 @@ sexpr_t *eval_begin(scope_t * scope, sexpr_t * expr) {
 
     return evaled;
 }
+
 #undef CONS
