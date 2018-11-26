@@ -82,8 +82,8 @@ string_t file_as_string(const char *filename) {
     string_size = ftell(handler);	/* Size of the stream */
     rewind(handler);
 
-    buffer = (char *) malloc(sizeof(char) * (string_size + 1));
-
+    buffer = (char *) gc_malloc(string_size + 1);
+    memset(buffer, 0, string_size + 1);
     /* binary size of the stream */
     read_size = fread(buffer, sizeof(char), string_size, handler);
     buffer[string_size] = '\0';
@@ -100,11 +100,17 @@ string_t file_as_string(const char *filename) {
 }
 
 string_t stdin_as_string(void) {
-    const size_t INPUT_SIZE_LIMIT = (2 << 10);
-    string_t buffer = malloc(INPUT_SIZE_LIMIT * sizeof(char));
-    short index = 0, c;
+    size_t INPUT_SIZE_LIMIT = 0xff, index = 0;
+    string_t buffer = NULL;
+    char c;
 
-    while ((c = getchar())) {
+    buffer = (string_t) gc_malloc(INPUT_SIZE_LIMIT);
+    memset(buffer, 0, INPUT_SIZE_LIMIT);
+
+    while ((c = getc(stdin))) {
+	if (index + 1 == INPUT_SIZE_LIMIT)
+	    gc_realloc(buffer, INPUT_SIZE_LIMIT *= 2);
+
 	/* ^D with no content -> quitting */
 	if (c == EOF && index == 0) {
 	    free(buffer);
@@ -163,7 +169,8 @@ char ungetnc(void) {
  * @return optimal-size string
  */
 string_t reduce_string_size(string_t str) {
-    return realloc(str, (1 + strlen(str)) * sizeof(char));
+    string_t tmp = (string_t) gc_realloc(str, (1 + strlen(str)));
+    return tmp == NULL ? str : tmp;
 }
 
 /**

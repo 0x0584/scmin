@@ -32,4 +32,5 @@ clean:
 	@echo  "cleaning up.."
 	$(RM) $(EXEC)
 	$(RM) $(OBJ)
+	$(RM) log-*.txt massif.out.* gdb.txt
 	@echo  ""

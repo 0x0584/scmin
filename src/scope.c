@@ -87,7 +87,8 @@ bond_t *bond_new(string_t symbol, sexpr_t * expr) {
     assert(symbol != NULL);
     assert(expr != NULL);
 
-    bond_t *b = malloc(sizeof *b);
+    bond_t *b = (bond_t *) gc_malloc(sizeof(bond_t));
+    memset(b, 0, sizeof(bond_t));
 
     b->symbol = strdup(symbol);
     b->sexpr = expr;

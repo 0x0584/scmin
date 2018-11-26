@@ -11,6 +11,7 @@
  */
 
 #  include "main.h"
+#  include "gc.h"
 
 char stream_string(const string_t str, bool isget);
 string_t file_as_string(const char *filename);

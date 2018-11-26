@@ -13,6 +13,7 @@
  */
 
 #  include "main.h"
+#  include "gc.h"
 
 /**
  * @brief vector default capacity

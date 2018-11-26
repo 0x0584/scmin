@@ -31,12 +31,14 @@ const string_t separator = "\n-----------------------------------";
  */
 vector_t *vector_new(operation_t free_obj, operation_t print_obj,
 		     compare_t cmp_obj) {
-    vector_t *v = malloc(sizeof *v);
+    vector_t *v = (vector_t *) gc_malloc(sizeof(vector_t));
+    memset(v, 0, sizeof(vector_t));
 
     v->capacity = 0;
     v->size = 0;
 
-    v->objs = malloc(sizeof(object_t));
+    v->objs = (object_t *) gc_malloc(sizeof(object_t));
+    memset(v->objs, 0, sizeof(object_t));
 
     v->free_obj = free_obj;
     v->print_obj = print_obj;
@@ -137,7 +139,11 @@ vector_t *vector_compact(vector_t * v) {
 
     v->size = size;
     v->capacity = size;
-    v->objs = realloc(v->objs, size * sizeof(object_t));
+
+    if (size == 0)
+	size++;
+
+    v->objs = gc_realloc(v->objs, size * sizeof(object_t));
 
     return v;
 }
@@ -197,7 +203,7 @@ object_t vector_add(vector_t * v, object_t o, int i) {
 	const int dc = VECTOR_DEFAULT_CAPACITY;
 	const int oc = v->capacity;	/* old capacity */
 
-	v->objs = realloc(v->objs, (oc + dc) * sizeof(object_t));
+	v->objs = gc_realloc(v->objs, (oc + dc) * sizeof(object_t));
 	memset(v->objs + oc, 0x00, dc * sizeof(object_t));
 	v->capacity = oc + dc;
     }

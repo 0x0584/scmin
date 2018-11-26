@@ -193,7 +193,8 @@ token_t *read_next_token(const string_t code) {
  * @note this function modifies the static values in of getnc()
  */
 string_t read_string(const string_t code) {
-    string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
+    string_t vbuffer = (string_t) gc_malloc(TOK_SIZE_LIMIT);
+    memset(vbuffer, 0, TOK_SIZE_LIMIT);
     int i = 0;
     char c;
 
@@ -232,7 +233,8 @@ string_t read_string(const string_t code) {
  * @note this function modifies the static values in of getnc()
  */
 string_t read_number(const string_t code) {
-    string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
+    string_t vbuffer = (string_t) gc_malloc(TOK_SIZE_LIMIT);
+    memset(vbuffer, 0, TOK_SIZE_LIMIT);
     int i = 0;
     bool period_found = false;
     char c;
@@ -276,7 +278,8 @@ string_t read_number(const string_t code) {
  * @note this function modifies the static values in of getnc()
  */
 string_t read_symbol(const string_t code) {
-    string_t vbuffer = malloc(TOK_SIZE_LIMIT * sizeof(char));
+    string_t vbuffer = (string_t) gc_malloc(TOK_SIZE_LIMIT);
+    memset(vbuffer, 0, TOK_SIZE_LIMIT);
     string_t not_allowed = "()\'\"\\;";
     char c;
     int i = 0;

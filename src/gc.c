@@ -107,8 +107,8 @@ long gc_allocated_size(void) {
 }
 
 void gc_sweep_log(int a, int b) {
-printf("%-8s %8d * %-8s %8d * %-8s %8d\n",
-	   "before:", a, "after:", b, "diff:", b * a);
+    printf("%-8s %8d * %-8s %8d * %-8s %8d\n",
+	   "before:", a, "after:", b, "diff:", b - a);
 }
 
 void gc_log(bool iscleanup) {
@@ -186,6 +186,30 @@ void gc_collect(bool iscleanup) {
 #endif
 }
 
+void *gc_malloc(size_t size) {
+    void *foo = malloc(size);
+
+    if (foo == NULL) {
+	fprintf(stderr, "ERROR! cannot allocate %ld", size);
+	exit(-1);
+    }
+
+    memset(foo, 0x00, size);
+
+    return foo;
+}
+
+void *gc_realloc(void *ptr, size_t size) {
+    void *foo = realloc(ptr, size);
+
+    if (foo == NULL) {
+	fprintf(stderr, "ERROR! cannot reallocate %ld", size);
+	exit(-1);
+    }
+
+    return foo;
+}
+
 /* ==============================================================
  *		   s-expressions memory management
  * ==============================================================
@@ -251,7 +275,8 @@ void gc_sweep_sexprs(vector_t * v) {
 }
 
 sexpr_t *gc_alloc_sexpr(void) {
-    sexpr_t *s = malloc(sizeof *s);
+    sexpr_t *s = (sexpr_t *) gc_malloc(sizeof *s);
+    memset(s, 0, sizeof *s);
     s->gci.ismarked = false;
     s->gci.isglobal = false;
     return vector_push(gc_allocd_sexprs, s);
@@ -330,8 +355,8 @@ void gc_sweep_lambdas(vector_t * v) {
 }
 
 lambda_t *gc_alloc_lambda(void) {
-    lambda_t *l = malloc(sizeof *l);
-
+    lambda_t *l = (lambda_t *) gc_malloc(sizeof *l);
+    memset(l, 0, sizeof *l);
     l->gci.ismarked = false;
     l->gci.isglobal = false;
     l->args = NULL;
@@ -417,7 +442,8 @@ void gc_sweep_scopes(vector_t * v) {
 }
 
 scope_t *gc_alloc_scope(void) {
-    scope_t *s = malloc(sizeof *s);
+    scope_t *s = (scope_t *) gc_malloc(sizeof *s);
+    memset(s, 0, sizeof *s);
 
     s->bonds = vector_new(bond_free, bond_describe, bond_cmp);
     s->parent = NULL;

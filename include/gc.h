@@ -53,5 +53,8 @@ void gc_free_scope(object_t o);
 void gc_setmark_scope(scope_t * scope, bool mark);
 void gc_sweep_scopes(vector_t * v);
 
+void *gc_malloc(size_t size);
+void *gc_realloc(void *ptr, size_t size);
+
 void gc_debug_memory(void);
 #endif				/* _SCMIN_GC_H */

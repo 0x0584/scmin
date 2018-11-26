@@ -64,7 +64,6 @@ void scmin_init(void) {
     vector_free(w);
     vector_free(v);
 
-    gc_setmark_scope(get_global_scope(), true);
     gc_collect(true);
     gc_log(true);
 }
@@ -77,7 +76,16 @@ int main(int argc, char **argv) {
     gc_init();
     scmin_init();
 
-    repl();
+    /*
+     * if i allocate any memory after this point or call a function that
+     * does so, the program crashes and signal SIGARBT (6).
+     *
+     * the backtrace is basically from the calling function up to
+     * malloc_consolidate() which states `invalid chunk size`.
+     *
+     * malloc() does not return NULL, yet the problem occurs!
+     */
+    /* repl(); */
 
     gc_clean();
 

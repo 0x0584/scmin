@@ -66,8 +66,9 @@ void err_raisee(serror_t err, bool cond, int line, string_t file,
     /* find the error and push it to the log */
     for (i = 0; errs[i].errmsg; ++i)
 	if (errs[i].err == err) {
-	    errs[i].cond = malloc(0x0584);
-	    snprintf(errs[i].cond, 0x0584, "(%s) at %s:%d",
+	    errs[i].cond = (char *) gc_malloc(0xff);
+	    memset(errs[i].cond, 0, 0xff);
+	    snprintf(errs[i].cond, 0xff, "(%s) at %s:%d",
 		     msg, file, line);
 	    errs[i].cond = reduce_string_size(errs[i].cond);
 	    vector_push(error_log, &errs[i]);

@@ -182,12 +182,12 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
 	scope_t *child = scope_init(scope);
 
-	gc_setmark_sexpr(args, true);
+	/* gc_setmark_sexpr(args, true); */
 
 	bind_lambda_args(child, op->l, args);
 	result = eval_sexpr(child, op->l->body);
 
-	gc_setmark_sexpr(result, true);
+	/* gc_setmark_sexpr(result, true); */
     }
 
   RET:
