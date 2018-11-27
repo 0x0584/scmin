@@ -81,7 +81,6 @@ void repl(void) {
 
       CLEAN:
 	free(buffer);
-	gc_setmark_scope(get_global_scope(), true);
 	gc_collect(false);
 	gc_log(true);
     }

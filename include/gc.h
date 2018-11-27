@@ -30,6 +30,8 @@ typedef struct GC_INFO {
      * @brief is it defined in the global scope
      */
     bool isglobal;
+
+    bool ispinned;
 } gc_info;;
 
 void gc_init(void);
@@ -55,6 +57,10 @@ void gc_sweep_scopes(vector_t * v);
 
 void *gc_malloc(size_t size);
 void *gc_realloc(void *ptr, size_t size);
+
+void gc_setpin_sexpr(sexpr_t * expr, bool pin);
+void gc_setpin_scope(scope_t * scope, bool pin);
+void gc_setpin_lambda(lambda_t * expr, bool pin);
 
 void gc_debug_memory(void);
 #endif				/* _SCMIN_GC_H */

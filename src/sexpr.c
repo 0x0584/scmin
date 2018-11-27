@@ -400,17 +400,21 @@ void _sexpr_print(object_t o) {
 	putchar('^');
 	return;
     }
+
     if (islambda(expr)) {
 	lambda_print(expr->l);
 	return;
     }
+
+    /* printf(" [%s] expr: %p, type:%d\n", */
+    /*	   expr->gci.ismarked ? "X" : "O", expr, expr->type); */
 
     if (isstring(expr))
 	printf("\"%s\"", expr->s);
     else if (issymbol(expr) || isnil(expr))
 	printf("%s", expr->s);
     else if (isnumber(expr))
-	printf("%lf", expr->n);
+	printf("%g", expr->n);
     else if (ispair(expr)) {
 	putchar('('), _sexpr_print(car(expr));
 

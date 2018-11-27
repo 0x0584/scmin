@@ -98,8 +98,10 @@ int err_log(void) {
  * @brief frees the #error_log and set it to `NULL`
  */
 void err_clean(void) {
+    if (    error_log != NULL) {
     vector_free(error_log);
     error_log = NULL;
+    }
 }
 
 /**

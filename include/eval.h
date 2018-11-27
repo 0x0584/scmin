@@ -46,6 +46,15 @@ typedef struct KEYWORD {
     k_func func;
 } keyword_t;
 
+
+typedef struct CONTEXT {
+    scope_t *scope;
+    sexpr_t *sexpr;
+    vector_t *children_results;
+    /* this would hold references to s_expr which migh be NULL */
+    vector_t *locals;
+} context_t;
+
 sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr);
 vector_t *eval_sexprs(vector_t * exprs);
 

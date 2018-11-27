@@ -35,6 +35,7 @@ static scope_t *gs = NULL;
  * @warning this has nothing to do with `stdlib.scm`
  */
 static nlambda_t stdlib[] = {
+    /*
     {"list", native_list},
     {"length", native_length},
     {"cons", native_cons},
@@ -45,7 +46,7 @@ static nlambda_t stdlib[] = {
 
     {"and", native_and},
     {"or", native_or},
-
+*/
     {"print", native_print},
 
     {"+", native_add},
@@ -57,7 +58,7 @@ static nlambda_t stdlib[] = {
     {">", native_greater},
     {"<=", native_less_eq},
     {">=", native_greater_eq},
-
+/*
     {"add", native_add},
     {"sub", native_minus},
     {"mul", native_times},
@@ -79,7 +80,7 @@ static nlambda_t stdlib[] = {
     {"lambda?", native_islambda},
     {"list?", native_islist},
     {"atom?", native_isatom},
-
+*/
     {NULL, NULL}
 };
 
@@ -111,8 +112,8 @@ void bond_free(object_t o) {
 
     free(b->symbol);
 
-    if (b->sexpr->gci.isglobal)
-	setglobal(b->sexpr, false);
+    /* if (b->sexpr->gci.isglobal) */
+    /*	setglobal(b->sexpr, false); */
 
     free(b);
 }
