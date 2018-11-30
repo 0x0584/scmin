@@ -220,9 +220,9 @@ bool clean_comments(string_t code) {
 
 bool clean_source_code(string_t code) {
     char c = 0x00;
-
-  CLEAN: /* this is a weird way to write some code but labels are
-	  * great to create loops, right? */
+    /* *INDENT-OFF* */
+  CLEAN:      /* this is a weird way to write some code but labels are
+	       * great to create loops, right? */
     if (!clean_whitespaces(code) || !clean_comments(code))
 	return false;
 
@@ -232,6 +232,7 @@ bool clean_source_code(string_t code) {
      * thus we have to test again */
     if (isspace(c) || c == ';')
 	goto CLEAN;
+    /* *INDENT-ON* */
 
     return true;
 }

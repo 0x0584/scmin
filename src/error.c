@@ -99,8 +99,8 @@ int err_log(void) {
  */
 void err_clean(void) {
     if (error_log != NULL) {
-    vector_free(error_log);
-    error_log = NULL;
+	vector_free(error_log);
+	error_log = NULL;
     }
 }
 

@@ -136,7 +136,7 @@ void context_free(object_t o) {
     vector_free(context->locals);
     free(context);
 }
-
+
 /**
  * @brief get the last context in the evaluation stack
  *
@@ -279,7 +279,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     vector_push(context->locals, &result);
 
     /* ==================== ==================== ==================== */
-
+
 #if DEBUG_EVALUATOR == DEBUG_ON
     puts("================ eval start ================");
     sexpr_print(expr), putchar('\n');
@@ -371,7 +371,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     }
 
   RET:
-
+
     err_raise(ERR_RSLT_NULL, !result);
     err_raise(ERR_ERR, iserror(result));
 
@@ -383,15 +383,15 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
 	/* end of evaluation */
 	if (eval_stack->size == 0) {
-	vector_free(eval_stack);
-	eval_stack = NULL;
-    } else {
+	    vector_free(eval_stack);
+	    eval_stack = NULL;
+	} else {
 	    last_context()->result = result;
-	gc_collect(true);
-	puts("#");
-    }
+	    gc_collect(true);
+	    puts("#");
+	}
 
-    context_free(ctx);
+	context_free(ctx);
     }
 
 #if DEBUG_EVALUATOR == DEBUG_ON
