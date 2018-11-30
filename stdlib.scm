@@ -71,8 +71,8 @@
 ;; (define cddr	 (lambda (foo) (cdr (cdr foo))))
 ;; (define caddr (lambda (foo) (car (cddr foo))))
 ;; (define cddar (lambda (foo) (cdr (cdar foo))))
-;; (define caadr (lambda (foo) (car (cadr foo))))
 ;; (define cdaar (lambda (foo) (cdr (caar foo))))
+;; (define caadr (lambda (foo) (car (cadr foo))))
 
 ;; (define map
 ;;   (lambda (callback lst)
@@ -136,7 +136,16 @@
 ;;	 (square x))))
 
 ;; ((lambda (n)
-;;    (+ n n)) 7)
+;;    (+ n ((lambda (n)
+;;	      (* n n)) n))) 7)
+
+(+ 7 8 (* 7 8 (/ 7 8) (* 7 1)))
+
+;; (print "true")
+
+;; ((lambda (n)
+;;    (+ n ((lambda (n)
+;;	   (* n n)) n))) -1)
 
 ;; (let ((foo '+))
 ;;   (let ((+ *))
@@ -148,6 +157,7 @@
 ;;	 (if (> n size)
 ;;	  '()
 ;;	  (cons n (loop (+ n inc)))))))
+
 ;; (let ((a '()))
 ;;   (let ((b 4) (c 5))
 ;;     (list a b c)))
@@ -157,8 +167,25 @@
 ;; (let* ((x 3) (y x))
 ;;   y)
 
-(+ 5 10 (* 7 8 4 (- 7 9) (/ 8 4)) 10)
-(* 55 88)
+;; (+ 5 10 (* 7 8 4 (- 7 9) (/ 8 4)) 10)
+;; (* 55 88)
+
+;; (define x (+ 1 2))
+;; (print x)
+;; (symbol? '())
+;; (define add-five (lambda (n) (+ 5 n)))
+;; (print (add-five x))
+
+;; (map add-five '(1 2 3))
+;; (define x ((lambda (n) (+ 1 n)) 5))
+;; (define x (+ 1 5))
+;; (print (+ x x))
+
+;; (map (lambda (n) (+ 1 n)) '(1 2 3))
+
+;; (let ((x '(1 2 8)))
+;;   (map add-five x))
+
 ;; (+ 55 88)
 ;; (fib 15)
 

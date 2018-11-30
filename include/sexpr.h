@@ -33,37 +33,37 @@ typedef enum SYMBOLIC_EXPRESSION_TYPE {
     /**
      * @brief a cons-cell pair; car, cdr
      */
-    LISP_PAIR,
+    SCMIN_PAIR,
 
     /**
      * @brief a number 0 -100 0.25
      */
-    LISP_NUMBER,
+    SCMIN_NUMBER,
 
     /**
      * @brief a "string"
      */
-    LISP_STRING,
+    SCMIN_STRING,
 
     /**
      * @brief a symbol, such as foo or foo-bar
      */
-    LISP_SYMBOL,
+    SCMIN_SYMBOL,
 
     /**
      * @brief (lambda (args) (body))
      */
-    LISP_LAMBDA,
+    SCMIN_LAMBDA,
 
     /**
      * @brief like NULL
      */
-    LISP_NIL,
+    SCMIN_NIL,
 
     /**
      * @brief ERROR flag
      */
-    LISP_ERR
+    SCMIN_ERR
 } type_t;
 
 /**

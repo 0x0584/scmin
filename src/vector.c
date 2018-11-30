@@ -31,14 +31,12 @@ const string_t separator = "\n-----------------------------------";
  */
 vector_t *vector_new(operation_t free_obj, operation_t print_obj,
 		     compare_t cmp_obj) {
-    vector_t *v = (vector_t *) gc_malloc(sizeof(vector_t));
-    memset(v, 0, sizeof(vector_t));
+    vector_t *v = gc_malloc(sizeof(vector_t));
 
     v->capacity = 0;
     v->size = 0;
 
-    v->objs = (object_t *) gc_malloc(sizeof(object_t));
-    memset(v->objs, 0, sizeof(object_t));
+    v->objs = gc_malloc(sizeof(object_t));
 
     v->free_obj = free_obj;
     v->print_obj = print_obj;

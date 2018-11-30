@@ -35,7 +35,6 @@ static scope_t *gs = NULL;
  * @warning this has nothing to do with `stdlib.scm`
  */
 static nlambda_t stdlib[] = {
-    /*
     {"list", native_list},
     {"length", native_length},
     {"cons", native_cons},
@@ -46,7 +45,7 @@ static nlambda_t stdlib[] = {
 
     {"and", native_and},
     {"or", native_or},
-*/
+
     {"print", native_print},
 
     {"+", native_add},
@@ -58,7 +57,7 @@ static nlambda_t stdlib[] = {
     {">", native_greater},
     {"<=", native_less_eq},
     {">=", native_greater_eq},
-/*
+
     {"add", native_add},
     {"sub", native_minus},
     {"mul", native_times},
@@ -80,16 +79,12 @@ static nlambda_t stdlib[] = {
     {"lambda?", native_islambda},
     {"list?", native_islist},
     {"atom?", native_isatom},
-*/
+
     {NULL, NULL}
 };
 
 bond_t *bond_new(string_t symbol, sexpr_t * expr) {
-    assert(symbol != NULL);
-    assert(expr != NULL);
-
-    bond_t *b = (bond_t *) gc_malloc(sizeof(bond_t));
-    memset(b, 0, sizeof(bond_t));
+    bond_t *b = gc_malloc(sizeof(bond_t));
 
     b->symbol = strdup(symbol);
     b->sexpr = expr;

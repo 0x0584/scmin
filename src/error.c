@@ -22,6 +22,7 @@ vector_t *error_log = NULL;
  * @brief initializing errors and their messages
  * @see main.h
  */
+/* *INDENT-OFF* */
 error_t errs[] = {
     {"PARENS ARE NOT BALANCED", NULL, ERR_PRNS_BLNC},
     {"STARTING WITH A CLOSING PAREN", NULL, ERR_PRNS_CLS},
@@ -50,27 +51,26 @@ error_t errs[] = {
 
     {NULL, NULL, ERR_NO_ERROR}
 };
+/* *INDENT-ON* */
 
 void err_raisee(serror_t err, bool cond, int line, string_t file,
 		string_t msg) {
     int i;
 
-    /* initializing the error log */
-    if (error_log == NULL)
-	error_log = vector_new(err_free, err_print, NULL);
-
     /* if the condition is false then stop here */
     if (!cond)
 	return;
 
+    /* initializing the error log */
+    if (error_log == NULL)
+	error_log = vector_new(err_free, err_print, NULL);
+
     /* find the error and push it to the log */
     for (i = 0; errs[i].errmsg; ++i)
 	if (errs[i].err == err) {
-	    errs[i].cond = (char *) gc_malloc(0xff);
-	    memset(errs[i].cond, 0, 0xff);
-	    snprintf(errs[i].cond, 0xff, "(%s) at %s:%d",
-		     msg, file, line);
-	    errs[i].cond = reduce_string_size(errs[i].cond);
+	    string_t str = gc_malloc(0xff);;
+	    snprintf(str, 0xff, "(%s) at %s:%d", msg, file, line);
+	    errs[i].cond = reduce_string_size(str);
 	    vector_push(error_log, &errs[i]);
 	    break;
 	}
@@ -98,7 +98,7 @@ int err_log(void) {
  * @brief frees the #error_log and set it to `NULL`
  */
 void err_clean(void) {
-    if (    error_log != NULL) {
+    if (error_log != NULL) {
     vector_free(error_log);
     error_log = NULL;
     }

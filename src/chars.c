@@ -81,9 +81,8 @@ string_t file_as_string(const char *filename) {
     fseek(handler, 0, SEEK_END);	/* Beginning of the stream */
     string_size = ftell(handler);	/* Size of the stream */
     rewind(handler);
+    buffer = gc_malloc(string_size + 1);
 
-    buffer = (char *) gc_malloc(string_size + 1);
-    memset(buffer, 0, string_size + 1);
     /* binary size of the stream */
     read_size = fread(buffer, sizeof(char), string_size, handler);
     buffer[string_size] = '\0';
@@ -101,11 +100,8 @@ string_t file_as_string(const char *filename) {
 
 string_t stdin_as_string(void) {
     size_t INPUT_SIZE_LIMIT = 0xff, index = 0;
-    string_t buffer = NULL;
+    string_t buffer = gc_malloc(INPUT_SIZE_LIMIT);
     char c;
-
-    buffer = (string_t) gc_malloc(INPUT_SIZE_LIMIT);
-    memset(buffer, 0, INPUT_SIZE_LIMIT);
 
     while ((c = getc(stdin))) {
 	if (index + 1 == INPUT_SIZE_LIMIT)
