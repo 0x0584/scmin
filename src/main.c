@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
     gc_init();
     scmin_init();
 
-    /* repl(); */
+    repl();
 
     gc_clean();
 

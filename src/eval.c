@@ -57,6 +57,23 @@
 vector_t *eval_stack = NULL;
 
 /**
+ * @brief this is used to call nasted car/cdr for many times
+ *
+ * for example, caaaadaddr would be interpreted in this
+ * array so that, true is found where we need to call car,
+ * and false if to call cdr.
+ *
+ * @see eval_keyword()
+ * @see eval_nasted_car_cdr()
+ */
+static bool call_cons_op[0x16];
+
+/**
+ * @brief the length of call_cons_op array
+ */
+static int call_cons_op_length = 0;
+
+/**
  * @brief initialize a new context
  *
  * @param scope the scope of context
@@ -190,6 +207,7 @@ context_t *context_pop(void) {
  * @brief static array of predefined Scheme keywords
  */
 static keyword_t kwd[] = {
+    {"", eval_nasted_car_cdr},
     {"begin", eval_begin},
     {"quote", eval_quote},
     {"eval", eval_eval},
@@ -439,6 +457,30 @@ k_func eval_keyword(sexpr_t * expr) {
 
     if (!expr || !issymbol(expr))
 	return NULL;		/* not a symbol */
+
+    /* test nasted cars and cdrs first */
+    int length = strlen(expr->s) - 1;
+    string_t str = expr->s;
+
+    if (length < 2 || *str != 'c' || str[length] != 'r');
+    else {
+	call_cons_op_length = length - 1;
+	bool is_cons_op = true;
+	while (length - 1) {
+	    length--;
+	    if (str[length] == 'a')
+		call_cons_op[call_cons_op_length - length] = true;
+	    else if (str[length] == 'd')
+		call_cons_op[call_cons_op_length - length] = false;
+	    else {
+		is_cons_op = false, call_cons_op_length = 0;
+		break;
+	    }
+	}
+
+	if (is_cons_op)
+	    return kwd[0].func;
+    }
 
     for (i = 0; kwd[i].keyword; ++i)
 	/* looking for the keyword */
@@ -814,6 +856,28 @@ sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
     return eval_let(scope, let_asterisk);
 }
 
+
+sexpr_t *eval_nasted_car_cdr(scope_t * scope, sexpr_t * expr) {
+    err_raise(ERR_ARG_TYPE, !islist(expr));
+
+    if (err_log())
+	return sexpr_err();
+
+    sexpr_t *tmp = eval_sexpr(scope, car(expr));
+    int i;
+
+    for (i = 0; i < call_cons_op_length; ++i) {
+	tmp = call_cons_op[i] ? car(tmp) : cdr(tmp);
+
+	err_raise(ERR_ARG_TYPE, tmp == NULL);
+
+	if (err_log())
+	    return sexpr_err();
+    }
+
+    return tmp;
+}
+
 sexpr_t *eval_begin(scope_t * scope, sexpr_t * expr) {
     sexpr_t *evaled = NULL, *tmp = expr;
 

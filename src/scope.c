@@ -38,8 +38,6 @@ static nlambda_t stdlib[] = {
     {"list", native_list},
     {"length", native_length},
     {"cons", native_cons},
-    {"car", native_car},
-    {"cdr", native_cdr},
     {"set-car", native_set_car},
     {"set-cdr", native_set_cdr},
 

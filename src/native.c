@@ -259,28 +259,6 @@ sexpr_t *native_cons(sexpr_t * expr) {
     return cons(car(expr), cadr(expr));
 }
 
-/* (car sexpr) */
-sexpr_t *native_car(sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
-    err_raise(ERR_ARG_TYPE, !ispair(car(expr)));
-
-    if (err_log())
-	return sexpr_err();
-
-    return caar(expr);
-}
-
-/* (cdr sexpr) */
-sexpr_t *native_cdr(sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
-    err_raise(ERR_ARG_TYPE, !ispair(car(expr)));
-
-    if (err_log())
-	return sexpr_err();
-
-    return cdar(expr);
-}
-
 sexpr_t *native_set_car(sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
 
