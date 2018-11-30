@@ -8,9 +8,10 @@ sexpr_t *cons(sexpr_t * car, sexpr_t * cdr) {
     if (err_log())
 	return sexpr_err();
 
-    sexpr_t *expr = sexpr_new(LISP_PAIR);
+    sexpr_t *expr = sexpr_new(SCMIN_PAIR);
 
-    expr->c = malloc(sizeof(pair_t));
+    expr->c = (pair_t *) gc_malloc(sizeof(pair_t));
+
     expr->c->car = car;
     expr->c->cdr = cdr;
 

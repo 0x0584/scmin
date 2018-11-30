@@ -38,8 +38,6 @@ static nlambda_t stdlib[] = {
     {"list", native_list},
     {"length", native_length},
     {"cons", native_cons},
-    {"car", native_car},
-    {"cdr", native_cdr},
     {"set-car", native_set_car},
     {"set-cdr", native_set_cdr},
 
@@ -84,10 +82,7 @@ static nlambda_t stdlib[] = {
 };
 
 bond_t *bond_new(string_t symbol, sexpr_t * expr) {
-    assert(symbol != NULL);
-    assert(expr != NULL);
-
-    bond_t *b = malloc(sizeof *b);
+    bond_t *b = gc_malloc(sizeof(bond_t));
 
     b->symbol = strdup(symbol);
     b->sexpr = expr;
@@ -110,8 +105,8 @@ void bond_free(object_t o) {
 
     free(b->symbol);
 
-    if (b->sexpr->gci.isglobal)
-	setglobal(b->sexpr, false);
+    /* if (b->sexpr->gci.isglobal) */
+    /*	setglobal(b->sexpr, false); */
 
     free(b);
 }

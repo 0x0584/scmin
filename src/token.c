@@ -115,7 +115,7 @@ token_type predict_token_type(string_t code) {
  * @return the initialized token
  */
 token_t *token_new(token_type type, string_t vbuffer, int depth) {
-    token_t *token = malloc(sizeof *token);
+    token_t *token = gc_malloc(sizeof(token_t));
 
     token->type = type;
     token->vbuffer = vbuffer;

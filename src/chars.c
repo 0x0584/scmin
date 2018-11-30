@@ -81,8 +81,7 @@ string_t file_as_string(const char *filename) {
     fseek(handler, 0, SEEK_END);	/* Beginning of the stream */
     string_size = ftell(handler);	/* Size of the stream */
     rewind(handler);
-
-    buffer = (char *) malloc(sizeof(char) * (string_size + 1));
+    buffer = gc_malloc(string_size + 1);
 
     /* binary size of the stream */
     read_size = fread(buffer, sizeof(char), string_size, handler);
@@ -100,11 +99,14 @@ string_t file_as_string(const char *filename) {
 }
 
 string_t stdin_as_string(void) {
-    const size_t INPUT_SIZE_LIMIT = (2 << 10);
-    string_t buffer = malloc(INPUT_SIZE_LIMIT * sizeof(char));
-    short index = 0, c;
+    size_t INPUT_SIZE_LIMIT = 0xff, index = 0;
+    string_t buffer = gc_malloc(INPUT_SIZE_LIMIT);
+    char c;
 
-    while ((c = getchar())) {
+    while ((c = getc(stdin))) {
+	if (index + 1 == INPUT_SIZE_LIMIT)
+	    gc_realloc(buffer, INPUT_SIZE_LIMIT *= 2);
+
 	/* ^D with no content -> quitting */
 	if (c == EOF && index == 0) {
 	    free(buffer);
@@ -163,7 +165,8 @@ char ungetnc(void) {
  * @return optimal-size string
  */
 string_t reduce_string_size(string_t str) {
-    return realloc(str, (1 + strlen(str)) * sizeof(char));
+    string_t tmp = (string_t) gc_realloc(str, (1 + strlen(str)));
+    return tmp == NULL ? str : tmp;
 }
 
 /**
@@ -217,9 +220,9 @@ bool clean_comments(string_t code) {
 
 bool clean_source_code(string_t code) {
     char c = 0x00;
-
-  CLEAN: /* this is a weird way to write some code but labels are
-	  * great to create loops, right? */
+    /* *INDENT-OFF* */
+  CLEAN:      /* this is a weird way to write some code but labels are
+	       * great to create loops, right? */
     if (!clean_whitespaces(code) || !clean_comments(code))
 	return false;
 
@@ -229,6 +232,7 @@ bool clean_source_code(string_t code) {
      * thus we have to test again */
     if (isspace(c) || c == ';')
 	goto CLEAN;
+    /* *INDENT-ON* */
 
     return true;
 }

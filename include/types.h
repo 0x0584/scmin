@@ -40,5 +40,6 @@ typedef struct LAMBDA_NATIVE nlambda_t;
 /* see eval.h */
 typedef struct KEYWORD keyword_t;
 typedef sexpr_t *(*k_func) (scope_t *, sexpr_t *);
+typedef struct CONTEXT context_t;
 
 #endif				/* _SCMIN_TYPES_H */

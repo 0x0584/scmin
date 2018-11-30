@@ -8,6 +8,7 @@
  */
 
 #  include "main.h"
+#  include "gc.h"
 
 /* ================ macros ================ */
 

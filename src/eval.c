@@ -28,10 +28,186 @@
 #  define CONS(sexpr) cons((sexpr), sexpr_nil())
 #endif
 
+/*
+ * THE MAIN IDEA:
+ * ==============
+ *
+ * create an evaluation stack such that we only keep the result and
+ * discard the rest while collecting teh garbage.
+ *
+ * for example the expression (+ 1 (- 5 4 5 (* 7 8) (/ 8 4)) 10), we get
+ * the result of each expression and the lowest depth, in the examplea
+ * above, it would be (/ 8 4) and (* 7 8) at depth 0, followed by
+ * (- 5 4 5 X Y) where X and Y are the results of (* 7 8) and (/ 8 4)
+ * respectively. and finally (+ 1 Z 10) where Z is the result of
+ * (- 5 4 5 X Y).
+ *
+ * now, the expression (+ 1 (- 5 4 5 (* 7 8) (/ 8 4)) 10) is the parent
+ * of (- 5 4 5 (* 7 8) (/ 8 4)) which is also the parent of both (* 7 8)
+ * (/ 8 4) so i have to get something like this:
+ *
+ * push:eval_stack (- 5 (* 7 8) (/ 8 4))			#0
+ * push:eval_stack (* 7 8)					#1
+ *   result = 56, pop:eval_stack push:#0:children_results result
+ * push:eval_stack (/ 8 4)					#1
+ *   result = 2, pop:eval_stack push:#0:children_results result
+ *   result = -53 pop:eval_stack and since it's
+ *   scope->parent == NULL we do not push to a parent
+ */
+vector_t *eval_stack = NULL;
+
+/**
+ * @brief this is used to call nasted car/cdr for many times
+ *
+ * for example, caaaadaddr would be interpreted in this
+ * array so that, true is found where we need to call car,
+ * and false if to call cdr.
+ *
+ * @see eval_keyword()
+ * @see eval_nasted_car_cdr()
+ */
+static bool call_cons_op[0x16];
+
+/**
+ * @brief the length of call_cons_op array
+ */
+static int call_cons_op_length = 0;
+
+/**
+ * @brief initialize a new context
+ *
+ * @param scope the scope of context
+ *
+ * @return a new context
+ */
+context_t *context_new(scope_t * scope) {
+    context_t *context = gc_malloc(sizeof(context_t));
+
+    context->scope = scope;
+    context->result = NULL;
+    context->locals = vector_new(NULL, sexpr_print, NULL);
+
+    return context;
+}
+
+/**
+ * @brief describes a the context `o`
+ *
+ * @param o a context to describe
+ *
+ * @note the parameter is an object so that we can use this
+ * a printing function of any vector.
+ * @see vector.h
+ */
+void context_describe(object_t o) {
+    if (o == NULL)
+	return;
+
+    context_t *context = o;
+    sexpr_t **stmp;
+    int j;
+
+    puts("\n------------");
+    /* puts("\nthe scope: "); */
+    /* scope_describe(context->scope); */
+    puts("\nresult: ");
+    sexpr_print(context->result), putchar('\n');
+    puts("\nthe locals: ");
+
+    for (j = 0; j < context->locals->size; ++j) {
+	stmp = vector_get(context->locals, j);
+	sexpr_print(*stmp), putchar('\n');
+    }
+    puts("------------");
+}
+
+/**
+ * @brief frees the context `o`
+ *
+ * @note the parameter is an object so that we can use this
+ * a printing function of any vector.
+ */
+void context_free(object_t o) {
+    if (o == NULL)
+	return;
+
+    context_t *context = o;
+
+    vector_free(context->locals);
+    free(context);
+}
+
+/**
+ * @brief get the last context in the evaluation stack
+ *
+ * @return a context
+ */
+context_t *last_context(void) {
+    return !eval_stack->size ? NULL :
+	vector_get(eval_stack, eval_stack->size - 1);
+}
+
+/**
+ * @brief pin or unpin a context
+ *
+ * @param context the context to pin
+ * @param pin whether to pin (`true`) or not (`false`)
+ */
+void setpin_context(context_t * context, bool pin) {
+    if (context == NULL)
+	return;
+
+    sexpr_t **stmp;
+    int j;
+
+    gc_setpin_scope(context->scope, pin);
+    gc_setpin_sexpr(context->result, pin);
+
+    for (j = 0; j < context->locals->size; ++j) {
+	stmp = vector_get(context->locals, j);
+	gc_setpin_sexpr(*stmp, pin);
+    }
+}
+
+/**
+ * @brief push `context` to the evaluation stack
+ *
+ * @param context the context to push
+ */
+void context_push(context_t * context) {
+    if (eval_stack == NULL)
+	eval_stack = vector_new(context_free, context_describe, NULL);
+
+    vector_push(eval_stack, context);
+}
+
+/**
+ * @brief get the last context
+ * @return popped a context as in a LIFO stack
+ */
+context_t *context_pop(void) {
+    if (eval_stack == NULL)
+	return NULL;
+
+    context_t *item = last_context();
+    /*
+     * the problem here is that some sexpressionsd of
+     * lambdas get's disallocated! i got to re-implement
+     * the context, or find a way to pin lambda and its
+     * arguments from banishing.
+     */
+    setpin_context(item, false);
+
+    context_describe(item);
+
+    return vector_pop(eval_stack);
+}
+
 /**
  * @brief static array of predefined Scheme keywords
  */
 static keyword_t kwd[] = {
+    {"", eval_nasted_car_cdr},
     {"begin", eval_begin},
     {"quote", eval_quote},
     {"eval", eval_eval},
@@ -97,9 +273,13 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     sexpr_t *result = NULL, *op = NULL;	/* operator */
     bond_t *b = NULL;
     k_func kwd_func = eval_keyword(car(expr));
+    context_t *context = context_new(scope);
+    context_push(context);
+
+    vector_push(context->locals, &result);
 
     /* ==================== ==================== ==================== */
-
+
 #if DEBUG_EVALUATOR == DEBUG_ON
     puts("================ eval start ================");
     sexpr_print(expr), putchar('\n');
@@ -130,6 +310,8 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     if (err_log())
 	goto FAILED;		/* no operator was found */
 
+    vector_push(context->locals, &op);
+
 #if DEBUG_EVALUATOR == DEBUG_ON
     puts(op ? "we have an operator " : "there is no operator");
     sexpr_print(op), putchar('\n');
@@ -138,11 +320,15 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
     /* ==================== ==================== ==================== */
 
-    sexpr_t *args = NULL, *tail = NULL;
-    sexpr_t *foo = expr, *arg = NULL, *nil = sexpr_nil();
+    sexpr_t *args = NULL, *nil = sexpr_nil();
+    sexpr_t *foo = cdr(expr), *arg = NULL, *tail = NULL;
+
+    vector_push(context->locals, &tail);
+    vector_push(context->locals, &nil);
+    vector_push(context->locals, &foo);
 
     /* creating a list of arguments */
-    while (!isnil(foo = cdr(foo))) {
+    while (!isnil(foo)) {
 	arg = cons(eval_sexpr(scope, car(foo)), nil);
 
 	err_raise(ERR_ERR, iserror(arg));
@@ -155,7 +341,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	else
 	    set_cdr(tail, arg);
 
-	tail = arg;
+	tail = arg, foo = cdr(foo);
     }
 
 #if DEBUG_EVALUATOR == DEBUG_ON
@@ -171,8 +357,6 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     if (op->l->isnative)	/* call the native function */
 	result = op->l->native->func(args);
     else {			/* evaluate the lambda's body */
-	/* sexpr_print(args), */
-	/*     sexpr_print(op->l->args), putchar('\n') ; */
 
 	err_raise(ERR_LMBD_ARGS,
 		  sexpr_length(args) != sexpr_length(op->l->args));
@@ -182,31 +366,44 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
 	scope_t *child = scope_init(scope);
 
-	gc_setmark_sexpr(args, true);
-
 	bind_lambda_args(child, op->l, args);
 	result = eval_sexpr(child, op->l->body);
-
-	gc_setmark_sexpr(result, true);
     }
 
   RET:
-
+
     err_raise(ERR_RSLT_NULL, !result);
     err_raise(ERR_ERR, iserror(result));
 
     if (err_log())
 	goto FAILED;
 
+    if (eval_stack != NULL) {
+	context_t *ctx = context_pop();
+
+	/* end of evaluation */
+	if (eval_stack->size == 0) {
+	    vector_free(eval_stack);
+	    eval_stack = NULL;
+	} else {
+	    last_context()->result = result;
+	    gc_collect(true);
+	    puts("#");
+	}
+
+	context_free(ctx);
+    }
+
 #if DEBUG_EVALUATOR == DEBUG_ON
-    puts("final result: ");
-    sexpr_print(result), putchar('\n');
+    printf("%s", "final result: "), sexpr_print(result), putchar('\n');
 #endif
 
     return result;
 
   FAILED:
 
+    vector_free(eval_stack);
+    eval_stack = NULL;
     return NULL;
 }
 
@@ -227,14 +424,20 @@ vector_t *eval_sexprs(vector_t * sexprs) {
     int i;
 
     for (i = 0; i < sexprs->size; ++i) {
+	gc_setpin_sexpr(vector_get(sexprs, i), true);
+    }
+
+    for (i = 0; i < sexprs->size; ++i) {
 #if DEBUG_EVALUATOR == DEBUG_ON
-	/* sexpr_print(vector_get(sexprs, i)); */
 #endif
+	printf("eval: "), sexpr_print(vector_get(sexprs, i)),
+	    putchar('\n');
+
 	tmp = eval_sexpr(gs, vector_get(sexprs, i));
 	tmp = vector_push(v, tmp);
 
-#if DEBUG_EVALUATOR == DEBUG_ON
 	printf(" > "), sexpr_print(tmp), putchar('\n');
+#if DEBUG_EVALUATOR == DEBUG_ON
 #endif
     }
 
@@ -254,6 +457,30 @@ k_func eval_keyword(sexpr_t * expr) {
 
     if (!expr || !issymbol(expr))
 	return NULL;		/* not a symbol */
+
+    /* test nasted cars and cdrs first */
+    int length = strlen(expr->s) - 1;
+    string_t str = expr->s;
+
+    if (length < 2 || *str != 'c' || str[length] != 'r');
+    else {
+	call_cons_op_length = length - 1;
+	bool is_cons_op = true;
+	while (length - 1) {
+	    length--;
+	    if (str[length] == 'a')
+		call_cons_op[call_cons_op_length - length] = true;
+	    else if (str[length] == 'd')
+		call_cons_op[call_cons_op_length - length] = false;
+	    else {
+		is_cons_op = false, call_cons_op_length = 0;
+		break;
+	    }
+	}
+
+	if (is_cons_op)
+	    return kwd[0].func;
+    }
 
     for (i = 0; kwd[i].keyword; ++i)
 	/* looking for the keyword */
@@ -301,6 +528,7 @@ sexpr_t *eval_quote(scope_t * scope, sexpr_t * expr) {
  * @see scope.h
  * @note `define` defines a symbol `(define symbol expr)`
  */
+
 sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
     err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
@@ -315,7 +543,6 @@ sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
      * we cannot call set since reserved raise an error */
     if (vector_find(scope->bonds, &bond) != NULL)
 	return eval_set(scope, expr);
-
 
     evaled = eval_sexpr(scope, cadr(expr));
 
@@ -333,7 +560,6 @@ sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
 #endif
 
     return symbol;
-
 }
 
 /**
@@ -440,7 +666,7 @@ sexpr_t *eval_undef(scope_t * scope, sexpr_t * expr) {
 
     /* for the moment undef just sets the symbol to nil */
     setglobal(bond->sexpr, false);
-    bond->sexpr = sexpr_nil();
+    bond->sexpr = sexpr_symbol(bond->symbol);
     setglobal(bond->sexpr, true);
 
     return sexpr_true();
@@ -630,6 +856,28 @@ sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
     return eval_let(scope, let_asterisk);
 }
 
+
+sexpr_t *eval_nasted_car_cdr(scope_t * scope, sexpr_t * expr) {
+    err_raise(ERR_ARG_TYPE, !islist(expr));
+
+    if (err_log())
+	return sexpr_err();
+
+    sexpr_t *tmp = eval_sexpr(scope, car(expr));
+    int i;
+
+    for (i = 0; i < call_cons_op_length; ++i) {
+	tmp = call_cons_op[i] ? car(tmp) : cdr(tmp);
+
+	err_raise(ERR_ARG_TYPE, tmp == NULL);
+
+	if (err_log())
+	    return sexpr_err();
+    }
+
+    return tmp;
+}
+
 sexpr_t *eval_begin(scope_t * scope, sexpr_t * expr) {
     sexpr_t *evaled = NULL, *tmp = expr;
 

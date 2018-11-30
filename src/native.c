@@ -26,7 +26,7 @@ sexpr_t *native_add(sexpr_t * expr) {
 	tmp = cdr(tmp);
     }
 
-    result = sexpr_new(LISP_NUMBER);
+    result = sexpr_new(SCMIN_NUMBER);
     result->n = n;
 
     return result;
@@ -53,7 +53,7 @@ sexpr_t *native_minus(sexpr_t * expr) {
 	tmp = cdr(tmp);
     }
 
-    result = sexpr_new(LISP_NUMBER);
+    result = sexpr_new(SCMIN_NUMBER);
     result->n = n;
 
     return result;
@@ -73,7 +73,7 @@ sexpr_t *native_times(sexpr_t * expr) {
 	tmp = cdr(tmp);
     }
 
-    result = sexpr_new(LISP_NUMBER);
+    result = sexpr_new(SCMIN_NUMBER);
     result->n = n;
 
     return result;
@@ -94,7 +94,7 @@ sexpr_t *native_divid(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    result = sexpr_new(LISP_NUMBER);
+    result = sexpr_new(SCMIN_NUMBER);
     result->n = (number_t) tmp->n / tmp0->n;;
 
     return result;
@@ -259,28 +259,6 @@ sexpr_t *native_cons(sexpr_t * expr) {
     return cons(car(expr), cadr(expr));
 }
 
-/* (car sexpr) */
-sexpr_t *native_car(sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
-    err_raise(ERR_ARG_TYPE, !ispair(car(expr)));
-
-    if (err_log())
-	return sexpr_err();
-
-    return caar(expr);
-}
-
-/* (cdr sexpr) */
-sexpr_t *native_cdr(sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
-    err_raise(ERR_ARG_TYPE, !ispair(car(expr)));
-
-    if (err_log())
-	return sexpr_err();
-
-    return cdar(expr);
-}
-
 sexpr_t *native_set_car(sexpr_t * expr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
 
@@ -319,7 +297,7 @@ sexpr_t *native_length(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    sexpr_t *sexpr = sexpr_new(LISP_NUMBER);
+    sexpr_t *sexpr = sexpr_new(SCMIN_NUMBER);
     sexpr->n = sexpr_length(car(expr));
 
     return sexpr;
@@ -403,7 +381,7 @@ sexpr_t *native_sqrt(sexpr_t * expr) {
     if (err_log())
 	return sexpr_err();
 
-    sexpr_t *number = sexpr_new(LISP_NUMBER);
+    sexpr_t *number = sexpr_new(SCMIN_NUMBER);
     number->n = sqrt(car(expr)->n);
 
     return number;

@@ -19,26 +19,26 @@
 #include "native.h"
 
 bool iserror(sexpr_t * expr) {
-    return expr == NULL ? true : expr->type == LISP_ERR;
+    return expr == NULL ? true : expr->type == SCMIN_ERR;
 }
 
 /**
  * @brief test if `expr` is `nil`
  *
  * @param expr s-expression
- * @return `true` if `expr` was of type #LISP_NIL
+ * @return `true` if `expr` was of type #SCMIN_NIL
  */
 bool isnil(sexpr_t * expr) {
-    return expr == NULL ? false : expr->type == LISP_NIL;
+    return expr == NULL ? false : expr->type == SCMIN_NIL;
 }
 
 /**
  * @brief test if `expr` is **not** `nil`
  *
  * @param expr s-expression
- * @return `true` if `expr` was of **not** type #LISP_NIL
+ * @return `true` if `expr` was of **not** type #SCMIN_NIL
  *
- * @note only #LISP_NIL is considered as `false` anything else is `true`
+ * @note only #SCMIN_NIL is considered as `false` anything else is `true`
  */
 bool istrue(sexpr_t * expr) {
     return !isnil(expr);
@@ -49,10 +49,10 @@ bool istrue(sexpr_t * expr) {
  * `foo-bar`
  *
  * @param expr s-expression
- * @return `true` if `expr` was of type either #LISP_NUMBER, #LISP_STRING
- * or #LISP_SYMBOL
+ * @return `true` if `expr` was of type either #SCMIN_NUMBER, #SCMIN_STRING
+ * or #SCMIN_SYMBOL
  *
- * @note #LISP_NIL is **not** an atom
+ * @note #SCMIN_NIL is **not** an atom
  */
 bool isatom(sexpr_t * expr) {
     return !ispair(expr) && !islambda(expr);
@@ -62,46 +62,46 @@ bool isatom(sexpr_t * expr) {
  * @brief test if `expr` is a symbol
  *
  * @param expr s-expression
- * @return `true` if `expr` was #LISP_SYMBOL
+ * @return `true` if `expr` was #SCMIN_SYMBOL
  *
- * @note #LISP_NIL is **not** a symbol
+ * @note #SCMIN_NIL is **not** a symbol
  */
 bool issymbol(sexpr_t * expr) {
-    return expr == NULL ? false : expr->type == LISP_SYMBOL;
+    return expr == NULL ? false : expr->type == SCMIN_SYMBOL;
 }
 
 /**
  * @brief test if `expr` is a number
  *
  * @param expr s-expression
- * @return `true` if `expr` was of type #LISP_NUMBER
+ * @return `true` if `expr` was of type #SCMIN_NUMBER
  */
 bool isnumber(sexpr_t * expr) {
-    return expr == NULL ? false : expr->type == LISP_NUMBER;
+    return expr == NULL ? false : expr->type == SCMIN_NUMBER;
 }
 
 /**
  * @brief test if `expr` is a string
  *
  * @param expr s-expression
- * @return `true` if `expr` was of type #LISP_STRING
+ * @return `true` if `expr` was of type #SCMIN_STRING
  */
 bool isstring(sexpr_t * expr) {
-    return expr == NULL ? false : expr->type == LISP_STRING;
+    return expr == NULL ? false : expr->type == SCMIN_STRING;
 }
 
 /**
  * @param expr s-expression
- * @return `true` if `expr` was of type #LISP_PAIR
+ * @return `true` if `expr` was of type #SCMIN_PAIR
  *
  * @see pair.h
  */
 bool ispair(sexpr_t * expr) {
-    return expr == NULL ? false : expr->type == LISP_PAIR;
+    return expr == NULL ? false : expr->type == SCMIN_PAIR;
 }
 
 /**
- * @brief lists is a chain of #LISP_PAIR of s-expression with a #LISP_NIL
+ * @brief lists is a chain of #SCMIN_PAIR of s-expression with a #SCMIN_NIL
  *
  * @param expr s-expression
  * @return `true` if `expr` was a list
@@ -116,12 +116,12 @@ bool islist(sexpr_t * expr) {
  * @brief test if `expr` is a lambda
  *
  * @param expr s-expression
- * @return `true` if `expr` was of type #LISP_LAMBDA
+ * @return `true` if `expr` was of type #SCMIN_LAMBDA
  *
  * @see sexpr.h
  */
 bool islambda(sexpr_t * expr) {
-    return expr == NULL ? false : expr->type == LISP_LAMBDA;
+    return expr == NULL ? false : expr->type == SCMIN_LAMBDA;
 }
 
 /**
@@ -144,19 +144,19 @@ bool isnative(sexpr_t * expr) {
  * basically, this is the way to allocate memory for a new s-expression
  * because this function allocates memory using the built-in GC allocation
  *
- * @param type s-expression type like #LISP_NUMBER or #LISP_SYMBOL
+ * @param type s-expression type like #SCMIN_NUMBER or #SCMIN_SYMBOL
  *
  * @see #SYMBOLIC_EXPRESSION_TYPE
  * @see #SYMBOLIC_EXPRESSION
  *
- * @note if `type` was #LISP_LAMBDA, it allocates memory for the lambda as well
+ * @note if `type` was #SCMIN_LAMBDA, it allocates memory for the lambda as well
  */
 sexpr_t *sexpr_new(type_t type) {
     sexpr_t *expr = gc_alloc_sexpr();
 
     expr->type = type;
 
-    if (type == LISP_LAMBDA)
+    if (type == SCMIN_LAMBDA)
 	expr->l = gc_alloc_lambda();
 
     return expr;
@@ -190,7 +190,7 @@ int sexpr_length(sexpr_t * expr) {
 /**
  * @brief creates an error s-expression
  *
- * basically calling sexpr_new() passing #LISP_ERR
+ * basically calling sexpr_new() passing #SCMIN_ERR
  *
  * @return error s-expression
  *
@@ -198,18 +198,18 @@ int sexpr_length(sexpr_t * expr) {
  * @note error s-expression is returned after error occurrence
  */
 sexpr_t *sexpr_err(void) {
-    return sexpr_new(LISP_ERR);
+    return sexpr_new(SCMIN_ERR);
 }
 
 /**
  * @brief creating a `nil` s-expression
  *
- * basically calling sexpr_new() passing #LISP_NIL and initializing its text
+ * basically calling sexpr_new() passing #SCMIN_NIL and initializing its text
  *
  * @return `nil` s-expression
  */
 sexpr_t *sexpr_nil(void) {
-    sexpr_t *t = sexpr_new(LISP_NIL);
+    sexpr_t *t = sexpr_new(SCMIN_NIL);
     t->s = strdup("nil");
     return t;
 }
@@ -217,31 +217,31 @@ sexpr_t *sexpr_nil(void) {
 /**
  * @brief creating a symbol s-expression of `t`
  *
- * basically calling sexpr_new() passing #LISP_SYMBOL and initializing its
+ * basically calling sexpr_new() passing #SCMIN_SYMBOL and initializing its
  * text with `"t"`
  *
  * @return error s-expression
  */
 sexpr_t *sexpr_true(void) {
-    sexpr_t *t = sexpr_new(LISP_SYMBOL);
+    sexpr_t *t = sexpr_new(SCMIN_SYMBOL);
     t->s = strdup("t");
     return t;
 }
 
 sexpr_t *sexpr_symbol(string_t symbol) {
-    sexpr_t *t = sexpr_new(LISP_SYMBOL);
+    sexpr_t *t = sexpr_new(SCMIN_SYMBOL);
     t->s = strdup(symbol);
     return t;
 }
 
 sexpr_t *sexpr_number(number_t number) {
-    sexpr_t *t = sexpr_new(LISP_NUMBER);
+    sexpr_t *t = sexpr_new(SCMIN_NUMBER);
     t->n = number;
     return t;
 }
 
 sexpr_t *sexpr_string(string_t string) {
-    sexpr_t *t = sexpr_new(LISP_STRING);
+    sexpr_t *t = sexpr_new(SCMIN_STRING);
     t->s = strdup(string);
     return t;
 }
@@ -253,7 +253,7 @@ sexpr_t *sexpr_string(string_t string) {
  * @param args a list of lambda's arguments
  * @param func a native C function
  *
- * @return a s-expression of type #LISP_LAMBDA
+ * @return a s-expression of type #SCMIN_LAMBDA
  *
  * @see #SYMBOLIC_EXPRESSION
  * @see #LAMBDA_EXPRESSION
@@ -262,7 +262,7 @@ sexpr_t *sexpr_string(string_t string) {
  * @note initializing `is native` to `true`
  */
 sexpr_t *lambda_new_native(sexpr_t * args, nlambda_t * func) {
-    sexpr_t *lambda = sexpr_new(LISP_LAMBDA);
+    sexpr_t *lambda = sexpr_new(SCMIN_LAMBDA);
 
     lambda->l->args = args;
     lambda->l->isnative = true;
@@ -278,7 +278,7 @@ sexpr_t *lambda_new_native(sexpr_t * args, nlambda_t * func) {
  * @param args a list of lambda's arguments
  * @param body a s-expression to interpret when calling this lambda
  *
- * @return a s-expression of type #LISP_LAMBDA
+ * @return a s-expression of type #SCMIN_LAMBDA
  *
  * @see #LAMBDA_EXPRESSION
  * @see #SYMBOLIC_EXPRESSION
@@ -286,7 +286,7 @@ sexpr_t *lambda_new_native(sexpr_t * args, nlambda_t * func) {
  * @note initializing `isnative` to `false`
  */
 sexpr_t *lambda_new(sexpr_t * args, sexpr_t * body) {
-    sexpr_t *lambda = sexpr_new(LISP_LAMBDA);
+    sexpr_t *lambda = sexpr_new(SCMIN_LAMBDA);
 
     lambda->l->args = args;
     lambda->l->isnative = false;
@@ -322,33 +322,33 @@ void sexpr_describe(object_t o) {
     }
 
     switch (expr->type) {
-    case LISP_PAIR:
+    case SCMIN_PAIR:
 	type_str = "CONS-PAIR";
 	break;
 
-    case LISP_NUMBER:
+    case SCMIN_NUMBER:
 	type_str = "NUMBER";
 	break;
 
-    case LISP_STRING:
+    case SCMIN_STRING:
 	type_str = "STRING";
 	break;
 
-    case LISP_SYMBOL:
+    case SCMIN_SYMBOL:
 	type_str = "SYMBOL";
 	break;
 
-    case LISP_LAMBDA:
+    case SCMIN_LAMBDA:
 	type_str = "LAMBDA";
 	isfinished = true;
 	break;
 
-    case LISP_NIL:
+    case SCMIN_NIL:
 	type_str = "NIL";
 	isfinished = true;
 	break;
 
-    case LISP_ERR:
+    case SCMIN_ERR:
 	type_str = "ERROR";
 	isfinished = true;
 	break;
@@ -400,17 +400,21 @@ void _sexpr_print(object_t o) {
 	putchar('^');
 	return;
     }
+
     if (islambda(expr)) {
 	lambda_print(expr->l);
 	return;
     }
+
+    /* printf(" [%s] expr: %p, type:%d\n", */
+    /*	   expr->gci.ismarked ? "X" : "O", expr, expr->type); */
 
     if (isstring(expr))
 	printf("\"%s\"", expr->s);
     else if (issymbol(expr) || isnil(expr))
 	printf("%s", expr->s);
     else if (isnumber(expr))
-	printf("%lf", expr->n);
+	printf("%g", expr->n);
     else if (ispair(expr)) {
 	putchar('('), _sexpr_print(car(expr));
 

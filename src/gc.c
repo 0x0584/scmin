@@ -30,6 +30,7 @@
 #include "native.h"
 
 #include "scope.h"
+#include "eval.h"
 #include "pair.h"
 
 /**
@@ -43,6 +44,8 @@ static long gc_stack_limit = 0x0584;
  * @see error.c
  */
 extern vector_t *error_log;
+
+extern vector_t *eval_stack;
 
 /**
  * @brief a vector of allocated s-expressions in the garbage collector
@@ -78,6 +81,7 @@ void gc_clean(void) {
     vector_free(gc_allocd_sexprs);
 
     vector_free(error_log);
+    vector_free(eval_stack);
 }
 
 long gc_allocated_scopes_size() {
@@ -107,8 +111,8 @@ long gc_allocated_size(void) {
 }
 
 void gc_sweep_log(int a, int b) {
-printf("%-8s %8d * %-8s %8d * %-8s %8d\n",
-	   "before:", a, "after:", b, "diff:", b * a);
+    printf("%-8s %8d * %-8s %8d * %-8s %8d\n",
+	   "before:", a, "after:", b, "diff:", b - a);
 }
 
 void gc_log(bool iscleanup) {
@@ -117,13 +121,13 @@ void gc_log(bool iscleanup) {
     printf("%-8s %8d * %-8s %8d * %-8s %8d\n",
 	   "scopes:", gc_allocd_scopes->size,
 	   "lambdas:", gc_allocd_lambdas->size,
-	   "sexprs:",  gc_allocd_sexprs->size);
-    printf("%15ld B * %15ld B * %15ld B\n=========================================================\nstack size: %13ld B * limit size: %13ld B\n",
-	   gc_allocated_scopes_size(),
-	   gc_allocd_lambdas->size * sizeof(lambda_t),
-	   gc_allocd_sexprs->size * sizeof(sexpr_t),
-	   gc_allocated_size(),
-	   gc_stack_limit);
+	   "sexprs:", gc_allocd_sexprs->size);
+    printf
+	("%15ld B * %15ld B * %15ld B\n=========================================================\nstack size: %13ld B * limit size: %13ld B\n",
+	 gc_allocated_scopes_size(),
+	 gc_allocd_lambdas->size * sizeof(lambda_t),
+	 gc_allocd_sexprs->size * sizeof(sexpr_t), gc_allocated_size(),
+	 gc_stack_limit);
     puts("=========================================================");
 }
 
@@ -139,6 +143,83 @@ bool gc_has_space_left(void) {
     return gc_allocated_size() < gc_stack_limit;
 }
 
+void gc_pin_eval_stack(void) {
+    if (eval_stack == NULL)
+	return;
+
+    int i, j;
+    context_t *tmp = NULL;
+    sexpr_t **stmp = NULL;
+
+    for (i = 0; i < eval_stack->size; ++i) {
+	tmp = vector_get(eval_stack, i);
+
+	gc_setpin_scope(tmp->scope, true);
+	gc_setpin_sexpr(tmp->result, true);
+
+	/*
+	   for (j = 0; j < tmp->children_results->size; ++j) {
+	   sexpr = vector_get(tmp->children_results, j);
+	   gc_setpin_sexpr(sexpr, true);
+	   }
+	 */
+
+	for (j = 0; j < tmp->locals->size; ++j) {
+	    stmp = vector_get(tmp->locals, j);
+	    gc_setpin_sexpr(*stmp, true);
+	}
+    }
+
+    /* vector_print(eval_stack); */
+}
+
+void gc_setpin_scope(scope_t * scope, bool pin) {
+    if (scope == NULL || scope->gci.ispinned == pin)
+	return;
+
+    int i;
+
+    scope->gci.ispinned = pin;
+
+    for (i = 0; i < scope->bonds->size; ++i) {
+	bond_t *b = vector_get(scope->bonds, i);
+	gc_setpin_sexpr(b->sexpr, pin);
+
+	if (islambda(b->sexpr))
+	    gc_setpin_lambda(b->sexpr->l, pin);
+    }
+
+    gc_setpin_scope(scope->parent, pin);
+}
+
+void gc_setpin_lambda(lambda_t * expr, bool pin) {
+    if (expr == NULL || expr->gci.ispinned == pin)
+	return;
+
+    expr->gci.ispinned = pin;
+
+    gc_setpin_sexpr(expr->args, pin);
+
+    if (!expr->isnative)
+	gc_setpin_sexpr(expr->body, pin);
+}
+
+void gc_setpin_sexpr(sexpr_t * expr, bool pin) {
+    if (expr == NULL || expr->gci.ispinned == pin)
+	return;
+
+    expr->gci.ispinned = pin;
+
+    if (isnil(expr));
+    else if (ispair(expr)) {
+	gc_setpin_sexpr(car(expr), pin);
+	gc_setpin_sexpr(cdr(expr), pin);
+    } else if (islambda(expr)) {
+	gc_setpin_lambda(expr->l, pin);
+    }
+}
+
+
 /**
  * @brief collects the objects in the garbage collector by calling sweeping
  * functions
@@ -158,32 +239,56 @@ void gc_collect(bool iscleanup) {
     gc_log(iscleanup);
 #endif
 
-
-#if DEBUG_GC == DEBUG_ON
-    puts("===================== sweep sexprs ======================");
-#endif
-
-    gc_sweep_sexprs(gc_allocd_sexprs);
+    gc_setmark_scope(get_global_scope(), true);
+    gc_pin_eval_stack();
 
 #if DEBUG_GC == DEBUG_ON
     puts("===================== sweep scopes ======================");
 #endif
-
     gc_sweep_scopes(gc_allocd_scopes);
 
 #if DEBUG_GC == DEBUG_ON
     puts("===================== sweep lambdas =====================");
 #endif
-
     gc_sweep_lambdas(gc_allocd_lambdas);
+
+#if DEBUG_GC == DEBUG_ON
+    puts("===================== sweep sexprs ======================");
+#endif
+    gc_sweep_sexprs(gc_allocd_sexprs);
 
+
 
     if (!gc_has_space_left())
 	gc_stack_limit += gc_allocated_size();
 
 #if DEBUG_GC == DEBUG_ON
-    /* gc_log(iscleanup); */
+    gc_log(iscleanup);
 #endif
+}
+
+void *gc_malloc(size_t size) {
+    void *foo = malloc(size);
+
+    if (foo == NULL) {
+	fprintf(stderr, "ERROR! cannot allocate %ld", size);
+	exit(-1);
+    }
+
+    memset(foo, 0x00, size);
+
+    return foo;
+}
+
+void *gc_realloc(void *ptr, size_t size) {
+    void *foo = realloc(ptr, size);
+
+    if (foo == NULL) {
+	fprintf(stderr, "ERROR! cannot reallocate %ld", size);
+	exit(-1);
+    }
+
+    return foo;
 }
 
 /* ==============================================================
@@ -202,6 +307,8 @@ void gc_setmark_sexpr(sexpr_t * expr, bool mark) {
     else if (ispair(expr)) {
 	gc_setmark_sexpr(car(expr), mark);
 	gc_setmark_sexpr(cdr(expr), mark);
+    } else if (islambda(expr)) {
+	gc_setmark_lambda(expr->l, mark);
     }
 }
 
@@ -215,18 +322,19 @@ void gc_sweep_sexprs(vector_t * v) {
 #if DEBUG_GC == DEBUG_ON
     int size = v->size;
 
-#ifdef DEBUG_GC_FULL
-	puts(" -*- sexprs stack before -*- ");
-	vector_print(v);
-	puts("==============================");
-#endif
+#  ifdef DEBUG_GC_FULL
+    puts(" -*- sexprs stack before -*- ");
+    vector_print(v);
+    puts("==============================");
+#  endif
 #endif
 
     for (i = 0; i < v->size; ++i) {
-	tmp = vector_get(v, i);
+	if ((tmp = vector_get(v, i)) == NULL)
+	    continue;
 
 	/* lambdas handled elsewhere */
-	if (islambda(tmp) || tmp->gci.isglobal)
+	if (islambda(tmp) || tmp->gci.isglobal || tmp->gci.ispinned)
 	    continue;
 
 	if (!tmp->gci.ismarked) {
@@ -241,19 +349,20 @@ void gc_sweep_sexprs(vector_t * v) {
     vector_compact(v);
 
 #if DEBUG_GC == DEBUG_ON
-#ifdef DEBUG_GC_FULL
+#  ifdef DEBUG_GC_FULL
     puts("\n -*- final sexprs stack -*- ");
-	vector_print(v);
-	puts("==============================");
-#endif
+    vector_print(v);
+    puts("==============================");
+#  endif
     gc_sweep_log(size, v->size);
 #endif
 }
 
 sexpr_t *gc_alloc_sexpr(void) {
-    sexpr_t *s = malloc(sizeof *s);
+    sexpr_t *s = gc_malloc(sizeof *s);
     s->gci.ismarked = false;
     s->gci.isglobal = false;
+    s->gci.ispinned = false;
     return vector_push(gc_allocd_sexprs, s);
 }
 
@@ -296,22 +405,22 @@ void gc_sweep_lambdas(vector_t * v) {
 #if DEBUG_GC == DEBUG_ON
     int size = v->size;
 
-#ifdef DEBUG_GC_FULL
-	puts(" -*- lambda stack before -*- ");
-	vector_print(v);
-#endif
+#  ifdef DEBUG_GC_FULL
+    puts(" -*- lambda stack before -*- ");
+    vector_print(v);
+#  endif
 #endif
 
     for (i = 0; i < v->size; ++i) {
-	tmp = vector_get(v, i);
+	if ((tmp = vector_get(v, i)) == NULL)
+	    continue;
 
-	if (tmp->isnative || tmp->gci.isglobal)
+	if (tmp->isnative || tmp->gci.isglobal || tmp->gci.ispinned)
 	    continue;
 
 	if (!tmp->gci.ismarked) {
 	    gc_free_lambda(tmp);
 	    vector_set(v, i, NULL);
-
 	} else {
 	    gc_setmark_lambda(tmp, false);
 	}
@@ -320,20 +429,21 @@ void gc_sweep_lambdas(vector_t * v) {
     vector_compact(v);
 
 #if DEBUG_GC == DEBUG_ON
-#ifdef DEBUG_GC_FULL
-	puts("\n -*- final lambdas stack -*- ");
-	vector_print(v);
-#endif
+#  ifdef DEBUG_GC_FULL
+    puts("\n -*- final lambdas stack -*- ");
+    vector_print(v);
+#  endif
 
     gc_sweep_log(size, v->size);
 #endif
 }
 
 lambda_t *gc_alloc_lambda(void) {
-    lambda_t *l = malloc(sizeof *l);
+    lambda_t *l = gc_malloc(sizeof *l);
 
     l->gci.ismarked = false;
     l->gci.isglobal = false;
+    l->gci.ispinned = false;
     l->args = NULL;
     l->body = NULL;
     l->isnative = false;
@@ -349,6 +459,8 @@ void gc_free_lambda(object_t o) {
 
     lambda_t *l = o;
 
+    /* args and the body are both s-expressions both are
+     * handled while freeing sexprs */
     free(l);
 }
 
@@ -382,17 +494,18 @@ void gc_sweep_scopes(vector_t * v) {
 
 #if DEBUG_GC == DEBUG_ON
     int size = v->size;
-#ifdef DEBUG_GC_FULL
-	puts(" -*- scope stack before -*- ");
-	vector_print(v);
-	puts("==============================");
-#endif
+#  ifdef DEBUG_GC_FULL
+    puts(" -*- scope stack before -*- ");
+    vector_print(v);
+    puts("==============================");
+#  endif
 #endif
 
     for (i = 0; i < v->size; ++i) {
-	tmp = vector_get(v, i);
+	if ((tmp = vector_get(v, i)) == NULL)
+	    continue;
 
-	if (tmp->parent == NULL)	/* global scope */
+	if (tmp->parent == NULL || tmp->gci.ispinned)	/* global scope */
 	    continue;
 
 	if (!tmp->gci.ismarked) {
@@ -407,23 +520,23 @@ void gc_sweep_scopes(vector_t * v) {
     vector_compact(v);
 
 #if DEBUG_GC == DEBUG_ON
-#ifdef DEBUG_GC_FULL
-	puts("\n -*- final scopes stack -*- ");
-	vector_print(v);
-	puts("==============================");
-#endif
+#  ifdef DEBUG_GC_FULL
+    puts("\n -*- final scopes stack -*- ");
+    vector_print(v);
+    puts("==============================");
+#  endif
     gc_sweep_log(size, v->size);
 #endif
 }
 
 scope_t *gc_alloc_scope(void) {
-    scope_t *s = malloc(sizeof *s);
+    scope_t *s = gc_malloc(sizeof *s);
 
     s->bonds = vector_new(bond_free, bond_describe, bond_cmp);
     s->parent = NULL;
     s->gci.ismarked = false;
     s->gci.isglobal = false;
-
+    s->gci.ispinned = false;
     vector_push(gc_allocd_scopes, s);
 
     return s;

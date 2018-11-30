@@ -64,7 +64,6 @@ void scmin_init(void) {
     vector_free(w);
     vector_free(v);
 
-    gc_setmark_scope(get_global_scope(), true);
     gc_collect(true);
     gc_log(true);
 }

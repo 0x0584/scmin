@@ -2,6 +2,7 @@
 TAGS
 scmin
 *.txt
+*.tar.gz
 massif.*
 docs/*
 

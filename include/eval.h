@@ -46,6 +46,31 @@ typedef struct KEYWORD {
     k_func func;
 } keyword_t;
 
+/**
+ * @brief the evaluation context contains the scope, the child
+ * result and a vector of local s-expression
+ *
+ * the main idea of the context is to define what to pin while
+ * collecting the garbage in order to make the evaluation
+ * process faster
+ */
+typedef struct CONTEXT {
+    /**
+     * @brief the scope of the context
+     */
+    scope_t *scope;
+    /**
+     * @brief the child result
+     */
+    sexpr_t *result;
+    /**
+     * @brief a vector of local s-expressions
+     * @note this would hold references to s_expr which
+     * migh be NULL
+     */
+    vector_t *locals;
+} context_t;
+
 sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr);
 vector_t *eval_sexprs(vector_t * exprs);
 
@@ -61,6 +86,7 @@ sexpr_t *eval_eval(scope_t * scope, sexpr_t * expr);
 sexpr_t *eval_let(scope_t * scope, sexpr_t * expr);
 sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr);
 sexpr_t *eval_begin(scope_t * scope, sexpr_t * expr);
+sexpr_t *eval_nasted_car_cdr(scope_t * scope, sexpr_t * expr);
 
 void eval_testing();
 #endif				/* _SCMIN_EVAL_H */

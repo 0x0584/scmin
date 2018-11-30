@@ -62,7 +62,7 @@
  * @brief eval debugging information
  * @see eval.c
  */
-#  define DEBUG_EVALUATOR	DEBUG_OFF
+#  define DEBUG_EVALUATOR	DEBUG_ON
 
 /**
  * @brief repl debugging information

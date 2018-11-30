@@ -221,7 +221,7 @@ sexpr_t *parse_as_quote(vector_t * tokens) {
     if (isnil(value))
 	return value;
 
-    quote = sexpr_new(LISP_SYMBOL);
+    quote = sexpr_new(SCMIN_SYMBOL);
     quote->s = strdup("quote");
 
     value = cons(quote, cons(value, sexpr_nil()));
@@ -235,14 +235,14 @@ sexpr_t *parse_as_quote(vector_t * tokens) {
 
 sexpr_t *parse_as_number(string_t value) {
     assert(value != NULL);
-    sexpr_t *expr = sexpr_new(LISP_NUMBER);
+    sexpr_t *expr = sexpr_new(SCMIN_NUMBER);
     expr->n = strtod(value, NULL);
     return expr;
 }
 
 sexpr_t *parse_as_string(string_t value) {
     assert(value != NULL);
-    sexpr_t *expr = sexpr_new(LISP_STRING);
+    sexpr_t *expr = sexpr_new(SCMIN_STRING);
     expr->s = strdup(value);
     return expr;
 }
@@ -250,6 +250,6 @@ sexpr_t *parse_as_string(string_t value) {
 sexpr_t *parse_as_symbol(string_t value) {
     sexpr_t *expr = NULL;
     expr = parse_as_string(value);
-    expr->type = !strcmp(value, "nil") ? LISP_NIL : LISP_SYMBOL;
+    expr->type = !strcmp(value, "nil") ? SCMIN_NIL : SCMIN_SYMBOL;
     return expr;
 }
