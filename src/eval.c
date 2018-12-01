@@ -206,7 +206,7 @@ static keyword_t kwd[] = {
     {"0x0584", eval_nested_car_cdr},
     {"begin", eval_begin},
     /* TODO: add cond keyword */
-    /* {"cond", eval_cond}, */
+    {"cond", eval_cond},
     {"quote", eval_quote},
     {"eval", eval_eval},
     {"define", eval_define},
@@ -878,7 +878,7 @@ sexpr_t *eval_nested_car_cdr(scope_t * scope, sexpr_t * sexpr) {
 }
 
 sexpr_t *eval_begin(scope_t * scope, sexpr_t * sexpr) {
-    sexpr_t *evaled = NULL, *tmp = sexpr;
+    sexpr_t *evaled = sexpr_nil(), *tmp = sexpr;
 
     while (!isnil(tmp)) {
 	evaled = eval_sexpr(scope, car(tmp));
@@ -895,4 +895,22 @@ sexpr_t *eval_begin(scope_t * scope, sexpr_t * sexpr) {
     return evaled;
 }
 
+sexpr_t *eval_cond(scope_t * scope, sexpr_t * sexpr) {
+    sexpr_t *tmp = sexpr;
+
+    while (!isnil(tmp)) {
+	err_raise(ERR_ARG_COUNT, sexpr_length(car(tmp)) != 2);
+
+	if (err_log())
+	    return sexpr_err();
+
+	if ((issymbol(caar(tmp)) && strcmp(caar(tmp)->s, "else"))
+	    || istrue(eval_sexpr(scope, caar(tmp))))
+	    return eval_sexpr(scope, cadar(tmp));
+
+	tmp = cdr(tmp);
+    }
+
+    return sexpr_nil();
+}
 #undef CONS

@@ -167,3 +167,7 @@
 ;; (fib 15)
 
 ;; (define x (+ 8 7))
+
+(cond ((= 0 1) (print "not this"))
+      ((= 1 1) (print "but this"))
+      (else (print "or else")))

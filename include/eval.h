@@ -75,22 +75,23 @@ typedef struct CONTEXT {
     vector_t *locals;
 } context_t;
 
-sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr);
-vector_t *eval_sexprs(vector_t * exprs);
+sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * sexpr);
+vector_t *eval_sexprs(vector_t * sexprs);
 
-k_func eval_keyword(sexpr_t * expr);
-sexpr_t *eval_quote(scope_t * scope, sexpr_t * expr);
-sexpr_t *eval_define(scope_t * scope, sexpr_t * expr);
-sexpr_t *eval_if(scope_t * scope, sexpr_t * expr);
-sexpr_t *eval_lambda(scope_t * scope, sexpr_t * expr);
-sexpr_t *eval_set(scope_t * scope, sexpr_t * expr);
-sexpr_t *eval_setq(scope_t * scope, sexpr_t * expr);
-sexpr_t *eval_undef(scope_t * scope, sexpr_t * expr);
-sexpr_t *eval_eval(scope_t * scope, sexpr_t * expr);
-sexpr_t *eval_let(scope_t * scope, sexpr_t * expr);
-sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr);
-sexpr_t *eval_begin(scope_t * scope, sexpr_t * expr);
-sexpr_t *eval_nested_car_cdr(scope_t * scope, sexpr_t * expr);
+k_func eval_keyword(sexpr_t * sexpr);
+sexpr_t *eval_quote(scope_t * scope, sexpr_t * sexpr);
+sexpr_t *eval_define(scope_t * scope, sexpr_t * sexpr);
+sexpr_t *eval_if(scope_t * scope, sexpr_t * sexpr);
+sexpr_t *eval_lambda(scope_t * scope, sexpr_t * sexpr);
+sexpr_t *eval_set(scope_t * scope, sexpr_t * sexpr);
+sexpr_t *eval_setq(scope_t * scope, sexpr_t * sexpr);
+sexpr_t *eval_undef(scope_t * scope, sexpr_t * sexpr);
+sexpr_t *eval_eval(scope_t * scope, sexpr_t * sexpr);
+sexpr_t *eval_let(scope_t * scope, sexpr_t * sexpr);
+sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * sexpr);
+sexpr_t *eval_begin(scope_t * scope, sexpr_t * sexpr);
+sexpr_t *eval_nested_car_cdr(scope_t * scope, sexpr_t * sexpr);
+sexpr_t *eval_cond(scope_t * scope, sexpr_t * sexpr);
 
 void eval_testing();
 #endif				/* _SCMIN_EVAL_H */
