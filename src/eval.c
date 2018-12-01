@@ -28,15 +28,12 @@
 #  define CONS(sexpr) cons((sexpr), sexpr_nil())
 #endif
 
-/*
- * THE MAIN IDEA:
- * ==============
- *
- * create an evaluation stack such that we only keep the result and
- * discard the rest while collecting teh garbage.
+/**
+ * @brief create an evaluation stack such that we only keep the result
+ * and discard the rest while collecting the garbage.
  *
  * for example the expression (+ 1 (- 5 4 5 (* 7 8) (/ 8 4)) 10), we get
- * the result of each expression and the lowest depth, in the examplea
+ * the result of each expression and the lowest depth, in the example
  * above, it would be (/ 8 4) and (* 7 8) at depth 0, followed by
  * (- 5 4 5 X Y) where X and Y are the results of (* 7 8) and (/ 8 4)
  * respectively. and finally (+ 1 Z 10) where Z is the result of
@@ -46,25 +43,25 @@
  * of (- 5 4 5 (* 7 8) (/ 8 4)) which is also the parent of both (* 7 8)
  * (/ 8 4) so i have to get something like this:
  *
- * push:eval_stack (- 5 (* 7 8) (/ 8 4))			#0
- * push:eval_stack (* 7 8)					#1
- *   result = 56, pop:eval_stack push:#0:children_results result
- * push:eval_stack (/ 8 4)					#1
- *   result = 2, pop:eval_stack push:#0:children_results result
+ * push:eval_stack (- 5 (* 7 8) (/ 8 4))			  (0)
+ * push:eval_stack (* 7 8)					  (1)
+ *   result = 56, pop:eval_stack push:(0):children_results result
+ * push:eval_stack (/ 8 4)					  (1)
+ *   result = 2, pop:eval_stack push:(0):children_results result
  *   result = -53 pop:eval_stack and since it's
  *   scope->parent == NULL we do not push to a parent
  */
 vector_t *eval_stack = NULL;
 
 /**
- * @brief this is used to call nasted car/cdr for many times
+ * @brief this is used to call nested car/cdr for many times
  *
  * for example, caaaadaddr would be interpreted in this
  * array so that, true is found where we need to call car,
  * and false if to call cdr.
  *
  * @see eval_keyword()
- * @see eval_nasted_car_cdr()
+ * @see eval_nested_car_cdr()
  */
 static bool call_cons_op[0x16];
 
@@ -80,7 +77,7 @@ static int call_cons_op_length = 0;
  *
  * @return a new context
  */
-context_t *context_new(scope_t * scope, sexpr_t *sexpr) {
+context_t *context_new(scope_t * scope, sexpr_t * sexpr) {
     context_t *context = gc_malloc(sizeof(context_t));
 
     context->scope = scope;
@@ -205,7 +202,7 @@ context_t *context_pop(void) {
  * @brief static array of predefined Scheme keywords
  */
 static keyword_t kwd[] = {
-    {"0x0584", eval_nasted_car_cdr},
+    {"0x0584", eval_nested_car_cdr},
     {"begin", eval_begin},
     {"quote", eval_quote},
     {"eval", eval_eval},
@@ -393,7 +390,6 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * sexpr) {
 
 	context_free(ctx);
     }
-
 #if DEBUG_EVALUATOR == DEBUG_ON
     printf("%s", "final result: "), sexpr_print(result), putchar('\n');
 #endif
@@ -457,7 +453,7 @@ k_func eval_keyword(sexpr_t * sexpr) {
     if (!sexpr || !issymbol(sexpr))
 	return NULL;		/* not a symbol */
 
-    /* test nasted cars and cdrs first */
+    /* test nested cars and cdrs first */
     int length = strlen(sexpr->s) - 1;
     string_t str = sexpr->s;
 
@@ -631,7 +627,8 @@ sexpr_t *eval_setq_or_set(scope_t * scope, sexpr_t * sexpr, bool quoted) {
 	return eval_define(scope, sexpr);
     else {
 	setglobal(bond->sexpr, false);
-	bond->sexpr = quoted ? cadr(sexpr) : eval_sexpr(scope, cadr(sexpr));
+	bond->sexpr =
+	    quoted ? cadr(sexpr) : eval_sexpr(scope, cadr(sexpr));
 	setglobal(bond->sexpr, true);
     }
 
@@ -856,7 +853,7 @@ sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * sexpr) {
 }
 
 
-sexpr_t *eval_nasted_car_cdr(scope_t * scope, sexpr_t * sexpr) {
+sexpr_t *eval_nested_car_cdr(scope_t * scope, sexpr_t * sexpr) {
     err_raise(ERR_ARG_TYPE, !islist(sexpr));
 
     if (err_log())

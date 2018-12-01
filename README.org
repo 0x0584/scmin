@@ -1,6 +1,6 @@
 * NOTES
-   
-  #+BEGIN_QUOTE   
+
+  #+BEGIN_QUOTE
   Programming for me is a passion, sort of art, thus; this is just for fun and learning new stuff. And what could be more wonderful than writing your own lisp interpreter. For the purpose learning more, Lisp and Scheme are the same for the moment, so the code written in here is a mix between the two languages. There might be an undefined number of *bugs* in here, I'm aware of some and some remain unknown.
   #+END_QUOTE
 
@@ -9,7 +9,7 @@
   #+BEGIN_SRC shell
     $ make				# compile the code
     $ make clean			# removes the objects and the executable
-    $ make build			# same as make clean && make 
+    $ make build			# same as make clean && make
   #+END_SRC
 
   The intepreter's standard library function are stored in =stdlib.scm=, the other files are just for testings
@@ -83,6 +83,9 @@
 	       (let ((y 9))
 		 (append-to x y))))		; (1 2 3 55)
 
+    (let ((tmp '(1 2)))
+      (map square (append '(1 2 3) tmp)))	; 1 4 9 1 4
+
     ;; for more library functions check stdlib.scm
   #+END_SRC
 
@@ -135,29 +138,33 @@
   This is a basic Lisp (technically Scheme) interpreter that was written in C for educational purposes with the following features:
 
   + [X] Lexing Phase
-    + [X] read and split text containing Scheme/Lisp syntax into tokens
-    + [X] extract values like strings and numerical literals
+    + [X] +read and split text containing Scheme/Lisp syntax into tokens+
+    + [X] +extract values like strings and numerical literals+
 
   + [-] Parsing Phase
-    + [X] parse the tokens into a s-expression object
-    + [-] replace some syntactic sugar while parsing
-      + [X] =(quote expr)= and ='expr=
+    + [X] +parse the tokens into a s-expression object+
+    + [-] +replace some syntactic sugar while parsing+
+      + [X] +(quote expr) and 'expr+
       + [ ] =(define f (lambda (args) (body)))= and =(define (f args) (body))=
       + [ ] =(define f (lambda (args) (body)))= and =(defun f (args) (body))=
 
   + [X] Evaluation Phase
-    + [X] evaluate the parsed s-expression object
-    + [X] support recursion
+    + [X] +evaluate the parsed s-expression object+
+    + [X] +support recursion+
 
-  + [X] syntax support
-    + [X] arithmetic operators =+=, =-=, =*= and =/=
-    + [X] arithmetic comparison operators
-    + [X] cons-pairs operators =cons=, =car=, =cdr=, =set-car= and =set-cdr=
-    + [X] logical operators =and=, =or= and =not=
-    + [X] defining symbols that hold values using =define=
-      + [X] remove them using =undef=
-      + [X] modify their values using =set= and =setq=
-    + [X] conditioning using =if= and logical operators  =and=, =or=, =not=
-    + [X] support lambda expressions
-  + [X] memory is handled via a garbage collector
-  + [ ] +support simple objects+
+  + [X] Syntax support
+    + [X] +arithmetic operator+
+    + [X] +arithmetic comparison operators+
+    + [X] +cons-pairs operators+
+      + [X] +using undefined number of nested car/cdr operators+
+    + [X] +logical operators+
+    + [X] +defining symbols that hold values using+
+      + [X] +remove them using+
+      + [X] +modify their value+
+    + [X] +conditional expressions+
+    + [X] +support lambda expressions+
+
+  + [-] Memory and GC
+    + [X] +memory is handled via a garbage collector+
+      + [X] +optimizing teh evaluation by using an evaluation stack+
+    + [ ] support simple objects with properties
