@@ -60,6 +60,10 @@ typedef struct CONTEXT {
      */
     scope_t *scope;
     /**
+     * @brief the s-expression we're evaluating
+     */
+    sexpr_t *sexpr;
+    /**
      * @brief the child result
      */
     sexpr_t *result;

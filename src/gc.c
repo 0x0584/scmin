@@ -156,21 +156,13 @@ void gc_pin_eval_stack(void) {
 
 	gc_setpin_scope(tmp->scope, true);
 	gc_setpin_sexpr(tmp->result, true);
-
-	/*
-	   for (j = 0; j < tmp->children_results->size; ++j) {
-	   sexpr = vector_get(tmp->children_results, j);
-	   gc_setpin_sexpr(sexpr, true);
-	   }
-	 */
+	gc_setpin_sexpr(tmp->sexpr, true);
 
 	for (j = 0; j < tmp->locals->size; ++j) {
 	    stmp = vector_get(tmp->locals, j);
 	    gc_setpin_sexpr(*stmp, true);
 	}
     }
-
-    /* vector_print(eval_stack); */
 }
 
 void gc_setpin_scope(scope_t * scope, bool pin) {
@@ -184,9 +176,6 @@ void gc_setpin_scope(scope_t * scope, bool pin) {
     for (i = 0; i < scope->bonds->size; ++i) {
 	bond_t *b = vector_get(scope->bonds, i);
 	gc_setpin_sexpr(b->sexpr, pin);
-
-	if (islambda(b->sexpr))
-	    gc_setpin_lambda(b->sexpr->l, pin);
     }
 
     gc_setpin_scope(scope->parent, pin);
@@ -205,13 +194,12 @@ void gc_setpin_lambda(lambda_t * expr, bool pin) {
 }
 
 void gc_setpin_sexpr(sexpr_t * expr, bool pin) {
-    if (expr == NULL || expr->gci.ispinned == pin)
+    if (expr == NULL)
 	return;
 
     expr->gci.ispinned = pin;
 
-    if (isnil(expr));
-    else if (ispair(expr)) {
+    if (ispair(expr)) {
 	gc_setpin_sexpr(car(expr), pin);
 	gc_setpin_sexpr(cdr(expr), pin);
     } else if (islambda(expr)) {
@@ -297,14 +285,12 @@ void *gc_realloc(void *ptr, size_t size) {
  */
 
 void gc_setmark_sexpr(sexpr_t * expr, bool mark) {
-    if (expr == NULL || expr->gci.ismarked == mark)
+    if (expr == NULL)
 	return;
 
     expr->gci.ismarked = mark;
 
-    if (isnil(expr))
-	return;
-    else if (ispair(expr)) {
+    if (ispair(expr)) {
 	gc_setmark_sexpr(car(expr), mark);
 	gc_setmark_sexpr(cdr(expr), mark);
     } else if (islambda(expr)) {
@@ -340,7 +326,6 @@ void gc_sweep_sexprs(vector_t * v) {
 	if (!tmp->gci.ismarked) {
 	    gc_free_sexpr(tmp);
 	    vector_set(v, i, NULL);
-
 	} else {
 	    gc_setmark_sexpr(tmp, false);
 	}
@@ -480,9 +465,6 @@ void gc_setmark_scope(scope_t * s, bool mark) {
     for (i = 0; i < s->bonds->size; ++i) {
 	bond_t *b = vector_get(s->bonds, i);
 	gc_setmark_sexpr(b->sexpr, mark);
-
-	if (islambda(b->sexpr))
-	    gc_setmark_lambda(b->sexpr->l, mark);
     }
 
     gc_setmark_scope(s->parent, mark);

@@ -38,7 +38,7 @@
  * @brief garbage collector debugging information
  * @see gc.c
  */
-#  define DEBUG_GC		DEBUG_ON
+#  define DEBUG_GC		DEBUG_OFF
 
 /**
  * @brief vector debugging information
@@ -62,7 +62,7 @@
  * @brief eval debugging information
  * @see eval.c
  */
-#  define DEBUG_EVALUATOR	DEBUG_ON
+#  define DEBUG_EVALUATOR	DEBUG_OFF
 
 /**
  * @brief repl debugging information
