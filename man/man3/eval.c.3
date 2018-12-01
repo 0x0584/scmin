@@ -1,4 +1,4 @@
-.TH "src/eval.c" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.TH "src/eval.c" 3 "Sat Dec 1 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -31,59 +31,98 @@ src/eval.c \- declarations of the core evaluation functions, those would take a 
 
 .in +1c
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_sexpr\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.RI "\fBcontext_t\fP * \fBcontext_new\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
 .br
-.RI "evaluate an expression \fCexpr\fP within a given \fCscope\fP "
+.RI "initialize a new context "
+.ti -1c
+.RI "void \fBcontext_describe\fP (\fBobject_t\fP o)"
+.br
+.RI "describes a the context \fCo\fP "
+.ti -1c
+.RI "void \fBcontext_free\fP (\fBobject_t\fP o)"
+.br
+.RI "frees the context \fCo\fP "
+.ti -1c
+.RI "\fBcontext_t\fP * \fBlast_context\fP (void)"
+.br
+.RI "get the last context in the evaluation stack "
+.ti -1c
+.RI "void \fBsetpin_context\fP (\fBcontext_t\fP *context, bool pin)"
+.br
+.RI "pin or unpin a context "
+.ti -1c
+.RI "void \fBcontext_push\fP (\fBcontext_t\fP *context)"
+.br
+.RI "push \fCcontext\fP to the evaluation stack "
+.ti -1c
+.RI "\fBcontext_t\fP * \fBcontext_pop\fP (void)"
+.br
+.RI "get the last context "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_sexpr\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
+.br
+.RI "evaluate an expression \fCsexpr\fP within a given \fCscope\fP "
 .ti -1c
 .RI "\fBvector_t\fP * \fBeval_sexprs\fP (\fBvector_t\fP *sexprs)"
 .br
 .RI "just like \fBeval_sexpr()\fP, but with a vector of s-expressions "
 .ti -1c
-.RI "\fBk_func\fP \fBeval_keyword\fP (\fBsexpr_t\fP *expr)"
+.RI "\fBk_func\fP \fBeval_keyword\fP (\fBsexpr_t\fP *sexpr)"
 .br
-.RI "determines whether a \fCexpr\fP s-expression is a keyword or not "
+.RI "determines whether a \fCsexpr\fP s-expression is a keyword or not "
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_quote\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.RI "\fBsexpr_t\fP * \fBeval_quote\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
 .br
 .RI "returns the expression as it is "
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_define\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.RI "\fBsexpr_t\fP * \fBeval_define\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
 .br
 .RI "define a symbol to hold a sexpr "
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_if\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.RI "\fBsexpr_t\fP * \fBeval_if\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
 .br
 .RI "performers a conditional based on the \fBcar()\fP of \fCexpr\fP "
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_lambda\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.RI "\fBsexpr_t\fP * \fBeval_lambda\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
 .br
 .RI "creates lambda from \fCexpr\fP "
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_setq_or_set\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr, bool quoted)"
+.RI "\fBsexpr_t\fP * \fBeval_setq_or_set\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr, bool quoted)"
 .br
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_set\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.RI "\fBsexpr_t\fP * \fBeval_set\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
 .br
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_setq\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.RI "\fBsexpr_t\fP * \fBeval_setq\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
 .br
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_undef\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.RI "\fBsexpr_t\fP * \fBeval_undef\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
 .br
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_eval\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.RI "\fBsexpr_t\fP * \fBeval_eval\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
 .br
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_let\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.RI "\fBsexpr_t\fP * \fBeval_let\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
 .br
 .RI "define temporary symbols to be used in the next s-expression(s) "
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_let_asterisk\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.RI "\fBsexpr_t\fP * \fBeval_let_asterisk\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
 .br
 .RI "define temporary symbols related to be used in the next s-expression(s) "
 .ti -1c
-.RI "\fBsexpr_t\fP * \fBeval_begin\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *expr)"
+.RI "\fBsexpr_t\fP * \fBeval_nested_car_cdr\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
 .br
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBeval_begin\fP (\fBscope_t\fP *scope, \fBsexpr_t\fP *sexpr)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "\fBvector_t\fP * \fBeval_stack\fP = NULL"
+.br
+.RI "create an evaluation stack such that we only keep the result and discard the rest while collecting the garbage\&. "
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -109,18 +148,90 @@ the main method here is \fBeval_sexpr()\fP for a single expression, and \fBeval_
 
 .SH "Function Documentation"
 .PP 
-.SS "\fBsexpr_t\fP* eval_begin (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
-
-.SS "\fBsexpr_t\fP* eval_define (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+.SS "void context_describe (\fBobject_t\fP o)"
 
 .PP
-define a symbol to hold a sexpr evaluates the \fBcadr()\fP \fCexpr\fP and then creates a new bind with the result and the symbol in the \fBcar()\fP of \fCexpr\fP
+describes a the context \fCo\fP 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIo\fP a context to describe
+.RE
+.PP
+\fBNote:\fP
+.RS 4
+the parameter is an object so that we can use this a printing function of any vector\&. 
+.RE
+.PP
+\fBSee also:\fP
+.RS 4
+\fBvector\&.h\fP 
+.RE
+.PP
+
+.SS "void context_free (\fBobject_t\fP o)"
+
+.PP
+frees the context \fCo\fP 
+.PP
+\fBNote:\fP
+.RS 4
+the parameter is an object so that we can use this a printing function of any vector\&. 
+.RE
+.PP
+
+.SS "\fBcontext_t\fP* context_new (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
+
+.PP
+initialize a new context 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIscope\fP the scope of context 
+.br
+\fIsexpr\fP a s-expression
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+a new context 
+.RE
+.PP
+
+.SS "\fBcontext_t\fP* context_pop (void)"
+
+.PP
+get the last context 
+.PP
+\fBReturns:\fP
+.RS 4
+popped a context as in a LIFO stack 
+.RE
+.PP
+
+.SS "void context_push (\fBcontext_t\fP * context)"
+
+.PP
+push \fCcontext\fP to the evaluation stack 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcontext\fP the context to push 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* eval_begin (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
+
+.SS "\fBsexpr_t\fP* eval_define (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
+
+.PP
+define a symbol to hold a sexpr evaluates the \fBcadr()\fP \fCsexpr\fP and then creates a new bind with the result and the symbol in the \fBcar()\fP of \fCexpr\fP
 .PP
 \fBParameters:\fP
 .RS 4
 \fIscope\fP the containing scope 
 .br
-\fIexpr\fP the expression to evaluate
+\fIsexpr\fP the expression to evaluate
 .RE
 .PP
 \fBReturns:\fP
@@ -139,9 +250,9 @@ the defined s-expression
 .RE
 .PP
 
-.SS "\fBsexpr_t\fP* eval_eval (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+.SS "\fBsexpr_t\fP* eval_eval (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
 
-.SS "\fBsexpr_t\fP* eval_if (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+.SS "\fBsexpr_t\fP* eval_if (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
 
 .PP
 performers a conditional based on the \fBcar()\fP of \fCexpr\fP the condition is the \fBcar()\fP of \fCexpr\fP, if it was \fCtrue\fP, checked using \fBistrue()\fP, then \fBcadr()\fP is evaluated, otherwise the \fBcaddr()\fP if evaluated instead\&.
@@ -150,7 +261,7 @@ performers a conditional based on the \fBcar()\fP of \fCexpr\fP the condition is
 .RS 4
 \fIscope\fP the containing scope 
 .br
-\fIexpr\fP the expression to evaluate
+\fIsexpr\fP the expression to evaluate
 .RE
 .PP
 \fBReturns:\fP
@@ -165,27 +276,27 @@ the evaluate of expression that satisfies the condition
 .PP
 \fBNote:\fP
 .RS 4
-conditions are done as \fC(if (expr) (foo) (bar))\fP\&. \fCfoo\fP is evaluated when \fCexpr\fP is not \fCnil\fP, otherwise evaluate \fCbar\fP 
+conditions are done as \fC(if (expr) (foo) (bar))\fP\&. \fCfoo\fP is evaluated when \fCsexpr\fP is not \fCnil\fP, otherwise evaluate \fCbar\fP 
 .RE
 .PP
 
-.SS "\fBk_func\fP eval_keyword (\fBsexpr_t\fP * expr)"
+.SS "\fBk_func\fP eval_keyword (\fBsexpr_t\fP * sexpr)"
 
 .PP
-determines whether a \fCexpr\fP s-expression is a keyword or not 
+determines whether a \fCsexpr\fP s-expression is a keyword or not 
 .PP
 \fBParameters:\fP
 .RS 4
-\fIexpr\fP s-expression
+\fIsexpr\fP s-expression
 .RE
 .PP
 \fBReturns:\fP
 .RS 4
-\fCNULL\fP if the \fCexpr\fP is not a keyword, or the keyword's correspondent function otherwise 
+\fCNULL\fP if the \fCsexpr\fP is not a keyword, or the keyword's correspondent function otherwise 
 .RE
 .PP
 
-.SS "\fBsexpr_t\fP* eval_lambda (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+.SS "\fBsexpr_t\fP* eval_lambda (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
 
 .PP
 creates lambda from \fCexpr\fP initialize a non native lambda, \fBcar()\fP are the args and \fBcadr()\fP is the body
@@ -194,7 +305,7 @@ creates lambda from \fCexpr\fP initialize a non native lambda, \fBcar()\fP are t
 .RS 4
 \fIscope\fP a scope (see notes) 
 .br
-\fIexpr\fP the expression to evaluate
+\fIsexpr\fP the expression to evaluate
 .RE
 .PP
 \fBReturns:\fP
@@ -215,7 +326,7 @@ the \fCscope\fP is not used but since lambda is a keyword so the function signat
 .RE
 .PP
 
-.SS "\fBsexpr_t\fP* eval_let (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+.SS "\fBsexpr_t\fP* eval_let (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
 
 .PP
 define temporary symbols to be used in the next s-expression(s) the \fClet\fP operator let us define temporary symbol which is really handy when writing lambdas or other s-expressions\&.
@@ -226,7 +337,7 @@ for example \fC(let ((x foo) (y bar)) body)\fP with Lisp magic is equivalent to 
 .RS 4
 \fIscope\fP a scope 
 .br
-\fIexpr\fP the expression to evaluate
+\fIsexpr\fP the expression to evaluate
 .RE
 .PP
 \fBReturns:\fP
@@ -247,7 +358,7 @@ is label is not specified, let-lambda is used instead and can be used to call th
 .RE
 .PP
 
-.SS "\fBsexpr_t\fP* eval_let_asterisk (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+.SS "\fBsexpr_t\fP* eval_let_asterisk (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
 
 .PP
 define temporary symbols related to be used in the next s-expression(s) the \fClet*\fP operator is like normal let but we can define symbols that call each other except of the root symbol\&.
@@ -260,7 +371,7 @@ the main idea behind \fClet*\fP is to call let for each bonded symbol
 .RS 4
 \fIscope\fP a scope 
 .br
-\fIexpr\fP the expression to evaluate
+\fIsexpr\fP the expression to evaluate
 .RE
 .PP
 \fBReturns:\fP
@@ -288,21 +399,23 @@ this is not working as expected
 .RE
 .PP
 
-.SS "\fBsexpr_t\fP* eval_quote (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+.SS "\fBsexpr_t\fP* eval_nested_car_cdr (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
+
+.SS "\fBsexpr_t\fP* eval_quote (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
 
 .PP
-returns the expression as it is quote gives the ability to just pass s-expression without evaluating them, and since \fCexpr\fP must be the \fBcdr()\fP of \fC'expr\fP, we need to return the \fBcar()\fP which is what we really want, and not \fCexpr\fP directly because we'll return the terminating nil as well\&.
+returns the expression as it is quote gives the ability to just pass s-expression without evaluating them, and since \fCsexpr\fP must be the \fBcdr()\fP of \fC'expr\fP, we need to return the \fBcar()\fP which is what we really want, and not \fCsexpr\fP directly because we'll return the terminating nil as well\&.
 .PP
 \fBParameters:\fP
 .RS 4
 \fIscope\fP the containing scope 
 .br
-\fIexpr\fP the expression to evaluate
+\fIsexpr\fP the expression to evaluate
 .RE
 .PP
 \fBReturns:\fP
 .RS 4
-expr without evaluation 
+sexpr without evaluation 
 .RE
 .PP
 \fBNote:\fP
@@ -311,16 +424,16 @@ quote is defined as (quote expr)
 .RE
 .PP
 
-.SS "\fBsexpr_t\fP* eval_set (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+.SS "\fBsexpr_t\fP* eval_set (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
 
-.SS "\fBsexpr_t\fP* eval_setq (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+.SS "\fBsexpr_t\fP* eval_setq (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
 
-.SS "\fBsexpr_t\fP* eval_setq_or_set (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr, bool quoted)"
+.SS "\fBsexpr_t\fP* eval_setq_or_set (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr, bool quoted)"
 
-.SS "\fBsexpr_t\fP* eval_sexpr (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+.SS "\fBsexpr_t\fP* eval_sexpr (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
 
 .PP
-evaluate an expression \fCexpr\fP within a given \fCscope\fP before evaluating each expression, we need to determine its type, there are native/predefined expression that would be executed directly using a predefined C function\&. and other expressions that are written in pure Scheme/Lisp that need to be evaluated
+evaluate an expression \fCsexpr\fP within a given \fCscope\fP before evaluating each expression, we need to determine its type, there are native/predefined expression that would be executed directly using a predefined C function\&. and other expressions that are written in pure Scheme/Lisp that need to be evaluated
 .PP
 the first thing to do is to determine the type whether it's a normal s-expression or it does has an operator:
 .PP
@@ -340,7 +453,7 @@ next, we look to see if the operator was a native one, if so; we call the relate
 .RS 4
 \fIscope\fP the containing scope 
 .br
-\fIexpr\fP a s-expression to evaluate
+\fIsexpr\fP a s-expression to evaluate
 .RE
 .PP
 \fBReturns:\fP
@@ -384,8 +497,42 @@ a vector of the evaluated s-expressions
 .RE
 .PP
 
-.SS "\fBsexpr_t\fP* eval_undef (\fBscope_t\fP * scope, \fBsexpr_t\fP * expr)"
+.SS "\fBsexpr_t\fP* eval_undef (\fBscope_t\fP * scope, \fBsexpr_t\fP * sexpr)"
 
+.SS "\fBcontext_t\fP* last_context (void)"
+
+.PP
+get the last context in the evaluation stack 
+.PP
+\fBReturns:\fP
+.RS 4
+a context 
+.RE
+.PP
+
+.SS "void setpin_context (\fBcontext_t\fP * context, bool pin)"
+
+.PP
+pin or unpin a context 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcontext\fP the context to pin 
+.br
+\fIpin\fP whether to pin (\fCtrue\fP) or not (\fCfalse\fP) 
+.RE
+.PP
+
+.SH "Variable Documentation"
+.PP 
+.SS "\fBvector_t\fP* eval_stack = NULL"
+
+.PP
+create an evaluation stack such that we only keep the result and discard the rest while collecting the garbage\&. for example the expression (+ 1 (- 5 4 5 (* 7 8) (/ 8 4)) 10), we get the result of each expression and the lowest depth, in the example above, it would be (/ 8 4) and (* 7 8) at depth 0, followed by (- 5 4 5 X Y) where X and Y are the results of (* 7 8) and (/ 8 4) respectively\&. and finally (+ 1 Z 10) where Z is the result of (- 5 4 5 X Y)\&.
+.PP
+now, the expression (+ 1 (- 5 4 5 (* 7 8) (/ 8 4)) 10) is the parent of (- 5 4 5 (* 7 8) (/ 8 4)) which is also the parent of both (* 7 8) (/ 8 4) so i have to get something like this:
+.PP
+push:eval_stack (- 5 (* 7 8) (/ 8 4)) (0) push:eval_stack (* 7 8) (1) result = 56, pop:eval_stack push:(0):children_results result push:eval_stack (/ 8 4) (1) result = 2, pop:eval_stack push:(0):children_results result result = -53 pop:eval_stack and since it's scope->parent == NULL we do not push to a parent 
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

@@ -74,6 +74,7 @@ static int call_cons_op_length = 0;
  * @brief initialize a new context
  *
  * @param scope the scope of context
+ * @param sexpr a s-expression
  *
  * @return a new context
  */
@@ -204,6 +205,8 @@ context_t *context_pop(void) {
 static keyword_t kwd[] = {
     {"0x0584", eval_nested_car_cdr},
     {"begin", eval_begin},
+    /* TODO: add cond keyword */
+    /* {"cond", eval_cond}, */
     {"quote", eval_quote},
     {"eval", eval_eval},
     {"define", eval_define},
@@ -219,7 +222,7 @@ static keyword_t kwd[] = {
 };
 
 /**
- * @brief evaluate an expression `expr` within a given `scope`
+ * @brief evaluate an expression `sexpr` within a given `scope`
  *
  * before evaluating each expression, we need to determine its type, there
  * are native/predefined expression that would be executed directly using
@@ -252,7 +255,7 @@ static keyword_t kwd[] = {
  * is returned
  *
  * @param scope the containing scope
- * @param expr a s-expression to evaluate
+ * @param sexpr a s-expression to evaluate
  *
  * @return the evaluated s-expression
  *
@@ -440,11 +443,11 @@ vector_t *eval_sexprs(vector_t * sexprs) {
 }
 
 /**
- * @brief determines whether a `expr` s-expression is a keyword or not
+ * @brief determines whether a `sexpr` s-expression is a keyword or not
  *
- * @param expr s-expression
+ * @param sexpr s-expression
  *
- * @return `NULL` if the `expr` is not a keyword, or the keyword's
+ * @return `NULL` if the `sexpr` is not a keyword, or the keyword's
  * correspondent function otherwise
  */
 k_func eval_keyword(sexpr_t * sexpr) {
@@ -489,14 +492,14 @@ k_func eval_keyword(sexpr_t * sexpr) {
  * @brief returns the expression as it is
  *
  * quote gives the ability to just pass s-expression without
- * evaluating them, and since `expr` must be the cdr() of `'expr`,
+ * evaluating them, and since `sexpr` must be the cdr() of `'expr`,
  * we need to return the car() which is what we really want, and not
- * `expr` directly because we'll return the terminating nil as well.
+ * `sexpr` directly because we'll return the terminating nil as well.
  *
  * @param scope the containing scope
- * @param expr the expression to evaluate
+ * @param sexpr the expression to evaluate
  *
- * @return expr without evaluation
+ * @return sexpr without evaluation
  * @note quote is defined as (quote expr)
  */
 sexpr_t *eval_quote(scope_t * scope, sexpr_t * sexpr) {
@@ -512,11 +515,11 @@ sexpr_t *eval_quote(scope_t * scope, sexpr_t * sexpr) {
 /**
  * @brief define a symbol to hold a sexpr
  *
- * evaluates the cadr() `expr` and then creates a new bind
+ * evaluates the cadr() `sexpr` and then creates a new bind
  * with the result and the symbol in the car() of `expr`
  *
  * @param scope the containing scope
- * @param expr the expression to evaluate
+ * @param sexpr the expression to evaluate
  *
  * @return the defined s-expression
  *
@@ -565,13 +568,13 @@ sexpr_t *eval_define(scope_t * scope, sexpr_t * sexpr) {
  * instead.
  *
  * @param scope the containing scope
- * @param expr the expression to evaluate
+ * @param sexpr the expression to evaluate
  *
  * @return the evaluate of expression that satisfies the condition
  *
  * @see sexpr.h
  * @note conditions are done as `(if (expr) (foo) (bar))`. `foo` is
- * evaluated when `expr` is not `nil`, otherwise evaluate `bar`
+ * evaluated when `sexpr` is not `nil`, otherwise evaluate `bar`
  */
 sexpr_t *eval_if(scope_t * scope, sexpr_t * sexpr) {
     err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 3);
@@ -592,7 +595,7 @@ sexpr_t *eval_if(scope_t * scope, sexpr_t * sexpr) {
  * the body
  *
  * @param scope a scope (see notes)
- * @param expr the expression to evaluate
+ * @param sexpr the expression to evaluate
  *
  * @return a s-expression contains a lambda
  *
@@ -691,7 +694,7 @@ sexpr_t *eval_eval(scope_t * scope, sexpr_t * sexpr) {
  * evaluating that lambda (called `let-lambda` in here).
  *
  * @param scope a scope
- * @param expr the expression to evaluate
+ * @param sexpr the expression to evaluate
  *
  * @return a s-expression evaluation of a let s-expression
  *
@@ -774,7 +777,7 @@ sexpr_t *eval_let(scope_t * scope, sexpr_t * sexpr) {
  * the main idea behind `let*` is to call let for each bonded symbol
  *
  * @param scope a scope
- * @param expr the expression to evaluate
+ * @param sexpr the expression to evaluate
  *
  * @return a s-expression evaluation of a let s-expression
  *

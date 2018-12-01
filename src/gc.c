@@ -4,23 +4,11 @@
  * @brief a simple Garbage Collector implementation of the mark-and-sweep
  * algorithm
  *
- * @details contains definitions to handle scopes, lambdas and s-expressions
+ * @details add more details later
  *
  * @todo figure out how to eliminate code-redundancy
  *
- * @bug when a s-expression used inside the evaluation is returned, it's
- * out of context so the GC would clean it while it's being used in another
- * context. indeed causing errors.
- * e.g. `(define foo (append-to (list 1 2 3) 5))` or `(define x (define y 1))`
- *
- * TODO: not cleaning lambdas return values
- * ========================================
- *
- * the main problem is that when passing arguments to a lambda, there's passe
- * by reference, so when we return them, it works until the GC runs a clean up,
- * only then they're gone. since the return value is not marked. so the main
- * idea is to mark the return value, so that when it's used somewhere else,
- * it would be preserved, or else, get cleaned up in the next GC call.
+ * @todo find where do pinned sexprs go while recursion
  */
 
 #include "gc.h"
@@ -246,9 +234,8 @@ void gc_collect(bool iscleanup) {
     gc_sweep_sexprs(gc_allocd_sexprs);
 
 
-
     if (!gc_has_space_left())
-	gc_stack_limit += gc_allocated_size();
+	gc_stack_limit = gc_allocated_size();
 
 #if DEBUG_GC == DEBUG_ON
     gc_log(iscleanup);

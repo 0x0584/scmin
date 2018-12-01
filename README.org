@@ -83,8 +83,13 @@
 	       (let ((y 9))
 		 (append-to x y))))		; (1 2 3 55)
 
+    ;; more examples
     (let ((tmp '(1 2)))
       (map square (append '(1 2 3) tmp)))	; 1 4 9 1 4
+
+    (let ((foo '+))
+      (let ((+ *))
+	(eval (list foo 2 3))))		; 6
 
     ;; for more library functions check stdlib.scm
   #+END_SRC

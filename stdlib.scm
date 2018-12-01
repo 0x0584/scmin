@@ -63,7 +63,25 @@
 ;;
 ;;; Code:
 
-;; TODO: those should be implemented internally at parsing phase
+(define square
+  (lambda (x)
+    (* x x)))
+
+(define cube
+  (lambda (x)
+    (* x (square x))))
+
+(define half
+  (lambda (x)
+    (/ x 2)))
+
+(define not
+  (lambda (x)
+    (nil? x)))
+
+(define pair?
+  (lambda (x)
+    (not (nil? (cdr x)))))
 
 (define map
   (lambda (callback lst)
@@ -95,12 +113,12 @@
 	 (append lst (cons foo '()))
 	 lst)))
 
-(define square (lambda (x) (* x x)))
-(define cube (lambda (x) (* x (square x))))
-(define half (lambda (x) (/ x 2)))
-
-(define not (lambda (x) (nil? x)))
-(define pair? (lambda (x) (not (nil? (cdr x)))))
+(define range
+  (lambda (init size inc)
+    (let loop ((n init))
+	 (if (> n size)
+	  '()
+	  (cons n (loop (+ n inc)))))))
 
 (define fib
   (lambda (n)
@@ -116,38 +134,6 @@
 
 
 ;; used in testings
-
-;; (define add-five
-;;   (lambda (a)
-;;     (+ a 7)))	; not really
-
-;; (define f
-;;   (lambda (n)
-;;     (let ((x (add-five n)))
-;;	 (square x))))
-
-((lambda (n)
-   (+ n ((lambda (n)
-	      (* n n)) n))) 7)
-
-;; (+ 7 8 (* 7 8 (/ 7 8) (* 7 1)))
-
-;; (print "true")
-
-;; ((lambda (n)
-;;    (+ n ((lambda (n)
-;;	   (* n n)) n))) -1)
-
-;; (let ((foo '+))
-;;   (let ((+ *))
-;;     (eval (list foo 2 3))))
-
-;; (define let-loop
-;;   (lambda (init size inc)
-;;     (let loop ((n init))
-;;	 (if (> n size)
-;;	  '()
-;;	  (cons n (loop (+ n inc)))))))
 
 ;; (let ((a '()))
 ;;   (let ((b 4) (c 5))

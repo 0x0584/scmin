@@ -1,4 +1,4 @@
-.TH "src/gc.c" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.TH "src/gc.c" 3 "Sat Dec 1 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -16,6 +16,8 @@ src/gc.c \- a simple Garbage Collector implementation of the mark-and-sweep algo
 \fC#include 'native\&.h'\fP
 .br
 \fC#include 'scope\&.h'\fP
+.br
+\fC#include 'eval\&.h'\fP
 .br
 \fC#include 'pair\&.h'\fP
 .br
@@ -49,9 +51,27 @@ src/gc.c \- a simple Garbage Collector implementation of the mark-and-sweep algo
 .br
 .RI "test whether there is some space left "
 .ti -1c
+.RI "void \fBgc_pin_eval_stack\fP (void)"
+.br
+.ti -1c
+.RI "void \fBgc_setpin_scope\fP (\fBscope_t\fP *scope, bool pin)"
+.br
+.ti -1c
+.RI "void \fBgc_setpin_lambda\fP (\fBlambda_t\fP *expr, bool pin)"
+.br
+.ti -1c
+.RI "void \fBgc_setpin_sexpr\fP (\fBsexpr_t\fP *expr, bool pin)"
+.br
+.ti -1c
 .RI "void \fBgc_collect\fP (bool iscleanup)"
 .br
 .RI "collects the objects in the garbage collector by calling sweeping functions "
+.ti -1c
+.RI "void * \fBgc_malloc\fP (size_t size)"
+.br
+.ti -1c
+.RI "void * \fBgc_realloc\fP (void *ptr, size_t size)"
+.br
 .ti -1c
 .RI "void \fBgc_setmark_sexpr\fP (\fBsexpr_t\fP *expr, bool mark)"
 .br
@@ -99,12 +119,16 @@ src/gc.c \- a simple Garbage Collector implementation of the mark-and-sweep algo
 .RI "\fBvector_t\fP * \fBerror_log\fP"
 .br
 .RI "the error log "
+.ti -1c
+.RI "\fBvector_t\fP * \fBeval_stack\fP"
+.br
+.RI "create an evaluation stack such that we only keep the result and discard the rest while collecting the garbage\&. "
 .in -1c
 .SH "Detailed Description"
 .PP 
 a simple Garbage Collector implementation of the mark-and-sweep algorithm 
 
-contains definitions to handle scopes, lambdas and s-expressions
+add more details later
 .PP
 \fBTodo\fP
 .RS 4
@@ -112,9 +136,9 @@ figure out how to eliminate code-redundancy
 .RE
 .PP
 .PP
-\fBBug\fP
+\fBTodo\fP
 .RS 4
-when a s-expression used inside the evaluation is returned, it's out of context so the GC would clean it while it's being used in another context\&. indeed causing errors\&. e\&.g\&. \fC(define foo (append-to (list 1 2 3) 5))\fP or \fC(define x (define y 1))\fP 
+find where do pinned sexprs go while recursion 
 .RE
 .PP
 
@@ -179,11 +203,23 @@ test whether there is some space left this is basically a test if the currently 
 initialize the Garbage Collector's vectors 
 .SS "void gc_log (bool iscleanup)"
 
+.SS "void* gc_malloc (size_t size)"
+
+.SS "void gc_pin_eval_stack (void)"
+
+.SS "void* gc_realloc (void * ptr, size_t size)"
+
 .SS "void gc_setmark_lambda (\fBlambda_t\fP * l, bool mark)"
 
 .SS "void gc_setmark_scope (\fBscope_t\fP * s, bool mark)"
 
 .SS "void gc_setmark_sexpr (\fBsexpr_t\fP * expr, bool mark)"
+
+.SS "void gc_setpin_lambda (\fBlambda_t\fP * expr, bool pin)"
+
+.SS "void gc_setpin_scope (\fBscope_t\fP * scope, bool pin)"
+
+.SS "void gc_setpin_sexpr (\fBsexpr_t\fP * expr, bool pin)"
 
 .SS "void gc_sweep_lambdas (\fBvector_t\fP * v)"
 
@@ -213,6 +249,14 @@ the error log
 .RE
 .PP
 
+.SS "\fBvector_t\fP* eval_stack"
+
+.PP
+create an evaluation stack such that we only keep the result and discard the rest while collecting the garbage\&. for example the expression (+ 1 (- 5 4 5 (* 7 8) (/ 8 4)) 10), we get the result of each expression and the lowest depth, in the example above, it would be (/ 8 4) and (* 7 8) at depth 0, followed by (- 5 4 5 X Y) where X and Y are the results of (* 7 8) and (/ 8 4) respectively\&. and finally (+ 1 Z 10) where Z is the result of (- 5 4 5 X Y)\&.
+.PP
+now, the expression (+ 1 (- 5 4 5 (* 7 8) (/ 8 4)) 10) is the parent of (- 5 4 5 (* 7 8) (/ 8 4)) which is also the parent of both (* 7 8) (/ 8 4) so i have to get something like this:
+.PP
+push:eval_stack (- 5 (* 7 8) (/ 8 4)) (0) push:eval_stack (* 7 8) (1) result = 56, pop:eval_stack push:(0):children_results result push:eval_stack (/ 8 4) (1) result = 2, pop:eval_stack push:(0):children_results result result = -53 pop:eval_stack and since it's scope->parent == NULL we do not push to a parent 
 .SH "Author"
 .PP 
 Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.

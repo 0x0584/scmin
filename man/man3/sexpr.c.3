@@ -1,4 +1,4 @@
-.TH "src/sexpr.c" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.TH "src/sexpr.c" 3 "Sat Dec 1 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -50,7 +50,7 @@ src/sexpr.c \- declaration of s-expression and lambda functions
 .ti -1c
 .RI "bool \fBislist\fP (\fBsexpr_t\fP *expr)"
 .br
-.RI "lists is a chain of \fBLISP_PAIR\fP of s-expression with a \fBLISP_NIL\fP "
+.RI "lists is a chain of \fBSCMIN_PAIR\fP of s-expression with a \fBSCMIN_NIL\fP "
 .ti -1c
 .RI "bool \fBislambda\fP (\fBsexpr_t\fP *expr)"
 .br
@@ -149,12 +149,12 @@ test if \fCexpr\fP is an atom such as \fC1412\fP or \fC'string'\fP or \fCfoo-bar
 .PP
 \fBReturns:\fP
 .RS 4
-\fCtrue\fP if \fCexpr\fP was of type either \fBLISP_NUMBER\fP, \fBLISP_STRING\fP or \fBLISP_SYMBOL\fP
+\fCtrue\fP if \fCexpr\fP was of type either \fBSCMIN_NUMBER\fP, \fBSCMIN_STRING\fP or \fBSCMIN_SYMBOL\fP
 .RE
 .PP
 \fBNote:\fP
 .RS 4
-\fBLISP_NIL\fP is \fBnot\fP an atom 
+\fBSCMIN_NIL\fP is \fBnot\fP an atom 
 .RE
 .PP
 
@@ -172,7 +172,7 @@ test if \fCexpr\fP is a lambda
 .PP
 \fBReturns:\fP
 .RS 4
-\fCtrue\fP if \fCexpr\fP was of type \fBLISP_LAMBDA\fP
+\fCtrue\fP if \fCexpr\fP was of type \fBSCMIN_LAMBDA\fP
 .RE
 .PP
 \fBSee also:\fP
@@ -184,7 +184,7 @@ test if \fCexpr\fP is a lambda
 .SS "bool islist (\fBsexpr_t\fP * expr)"
 
 .PP
-lists is a chain of \fBLISP_PAIR\fP of s-expression with a \fBLISP_NIL\fP 
+lists is a chain of \fBSCMIN_PAIR\fP of s-expression with a \fBSCMIN_NIL\fP 
 .PP
 \fBParameters:\fP
 .RS 4
@@ -235,7 +235,7 @@ test if \fCexpr\fP is \fCnil\fP
 .PP
 \fBReturns:\fP
 .RS 4
-\fCtrue\fP if \fCexpr\fP was of type \fBLISP_NIL\fP 
+\fCtrue\fP if \fCexpr\fP was of type \fBSCMIN_NIL\fP 
 .RE
 .PP
 
@@ -251,7 +251,7 @@ test if \fCexpr\fP is a number
 .PP
 \fBReturns:\fP
 .RS 4
-\fCtrue\fP if \fCexpr\fP was of type \fBLISP_NUMBER\fP 
+\fCtrue\fP if \fCexpr\fP was of type \fBSCMIN_NUMBER\fP 
 .RE
 .PP
 
@@ -265,7 +265,7 @@ test if \fCexpr\fP is a number
 .PP
 \fBReturns:\fP
 .RS 4
-\fCtrue\fP if \fCexpr\fP was of type \fBLISP_PAIR\fP
+\fCtrue\fP if \fCexpr\fP was of type \fBSCMIN_PAIR\fP
 .RE
 .PP
 \fBSee also:\fP
@@ -286,7 +286,7 @@ test if \fCexpr\fP is a string
 .PP
 \fBReturns:\fP
 .RS 4
-\fCtrue\fP if \fCexpr\fP was of type \fBLISP_STRING\fP 
+\fCtrue\fP if \fCexpr\fP was of type \fBSCMIN_STRING\fP 
 .RE
 .PP
 
@@ -302,12 +302,12 @@ test if \fCexpr\fP is a symbol
 .PP
 \fBReturns:\fP
 .RS 4
-\fCtrue\fP if \fCexpr\fP was \fBLISP_SYMBOL\fP
+\fCtrue\fP if \fCexpr\fP was \fBSCMIN_SYMBOL\fP
 .RE
 .PP
 \fBNote:\fP
 .RS 4
-\fBLISP_NIL\fP is \fBnot\fP a symbol 
+\fBSCMIN_NIL\fP is \fBnot\fP a symbol 
 .RE
 .PP
 
@@ -323,12 +323,12 @@ test if \fCexpr\fP is \fBnot\fP \fCnil\fP
 .PP
 \fBReturns:\fP
 .RS 4
-\fCtrue\fP if \fCexpr\fP was of \fBnot\fP type \fBLISP_NIL\fP
+\fCtrue\fP if \fCexpr\fP was of \fBnot\fP type \fBSCMIN_NIL\fP
 .RE
 .PP
 \fBNote:\fP
 .RS 4
-only \fBLISP_NIL\fP is considered as \fCfalse\fP anything else is \fCtrue\fP 
+only \fBSCMIN_NIL\fP is considered as \fCfalse\fP anything else is \fCtrue\fP 
 .RE
 .PP
 
@@ -348,7 +348,7 @@ allocates memory and initialize a new lambda after calling \fBsexpr_new()\fP
 .PP
 \fBReturns:\fP
 .RS 4
-a s-expression of type \fBLISP_LAMBDA\fP
+a s-expression of type \fBSCMIN_LAMBDA\fP
 .RE
 .PP
 \fBSee also:\fP
@@ -378,7 +378,7 @@ allocates memory and initialize a new \fBnative\fP lambda after calling \fBsexpr
 .PP
 \fBReturns:\fP
 .RS 4
-a s-expression of type \fBLISP_LAMBDA\fP
+a s-expression of type \fBSCMIN_LAMBDA\fP
 .RE
 .PP
 \fBSee also:\fP
@@ -414,7 +414,7 @@ a helper function used by \fBsexpr_describe()\fP
 .SS "\fBsexpr_t\fP* sexpr_err (void)"
 
 .PP
-creates an error s-expression basically calling \fBsexpr_new()\fP passing \fBLISP_ERR\fP
+creates an error s-expression basically calling \fBsexpr_new()\fP passing \fBSCMIN_ERR\fP
 .PP
 \fBReturns:\fP
 .RS 4
@@ -460,7 +460,7 @@ allocates memory for a new s-expression basically, this is the way to allocate m
 .PP
 \fBParameters:\fP
 .RS 4
-\fItype\fP s-expression type like \fBLISP_NUMBER\fP or \fBLISP_SYMBOL\fP
+\fItype\fP s-expression type like \fBSCMIN_NUMBER\fP or \fBSCMIN_SYMBOL\fP
 .RE
 .PP
 \fBSee also:\fP
@@ -472,14 +472,14 @@ allocates memory for a new s-expression basically, this is the way to allocate m
 .PP
 \fBNote:\fP
 .RS 4
-if \fCtype\fP was \fBLISP_LAMBDA\fP, it allocates memory for the lambda as well 
+if \fCtype\fP was \fBSCMIN_LAMBDA\fP, it allocates memory for the lambda as well 
 .RE
 .PP
 
 .SS "\fBsexpr_t\fP* sexpr_nil (void)"
 
 .PP
-creating a \fCnil\fP s-expression basically calling \fBsexpr_new()\fP passing \fBLISP_NIL\fP and initializing its text
+creating a \fCnil\fP s-expression basically calling \fBsexpr_new()\fP passing \fBSCMIN_NIL\fP and initializing its text
 .PP
 \fBReturns:\fP
 .RS 4
@@ -498,7 +498,7 @@ creating a \fCnil\fP s-expression basically calling \fBsexpr_new()\fP passing \f
 .SS "\fBsexpr_t\fP* sexpr_true (void)"
 
 .PP
-creating a symbol s-expression of \fCt\fP basically calling \fBsexpr_new()\fP passing \fBLISP_SYMBOL\fP and initializing its text with \fC't'\fP
+creating a symbol s-expression of \fCt\fP basically calling \fBsexpr_new()\fP passing \fBSCMIN_SYMBOL\fP and initializing its text with \fC't'\fP
 .PP
 \fBReturns:\fP
 .RS 4

@@ -1,4 +1,4 @@
-.TH "include/types.h" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.TH "include/types.h" 3 "Sat Dec 1 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -58,6 +58,9 @@ include/types.h \- contains all types used in the project
 .ti -1c
 .RI "typedef \fBsexpr_t\fP *(* \fBk_func\fP) (\fBscope_t\fP *, \fBsexpr_t\fP *)"
 .br
+.ti -1c
+.RI "typedef struct \fBCONTEXT\fP \fBcontext_t\fP"
+.br
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -67,6 +70,8 @@ the reason why this file exists is that there's no other simpler way to use func
 .SH "Typedef Documentation"
 .PP 
 .SS "typedef struct \fBSCOPE_BOND\fP \fBbond_t\fP"
+
+.SS "typedef struct \fBCONTEXT\fP \fBcontext_t\fP"
 
 .SS "typedef struct \fBGC_INFO\fP \fBgc_info\fP"
 

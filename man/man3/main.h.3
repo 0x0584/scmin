@@ -1,4 +1,4 @@
-.TH "include/main.h" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.TH "include/main.h" 3 "Sat Dec 1 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -49,7 +49,7 @@ include/main.h \- definition of debugging symbols and error types
 .RI "#define \fBDEBUG_FULL\fP   \fBDEBUG_ON\fP"
 .br
 .ti -1c
-.RI "#define \fBDEBUG_GC\fP   \fBDEBUG_ON\fP"
+.RI "#define \fBDEBUG_GC\fP   \fBDEBUG_OFF\fP"
 .br
 .RI "garbage collector debugging information "
 .ti -1c
@@ -144,7 +144,7 @@ eval debugging information
 
 .SS "#define DEBUG_FULL   \fBDEBUG_ON\fP"
 
-.SS "#define DEBUG_GC   \fBDEBUG_ON\fP"
+.SS "#define DEBUG_GC   \fBDEBUG_OFF\fP"
 
 .PP
 garbage collector debugging information 

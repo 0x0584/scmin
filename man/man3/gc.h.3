@@ -1,4 +1,4 @@
-.TH "include/gc.h" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.TH "include/gc.h" 3 "Sat Dec 1 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -84,6 +84,21 @@ include/gc.h
 .RI "void \fBgc_sweep_scopes\fP (\fBvector_t\fP *v)"
 .br
 .ti -1c
+.RI "void * \fBgc_malloc\fP (size_t size)"
+.br
+.ti -1c
+.RI "void * \fBgc_realloc\fP (void *ptr, size_t size)"
+.br
+.ti -1c
+.RI "void \fBgc_setpin_sexpr\fP (\fBsexpr_t\fP *expr, bool pin)"
+.br
+.ti -1c
+.RI "void \fBgc_setpin_scope\fP (\fBscope_t\fP *scope, bool pin)"
+.br
+.ti -1c
+.RI "void \fBgc_setpin_lambda\fP (\fBlambda_t\fP *expr, bool pin)"
+.br
+.ti -1c
 .RI "void \fBgc_debug_memory\fP (void)"
 .br
 .in -1c
@@ -146,11 +161,21 @@ collects the objects in the garbage collector by calling sweeping functions call
 initialize the Garbage Collector's vectors 
 .SS "void gc_log (bool iscleanup)"
 
+.SS "void* gc_malloc (size_t size)"
+
+.SS "void* gc_realloc (void * ptr, size_t size)"
+
 .SS "void gc_setmark_lambda (\fBlambda_t\fP * lambda, bool mark)"
 
 .SS "void gc_setmark_scope (\fBscope_t\fP * scope, bool mark)"
 
 .SS "void gc_setmark_sexpr (\fBsexpr_t\fP * expr, bool mark)"
+
+.SS "void gc_setpin_lambda (\fBlambda_t\fP * expr, bool pin)"
+
+.SS "void gc_setpin_scope (\fBscope_t\fP * scope, bool pin)"
+
+.SS "void gc_setpin_sexpr (\fBsexpr_t\fP * expr, bool pin)"
 
 .SS "void gc_sweep_lambdas (\fBvector_t\fP * v)"
 

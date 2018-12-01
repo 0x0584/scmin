@@ -1,4 +1,4 @@
-.TH "GC_INFO" 3 "Mon Nov 19 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.TH "GC_INFO" 3 "Sat Dec 1 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -20,6 +20,9 @@ GC_INFO \- information about the garbage collection
 .RI "bool \fBisglobal\fP"
 .br
 .RI "is it defined in the global scope "
+.ti -1c
+.RI "bool \fBispinned\fP"
+.br
 .in -1c
 .SH "Detailed Description"
 .PP 
@@ -34,6 +37,8 @@ is it defined in the global scope
 
 .PP
 is marked as reachable! 
+.SS "bool ispinned"
+
 
 .SH "Author"
 .PP 

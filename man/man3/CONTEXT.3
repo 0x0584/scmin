@@ -1,0 +1,65 @@
+.TH "CONTEXT" 3 "Sat Dec 1 2018" "Version v0.0.1" "Minimal Scheme/Lisp Interpreter" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+CONTEXT \- the evaluation context contains the scope, the child result and a vector of local s-expression  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <eval\&.h>\fP
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBscope_t\fP * \fBscope\fP"
+.br
+.RI "the scope of the context "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBsexpr\fP"
+.br
+.RI "the s-expression we're evaluating "
+.ti -1c
+.RI "\fBsexpr_t\fP * \fBresult\fP"
+.br
+.RI "the child result "
+.ti -1c
+.RI "\fBvector_t\fP * \fBlocals\fP"
+.br
+.RI "a vector of local s-expressions "
+.in -1c
+.SH "Detailed Description"
+.PP 
+the evaluation context contains the scope, the child result and a vector of local s-expression 
+
+the main idea of the context is to define what to pin while collecting the garbage in order to make the evaluation process faster 
+.SH "Field Documentation"
+.PP 
+.SS "\fBvector_t\fP* locals"
+
+.PP
+a vector of local s-expressions 
+.PP
+\fBNote:\fP
+.RS 4
+this would hold references to s_expr which migh be NULL 
+.RE
+.PP
+
+.SS "\fBsexpr_t\fP* result"
+
+.PP
+the child result 
+.SS "\fBscope_t\fP* scope"
+
+.PP
+the scope of the context 
+.SS "\fBsexpr_t\fP* sexpr"
+
+.PP
+the s-expression we're evaluating 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Minimal Scheme/Lisp Interpreter from the source code\&.
