@@ -105,9 +105,10 @@ void bond_free(object_t o) {
 
     free(b->symbol);
 
-    /* if (b->sexpr->gci.isglobal) */
-    /*	setglobal(b->sexpr, false); */
+    if (b->sexpr->gci.isglobal)
+	setglobal(b->sexpr, false);
 
+    /* might need to check pinned too?? */
     free(b);
 }
 

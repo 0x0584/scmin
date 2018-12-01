@@ -65,63 +65,54 @@
 
 ;; TODO: those should be implemented internally at parsing phase
 
-;; (define caar	 (lambda (foo) (car (car foo))))
-;; (define cadr	 (lambda (foo) (car (cdr foo))))
-;; (define cdar	 (lambda (foo) (cdr (car foo))))
-;; (define cddr	 (lambda (foo) (cdr (cdr foo))))
-;; (define caddr (lambda (foo) (car (cddr foo))))
-;; (define cddar (lambda (foo) (cdr (cdar foo))))
-;; (define cdaar (lambda (foo) (cdr (caar foo))))
-;; (define caadr (lambda (foo) (car (cadr foo))))
+(define map
+  (lambda (callback lst)
+    (if (nil? lst)
+	'()
+	(cons (callback (car lst))
+	      (map callback (cdr lst))))))
 
-;; (define map
-;;   (lambda (callback lst)
-;;     (if (nil? lst)
-;;	'()
-;;	(cons (callback (car lst))
-;;	      (map callback (cdr lst))))))
+(define in
+  (lambda (lst foo)
+    (let loop ((res '()) (current lst))
+	 (if (not (list? current))
+	  res
+	  (if (eq? (car current) foo)
+	      (set res t)
+	      (loop res (cdr current)))) res)))
 
-;; (define in
-;;   (lambda (lst foo)
-;;     (let loop ((res '()) (current lst))
-;;	 (if (not (list? current))
-;;	  res
-;;	  (if (eq? (car current) foo)
-;;	      (set res t)
-;;	      (loop res (cdr current)))) res)))
+(define append
+  (lambda (lst foo)
+    (begin
+	 (if (nil? (cdr lst))
+	  (set-cdr lst foo)
+	  (append (cdr lst) foo))
+	 lst)))
 
-;; (define append
-;;   (lambda (lst foo)
-;;     (begin
-;;	 (if (nil? (cdr lst))
-;;	  (set-cdr lst foo)
-;;	  (append (cdr lst) foo))
-;;	 lst)))
+(define append-to
+  (lambda (lst foo)
+    (begin
+	 (append lst (cons foo '()))
+	 lst)))
 
-;; (define append-to
-;;   (lambda (lst foo)
-;;     (begin
-;;	 (append lst (cons foo '()))
-;;	 lst)))
+(define square (lambda (x) (* x x)))
+(define cube (lambda (x) (* x (square x))))
+(define half (lambda (x) (/ x 2)))
 
-;; (define square (lambda (x) (* x x)))
-;; (define cube (lambda (x) (* x (square x))))
-;; (define half (lambda (x) (/ x 2)))
+(define not (lambda (x) (nil? x)))
+(define pair? (lambda (x) (not (nil? (cdr x)))))
 
-;; (define not (lambda (x) (nil? x)))
-;; (define pair? (lambda (x) (not (nil? (cdr x)))))
+(define fib
+  (lambda (n)
+    (if (< n 0)
+	'()
+	(if (or (= n 0) (= n 1) )
+	    1 (+ (fib (- n 2)) (fib (- n 1)))))))
 
-;; (define fib
-;;   (lambda (n)
-;;     (if (< n 0)
-;;	'()
-;;	(if (or (= n 0) (= n 1) )
-;;	    1 (+ (fib (- n 2)) (fib (- n 1)))))))
-
-;; (define fact
-;;   (lambda (n)
-;;     (if (<= n 1)
-;;	1 (* n (fact (- n 1))))))
+(define fact
+  (lambda (n)
+    (if (<= n 1)
+	1 (* n (fact (- n 1))))))
 
 
 ;; used in testings
@@ -135,11 +126,11 @@
 ;;     (let ((x (add-five n)))
 ;;	 (square x))))
 
-;; ((lambda (n)
-;;    (+ n ((lambda (n)
-;;	      (* n n)) n))) 7)
+((lambda (n)
+   (+ n ((lambda (n)
+	      (* n n)) n))) 7)
 
-(+ 7 8 (* 7 8 (/ 7 8) (* 7 1)))
+;; (+ 7 8 (* 7 8 (/ 7 8) (* 7 1)))
 
 ;; (print "true")
 

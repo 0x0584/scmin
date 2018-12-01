@@ -72,7 +72,7 @@ static bool call_cons_op[0x16];
  * @brief the length of call_cons_op array
  */
 static int call_cons_op_length = 0;
-
+
 /**
  * @brief initialize a new context
  *
@@ -80,10 +80,11 @@ static int call_cons_op_length = 0;
  *
  * @return a new context
  */
-context_t *context_new(scope_t * scope) {
+context_t *context_new(scope_t * scope, sexpr_t *sexpr) {
     context_t *context = gc_malloc(sizeof(context_t));
 
     context->scope = scope;
+    context->sexpr = sexpr;
     context->result = NULL;
     context->locals = vector_new(NULL, sexpr_print, NULL);
 
@@ -108,6 +109,8 @@ void context_describe(object_t o) {
     int j;
 
     puts("\n------------");
+    puts("\nthe sexpr: ");
+    sexpr_print(context->sexpr);
     /* puts("\nthe scope: "); */
     /* scope_describe(context->scope); */
     puts("\nresult: ");
@@ -162,6 +165,7 @@ void setpin_context(context_t * context, bool pin) {
 
     gc_setpin_scope(context->scope, pin);
     gc_setpin_sexpr(context->result, pin);
+    gc_setpin_sexpr(context->sexpr, pin);
 
     for (j = 0; j < context->locals->size; ++j) {
 	stmp = vector_get(context->locals, j);
@@ -189,25 +193,19 @@ context_t *context_pop(void) {
     if (eval_stack == NULL)
 	return NULL;
 
-    context_t *item = last_context();
-    /*
-     * the problem here is that some sexpressionsd of
-     * lambdas get's disallocated! i got to re-implement
-     * the context, or find a way to pin lambda and its
-     * arguments from banishing.
-     */
+    context_t *item = vector_pop(eval_stack);
     setpin_context(item, false);
 
-    context_describe(item);
+    /* context_describe(item); */
 
-    return vector_pop(eval_stack);
+    return item;
 }
 
 /**
  * @brief static array of predefined Scheme keywords
  */
 static keyword_t kwd[] = {
-    {"", eval_nasted_car_cdr},
+    {"0x0584", eval_nasted_car_cdr},
     {"begin", eval_begin},
     {"quote", eval_quote},
     {"eval", eval_eval},
@@ -266,14 +264,17 @@ static keyword_t kwd[] = {
  *
  * @note this function may call itself recursively
  */
-sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
-    if (expr == NULL)
+sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * sexpr) {
+    if (sexpr == NULL)
 	return sexpr_err();
 
     sexpr_t *result = NULL, *op = NULL;	/* operator */
     bond_t *b = NULL;
-    k_func kwd_func = eval_keyword(car(expr));
-    context_t *context = context_new(scope);
+    k_func kwd_func = eval_keyword(car(sexpr));
+
+    /* create a new evaluation context for the current
+     * s-expression and its scope */
+    context_t *context = context_new(scope, sexpr);
     context_push(context);
 
     vector_push(context->locals, &result);
@@ -282,16 +283,16 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 
 #if DEBUG_EVALUATOR == DEBUG_ON
     puts("================ eval start ================");
-    sexpr_print(expr), putchar('\n');
+    sexpr_print(sexpr), putchar('\n');
     puts("============================================");
 #endif
 
     if (kwd_func)		/* symbol was a keyword */
-	result = kwd_func(scope, cdr(expr));
-    else if ((b = resolve_bond(scope, expr)))
+	result = kwd_func(scope, cdr(sexpr));
+    else if ((b = resolve_bond(scope, sexpr)))
 	result = b->sexpr;	/* symbol was bounded  */
-    else if (isatom(expr))
-	result = expr;		/* just an atom/nil */
+    else if (isatom(sexpr))
+	result = sexpr;		/* just an atom/nil */
 
     /* ==================== ==================== ==================== */
 
@@ -303,7 +304,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     if (result)
 	goto RET;		/* we have a result */
 
-    op = eval_sexpr(scope, car(expr));
+    op = eval_sexpr(scope, car(sexpr));
 
     err_raise(ERR_OP_NOT_FOUND, !islambda(op));
 
@@ -321,7 +322,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
     /* ==================== ==================== ==================== */
 
     sexpr_t *args = NULL, *nil = sexpr_nil();
-    sexpr_t *foo = cdr(expr), *arg = NULL, *tail = NULL;
+    sexpr_t *foo = cdr(sexpr), *arg = NULL, *tail = NULL;
 
     vector_push(context->locals, &tail);
     vector_push(context->locals, &nil);
@@ -387,8 +388,7 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * expr) {
 	    eval_stack = NULL;
 	} else {
 	    last_context()->result = result;
-	    gc_collect(true);
-	    puts("#");
+	    gc_collect(false);
 	}
 
 	context_free(ctx);
@@ -423,21 +423,20 @@ vector_t *eval_sexprs(vector_t * sexprs) {
     scope_t *gs = get_global_scope();
     int i;
 
-    for (i = 0; i < sexprs->size; ++i) {
+    for (i = 0; i < sexprs->size; ++i)
 	gc_setpin_sexpr(vector_get(sexprs, i), true);
-    }
 
     for (i = 0; i < sexprs->size; ++i) {
 #if DEBUG_EVALUATOR == DEBUG_ON
-#endif
 	printf("eval: "), sexpr_print(vector_get(sexprs, i)),
 	    putchar('\n');
+#endif
 
 	tmp = eval_sexpr(gs, vector_get(sexprs, i));
 	tmp = vector_push(v, tmp);
 
-	printf(" > "), sexpr_print(tmp), putchar('\n');
 #if DEBUG_EVALUATOR == DEBUG_ON
+	printf(" > "), sexpr_print(tmp), putchar('\n');
 #endif
     }
 
@@ -452,15 +451,15 @@ vector_t *eval_sexprs(vector_t * sexprs) {
  * @return `NULL` if the `expr` is not a keyword, or the keyword's
  * correspondent function otherwise
  */
-k_func eval_keyword(sexpr_t * expr) {
+k_func eval_keyword(sexpr_t * sexpr) {
     int i;
 
-    if (!expr || !issymbol(expr))
+    if (!sexpr || !issymbol(sexpr))
 	return NULL;		/* not a symbol */
 
     /* test nasted cars and cdrs first */
-    int length = strlen(expr->s) - 1;
-    string_t str = expr->s;
+    int length = strlen(sexpr->s) - 1;
+    string_t str = sexpr->s;
 
     if (length < 2 || *str != 'c' || str[length] != 'r');
     else {
@@ -484,7 +483,7 @@ k_func eval_keyword(sexpr_t * expr) {
 
     for (i = 0; kwd[i].keyword; ++i)
 	/* looking for the keyword */
-	if (!strcmp(expr->s, kwd[i].keyword))
+	if (!strcmp(sexpr->s, kwd[i].keyword))
 	    return kwd[i].func;
 
     return NULL;
@@ -504,14 +503,14 @@ k_func eval_keyword(sexpr_t * expr) {
  * @return expr without evaluation
  * @note quote is defined as (quote expr)
  */
-sexpr_t *eval_quote(scope_t * scope, sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, !sexpr_length(expr));
+sexpr_t *eval_quote(scope_t * scope, sexpr_t * sexpr) {
+    err_raise(ERR_ARG_COUNT, !sexpr_length(sexpr));
 
     if (err_log())
 	return sexpr_err();
 
     if (scope || true)
-	return car(expr);
+	return car(sexpr);
 }
 
 /**
@@ -529,22 +528,22 @@ sexpr_t *eval_quote(scope_t * scope, sexpr_t * expr) {
  * @note `define` defines a symbol `(define symbol expr)`
  */
 
-sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
-    err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
+sexpr_t *eval_define(scope_t * scope, sexpr_t * sexpr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 2);
+    err_raise(ERR_ARG_TYPE, !issymbol(car(sexpr)));
 
     if (err_log())
 	return sexpr_err();
 
-    sexpr_t *evaled = NULL, *symbol = car(expr);
+    sexpr_t *evaled = NULL, *symbol = car(sexpr);
     bond_t bond = { symbol->s, NULL, false };
 
     /* TODO: if symbol is already exists, set it instead
      * we cannot call set since reserved raise an error */
     if (vector_find(scope->bonds, &bond) != NULL)
-	return eval_set(scope, expr);
+	return eval_set(scope, sexpr);
 
-    evaled = eval_sexpr(scope, cadr(expr));
+    evaled = eval_sexpr(scope, cadr(sexpr));
 
     err_raise(ERR_RSLT_NULL, !evaled);
     err_raise(ERR_ERR, iserror(evaled));
@@ -578,16 +577,16 @@ sexpr_t *eval_define(scope_t * scope, sexpr_t * expr) {
  * @note conditions are done as `(if (expr) (foo) (bar))`. `foo` is
  * evaluated when `expr` is not `nil`, otherwise evaluate `bar`
  */
-sexpr_t *eval_if(scope_t * scope, sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 3);
+sexpr_t *eval_if(scope_t * scope, sexpr_t * sexpr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 3);
 
     if (err_log())
 	return sexpr_err();
 
-    if (istrue(eval_sexpr(scope, car(expr))))
-	return eval_sexpr(scope, cadr(expr));
+    if (istrue(eval_sexpr(scope, car(sexpr))))
+	return eval_sexpr(scope, cadr(sexpr));
     else
-	return eval_sexpr(scope, caddr(expr));
+	return eval_sexpr(scope, caddr(sexpr));
 }
 
 /**
@@ -606,8 +605,8 @@ sexpr_t *eval_if(scope_t * scope, sexpr_t * expr) {
  * @note the `scope` is not used but since lambda is a keyword
  * so the function signature must contain a scope.
  */
-sexpr_t *eval_lambda(scope_t * scope, sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, !sexpr_length(expr));
+sexpr_t *eval_lambda(scope_t * scope, sexpr_t * sexpr) {
+    err_raise(ERR_ARG_COUNT, !sexpr_length(sexpr));
 
     if (err_log())
 	return sexpr_err();
@@ -616,35 +615,35 @@ sexpr_t *eval_lambda(scope_t * scope, sexpr_t * expr) {
 	/* suppress warning */
     }
 
-    return lambda_new(car(expr), cadr(expr));
+    return lambda_new(car(sexpr), cadr(sexpr));
 }
 
-sexpr_t *eval_setq_or_set(scope_t * scope, sexpr_t * expr, bool quoted) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 2);
-    err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
+sexpr_t *eval_setq_or_set(scope_t * scope, sexpr_t * sexpr, bool quoted) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 2);
+    err_raise(ERR_ARG_TYPE, !issymbol(car(sexpr)));
 
     if (err_log())
 	return sexpr_err();
 
-    bond_t *bond = resolve_bond(scope, car(expr));
+    bond_t *bond = resolve_bond(scope, car(sexpr));
 
     if (bond == NULL)
-	return eval_define(scope, expr);
+	return eval_define(scope, sexpr);
     else {
 	setglobal(bond->sexpr, false);
-	bond->sexpr = quoted ? cadr(expr) : eval_sexpr(scope, cadr(expr));
+	bond->sexpr = quoted ? cadr(sexpr) : eval_sexpr(scope, cadr(sexpr));
 	setglobal(bond->sexpr, true);
     }
 
     return bond->sexpr;
 }
 
-sexpr_t *eval_set(scope_t * scope, sexpr_t * expr) {
-    return eval_setq_or_set(scope, expr, false);
+sexpr_t *eval_set(scope_t * scope, sexpr_t * sexpr) {
+    return eval_setq_or_set(scope, sexpr, false);
 }
 
-sexpr_t *eval_setq(scope_t * scope, sexpr_t * expr) {
-    return eval_setq_or_set(scope, expr, true);
+sexpr_t *eval_setq(scope_t * scope, sexpr_t * sexpr) {
+    return eval_setq_or_set(scope, sexpr, true);
 }
 
 /*
@@ -652,14 +651,14 @@ sexpr_t *eval_setq(scope_t * scope, sexpr_t * expr) {
  *
  * since setting it to nil makes x resolves to nil not x
  */
-sexpr_t *eval_undef(scope_t * scope, sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
-    err_raise(ERR_ARG_TYPE, !issymbol(car(expr)));
+sexpr_t *eval_undef(scope_t * scope, sexpr_t * sexpr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 1);
+    err_raise(ERR_ARG_TYPE, !issymbol(car(sexpr)));
 
     if (err_log())
 	return sexpr_err();
 
-    bond_t *bond = resolve_bond(scope, car(expr));
+    bond_t *bond = resolve_bond(scope, car(sexpr));
 
     if (bond == NULL)
 	return sexpr_nil();
@@ -675,13 +674,13 @@ sexpr_t *eval_undef(scope_t * scope, sexpr_t * expr) {
 /*
  * FIXME: recreate this function in pure lisp
  */
-sexpr_t *eval_eval(scope_t * scope, sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) != 1);
+sexpr_t *eval_eval(scope_t * scope, sexpr_t * sexpr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 1);
 
     if (err_log())
 	return sexpr_err();
 
-    return eval_sexpr(scope, eval_sexpr(scope, car(expr)));
+    return eval_sexpr(scope, eval_sexpr(scope, car(sexpr)));
 }
 
 /**
@@ -705,21 +704,21 @@ sexpr_t *eval_eval(scope_t * scope, sexpr_t * expr) {
  * be used to call the let-lambda recursively same as if label was
  * specified
  */
-sexpr_t *eval_let(scope_t * scope, sexpr_t * expr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) < 1);
-    err_raise(ERR_ARG_TYPE, !islist(car(expr)) && !issymbol(car(expr)));
+sexpr_t *eval_let(scope_t * scope, sexpr_t * sexpr) {
+    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) < 1);
+    err_raise(ERR_ARG_TYPE, !islist(car(sexpr)) && !issymbol(car(sexpr)));
 
     if (err_log())
 	return sexpr_err();
 
-    bool labeled = issymbol(car(expr));
+    bool labeled = issymbol(car(sexpr));
 
     sexpr_t *args = NULL, *atail = NULL;
     sexpr_t *params = NULL, *ptail = NULL;
 
-    sexpr_t *tmp = labeled ? cadr(expr) : car(expr),
-	*symbol = labeled ? car(expr) : sexpr_symbol("let-lambda"),
-	*body = labeled ? caddr(expr) : cadr(expr),
+    sexpr_t *tmp = labeled ? cadr(sexpr) : car(sexpr),
+	*symbol = labeled ? car(sexpr) : sexpr_symbol("let-lambda"),
+	*body = labeled ? caddr(sexpr) : cadr(sexpr),
 	*let = cons(symbol, sexpr_nil());
 
     while (!isnil(tmp)) {
@@ -790,7 +789,7 @@ sexpr_t *eval_let(scope_t * scope, sexpr_t * expr) {
  *
  * @bug this is not working as expected
  */
-sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
+sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * sexpr) {
 
     /* FIXME: find a way to create let for each argument
      *
@@ -807,16 +806,16 @@ sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
 
     /* puts("//////////"), sexpr_print(expr), puts(""); */
 
-    err_raise(ERR_ARG_COUNT, sexpr_length(expr) < 1);
-    err_raise(ERR_ARG_TYPE, (!islist(car(expr))
-			     && !issymbol(car(expr))));
+    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) < 1);
+    err_raise(ERR_ARG_TYPE, (!islist(car(sexpr))
+			     && !issymbol(car(sexpr))));
 
     if (err_log())
 	return sexpr_err();
 
-    bool labeled = issymbol(car(expr));
-    sexpr_t *bindings = labeled ? cadr(expr) : car(expr),
-	*symbol = labeled ? car(expr) : sexpr_symbol("let-lambda");
+    bool labeled = issymbol(car(sexpr));
+    sexpr_t *bindings = labeled ? cadr(sexpr) : car(sexpr),
+	*symbol = labeled ? car(sexpr) : sexpr_symbol("let-lambda");
 
     /* sexpr_print(bindings), puts("0"); */
     /* sexpr_print(car(bindings)), puts("1"); */
@@ -834,7 +833,7 @@ sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
     sexpr_t *let_asterisk = labeled
 	? CONS(cons(symbol, CONS(car(bindings)))) :
 	CONS(CONS(car(bindings))), *body =
-	CONS(labeled ? caddr(expr) : cadr(expr));
+	CONS(labeled ? caddr(sexpr) : cadr(sexpr));
 
     /* sexpr_print(let_asterisk), puts("4"); */
     /* sexpr_print(body), puts("5"); */
@@ -857,13 +856,13 @@ sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * expr) {
 }
 
 
-sexpr_t *eval_nasted_car_cdr(scope_t * scope, sexpr_t * expr) {
-    err_raise(ERR_ARG_TYPE, !islist(expr));
+sexpr_t *eval_nasted_car_cdr(scope_t * scope, sexpr_t * sexpr) {
+    err_raise(ERR_ARG_TYPE, !islist(sexpr));
 
     if (err_log())
 	return sexpr_err();
 
-    sexpr_t *tmp = eval_sexpr(scope, car(expr));
+    sexpr_t *tmp = eval_sexpr(scope, car(sexpr));
     int i;
 
     for (i = 0; i < call_cons_op_length; ++i) {
@@ -878,8 +877,8 @@ sexpr_t *eval_nasted_car_cdr(scope_t * scope, sexpr_t * expr) {
     return tmp;
 }
 
-sexpr_t *eval_begin(scope_t * scope, sexpr_t * expr) {
-    sexpr_t *evaled = NULL, *tmp = expr;
+sexpr_t *eval_begin(scope_t * scope, sexpr_t * sexpr) {
+    sexpr_t *evaled = NULL, *tmp = sexpr;
 
     while (!isnil(tmp)) {
 	evaled = eval_sexpr(scope, car(tmp));
