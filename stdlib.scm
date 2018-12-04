@@ -51,7 +51,7 @@
 ;;
 ;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+;; MERCHANT ABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
@@ -63,26 +63,57 @@
 ;;
 ;;; Code:
 
+;;;
+;; Function: (square x)
+;; -----------------------------
+;; return the square of `x'
+;;;
 (define square
   (lambda (x)
     (* x x)))
 
+;;;
+;; Function: (cube x)
+;; -----------------------------
+;; return the cube of `x'
+;;;
 (define cube
   (lambda (x)
-    (* x (square x))))
+    (* x x x)))
 
+;;;
+;; Function: (half x)
+;; -----------------------------
+;; return the half of `x'
+;;;
 (define half
   (lambda (x)
     (/ x 2)))
-
+;;;
+;; Function: (not x)
+;; -----------------------------
+;; return t if `x' is nil, or nil otherwise
+;;;
 (define not
   (lambda (x)
     (nil? x)))
 
+;;;
+;; Function: (pair? x)
+;; -----------------------------
+;; return t if `x' is a pair, i.e. (a . b) or (cons a b)
+;;;
 (define pair?
   (lambda (x)
     (not (nil? (cdr x)))))
 
+;;;
+;; Function: (map callback lst)
+;; -----------------------------
+;; return a list of `callback' applied on `lst`
+;;
+;;(map (lambda (n) (+ 5 n)) '(1 2 3)) => (6 7 8)
+;;;
 (define map
   (lambda (callback lst)
     (if (nil? lst)
@@ -90,43 +121,92 @@
 	(cons (callback (car lst))
 	      (map callback (cdr lst))))))
 
+;;;
+;; Function: (in lst foo)
+;; -----------------------------
+;; return t if `foo' is in `lst', or nil otherwise
+;;
+;; (in '(1 2 (1 2 3) 3) '(1 2 3)) => t
+;;;
 (define in
   (lambda (lst foo)
     (let loop ((res '()) (current lst))
-	 (if (not (list? current))
+      (if (not (list? current))
 	  res
 	  (if (eq? (car current) foo)
 	      (set res t)
-	      (loop res (cdr current)))) res)))
+	      (loop res (cdr current)))))))
 
+;;;
+;; Function: (append lst foo)
+;; -----------------------------
+;; return `lst' with `foo' appended at the end. note that append
+;; sets the cdr of `lst`
+;;
+;;(append '(1 2 3) '(1 2)) => (1 2 3 1 2)
+;;;
 (define append
   (lambda (lst foo)
     (begin
-	 (if (nil? (cdr lst))
+      (if (nil? (cdr lst))
 	  (set-cdr lst foo)
 	  (append (cdr lst) foo))
-	 lst)))
+      lst)))
 
+;;;
+;; Function: (append-to lst foo)
+;; --------------------------------
+;; return `lst' with `foo' appended at the end as (foo). note that append
+;; sets the cdr of `lst`
+;;
+;; (append-to '(1 2 3) '(1 2)) => (1 2 3 (1 2))
+;;;
 (define append-to
   (lambda (lst foo)
     (begin
-	 (append lst (cons foo '()))
-	 lst)))
+      (append lst (cons foo '()))
+      lst)))
 
+;;;
+;; Function: (range init size inc)
+;; ------------------------------------
+;; return a list with all the elements within the range of `init'
+;; and `size' incriminating by `inc'.
+;;
+;; (range -1 2 0.3) => (-1 -0.7 -0.4 -0.1 0.2 0.5 0.8 1.1 1.4 1.7 2)
+;;
+;; note that something like (range 0 -5 -1) is not supported for now
+;;;
 (define range
   (lambda (init size inc)
     (let loop ((n init))
-	 (if (> n size)
+      (if (> n size)
 	  '()
 	  (cons n (loop (+ n inc)))))))
 
+;;;
+;; Function: (fib n)
+;; -----------------------------
+;; return Fibonacci of the `n'-th element. this is an efficient
+;; implementation since it carries the results while evaluating
+;; so that Fibonacci won't reevaluated already calculated results
+;;
+;; (fib 100) => 3.54225e+20
+;;;
 (define fib
   (lambda (n)
-    (if (< n 0)
-	'()
-	(if (or (= n 0) (= n 1) )
-	    1 (+ (fib (- n 2)) (fib (- n 1)))))))
+    (let loop ((tmp n) (n0 0) (n1 1))
+      (cond ((> 0 tmp) nil)
+	    ((= 0 tmp) n0)
+	    ((= 1 tmp) n1)
+	    (else (loop (- tmp 1) n1 (+ n0 n1)))))))
 
+;; Function: (fact n)
+;; -----------------------------
+;; return factorial of `n'.
+;;
+;; (fact 100) => 9.33262e+157
+;;;
 (define fact
   (lambda (n)
     (if (<= n 1)
@@ -141,33 +221,6 @@
 
 
 ;; testings
+
 ;; (let* ((x 3) (y x))
-;;   y)
-
-;; (+ 5 10 (* 7 8 4 (- 7 9) (/ 8 4)) 10)
-;; (* 55 88)
-
-;; (define x (+ 1 2))
-;; (print x)
-;; (symbol? '())
-;; (define add-five (lambda (n) (+ 5 n)))
-;; (print (add-five x))
-
-;; (map add-five '(1 2 3))
-;; (define x ((lambda (n) (+ 1 n)) 5))
-;; (define x (+ 1 5))
-;; (print (+ x x))
-
-;; (map (lambda (n) (+ 1 n)) '(1 2 3))
-
-;; (let ((x '(1 2 8)))
-;;   (map add-five x))
-
-;; (+ 55 88)
-;; (fib 15)
-
-;; (define x (+ 8 7))
-
-(cond ((= 0 1) (print "not this"))
-      ((= 1 1) (print "but this"))
-      (else (print "or else")))
+;;   (+ x y))

@@ -285,9 +285,6 @@ void gc_setmark_sexpr(sexpr_t * expr, bool mark) {
     }
 }
 
-/*
- * TODO: some sexpression are clean while being used.
- */
 void gc_sweep_sexprs(vector_t * v) {
     int i;
     sexpr_t *tmp;

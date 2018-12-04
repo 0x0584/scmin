@@ -384,6 +384,11 @@ void sexpr_describe(object_t o) {
     --ntabs;
 }
 
+void sexpr_println(object_t o) {
+    sexpr_print(o);
+    puts("");
+}
+
 void sexpr_print(object_t o) {
     void _sexpr_print(object_t o); /* private header */
 
