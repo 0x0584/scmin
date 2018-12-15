@@ -178,7 +178,7 @@ bool isreserved(scope_t * scope, sexpr_t * expr) {
     string_t keyword[] = {
 	"quote", "eval", "define", "undef",
 	"set", "setq", "let", "let*", "if",
-	"lambda", "begin", "t", "nil",
+	"lambda", "begin", "t", "nil", "cond",
 
 	NULL
     };

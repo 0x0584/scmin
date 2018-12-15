@@ -190,6 +190,8 @@ typedef enum SCHEME_ERROR {
      */
     ERR_CANNOT_SET,
 
+    ERR_CANNOT_DEFINE,
+
     /**
      * @brief operator not found
      * @see eval_sexpr()

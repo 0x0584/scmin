@@ -36,11 +36,12 @@ void repl(void) {
     scope_t *scope = get_global_scope();
     sexpr_t *tmp = NULL;
     bool isfinished = false;
+    int count = 0;
 
     print_head();
 
     while (!isfinished) {
-	printf("%s ", REPL_PROMPT);
+	printf("(%d) %s ", ++count, REPL_PROMPT);
 
 	buffer = stdin_as_string();
 

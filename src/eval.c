@@ -24,10 +24,6 @@
 #include "vector.h"
 #include "chars.h"
 
-#ifndef CONS
-#  define CONS(sexpr) cons((sexpr), sexpr_nil())
-#endif
-
 /**
  * @brief create an evaluation stack such that we only keep the result
  * and discard the rest while collecting the garbage.
@@ -45,11 +41,11 @@
  *
  * push:eval_stack (- 5 (* 7 8) (/ 8 4))			  (0)
  * push:eval_stack (* 7 8)					  (1)
- *   result = 56, pop:eval_stack push:(0):children_results result
+ *	 result = 56, pop:eval_stack push:(0):children_results result
  * push:eval_stack (/ 8 4)					  (1)
- *   result = 2, pop:eval_stack push:(0):children_results result
- *   result = -53 pop:eval_stack and since it's
- *   scope->parent == NULL we do not push to a parent
+ *	 result = 2, pop:eval_stack push:(0):children_results result
+ *	 result = -53 pop:eval_stack and since it's
+ *	 scope->parent == NULL we do not push to a parent
  */
 vector_t *eval_stack = NULL;
 
@@ -79,14 +75,14 @@ static int call_cons_op_length = 0;
  * @return a new context
  */
 context_t *context_new(scope_t * scope, sexpr_t * sexpr) {
-    context_t *context = gc_malloc(sizeof(context_t));
+	context_t *context = gc_malloc(sizeof(context_t));
 
-    context->scope = scope;
-    context->sexpr = sexpr;
-    context->result = NULL;
-    context->locals = vector_new(NULL, sexpr_print, NULL);
+	context->scope = scope;
+	context->sexpr = sexpr;
+	context->result = NULL;
+	context->locals = vector_new(NULL, sexpr_print, NULL);
 
-    return context;
+	return context;
 }
 
 /**
@@ -99,27 +95,27 @@ context_t *context_new(scope_t * scope, sexpr_t * sexpr) {
  * @see vector.h
  */
 void context_describe(object_t o) {
-    if (o == NULL)
-	return;
+	if (o == NULL)
+		return;
 
-    context_t *context = o;
-    sexpr_t **stmp;
-    int j;
+	context_t *context = o;
+	sexpr_t **stmp;
+	int j;
 
-    puts("\n------------");
-    puts("\nthe sexpr: ");
-    sexpr_print(context->sexpr);
-    /* puts("\nthe scope: "); */
-    /* scope_describe(context->scope); */
-    puts("\nresult: ");
-    sexpr_print(context->result), putchar('\n');
-    puts("\nthe locals: ");
+	puts("\n------------");
+	puts("\nthe sexpr: ");
+	sexpr_print(context->sexpr);
+	/* puts("\nthe scope: "); */
+	/* scope_describe(context->scope); */
+	puts("\nresult: ");
+	sexpr_print(context->result), putchar('\n');
+	puts("\nthe locals: ");
 
-    for (j = 0; j < context->locals->size; ++j) {
-	stmp = vector_get(context->locals, j);
-	sexpr_print(*stmp), putchar('\n');
-    }
-    puts("------------");
+	for (j = 0; j < context->locals->size; ++j) {
+		stmp = vector_get(context->locals, j);
+		sexpr_print(*stmp), putchar('\n');
+	}
+	puts("------------");
 }
 
 /**
@@ -129,13 +125,13 @@ void context_describe(object_t o) {
  * a printing function of any vector.
  */
 void context_free(object_t o) {
-    if (o == NULL)
-	return;
+	if (o == NULL)
+		return;
 
-    context_t *context = o;
+	context_t *context = o;
 
-    vector_free(context->locals);
-    free(context);
+	vector_free(context->locals);
+	free(context);
 }
 
 /**
@@ -144,8 +140,8 @@ void context_free(object_t o) {
  * @return a context
  */
 context_t *last_context(void) {
-    return !eval_stack->size ? NULL :
-	vector_get(eval_stack, eval_stack->size - 1);
+	return !eval_stack->size ? NULL :
+		vector_get(eval_stack, eval_stack->size - 1);
 }
 
 /**
@@ -155,20 +151,20 @@ context_t *last_context(void) {
  * @param pin whether to pin (`true`) or not (`false`)
  */
 void setpin_context(context_t * context, bool pin) {
-    if (context == NULL)
-	return;
+	if (context == NULL)
+		return;
 
-    sexpr_t **stmp;
-    int j;
+	sexpr_t **stmp;
+	int j;
 
-    gc_setpin_scope(context->scope, pin);
-    gc_setpin_sexpr(context->result, pin);
-    gc_setpin_sexpr(context->sexpr, pin);
+	gc_setpin_scope(context->scope, pin);
+	gc_setpin_sexpr(context->result, pin);
+	gc_setpin_sexpr(context->sexpr, pin);
 
-    for (j = 0; j < context->locals->size; ++j) {
-	stmp = vector_get(context->locals, j);
-	gc_setpin_sexpr(*stmp, pin);
-    }
+	for (j = 0; j < context->locals->size; ++j) {
+		stmp = vector_get(context->locals, j);
+		gc_setpin_sexpr(*stmp, pin);
+	}
 }
 
 /**
@@ -177,10 +173,10 @@ void setpin_context(context_t * context, bool pin) {
  * @param context the context to push
  */
 void context_push(context_t * context) {
-    if (eval_stack == NULL)
-	eval_stack = vector_new(context_free, context_describe, NULL);
+	if (eval_stack == NULL)
+		eval_stack = vector_new(context_free, context_describe, NULL);
 
-    vector_push(eval_stack, context);
+	vector_push(eval_stack, context);
 }
 
 /**
@@ -188,37 +184,36 @@ void context_push(context_t * context) {
  * @return popped a context as in a LIFO stack
  */
 context_t *context_pop(void) {
-    if (eval_stack == NULL)
-	return NULL;
+	if (eval_stack == NULL)
+		return NULL;
 
-    context_t *item = vector_pop(eval_stack);
-    setpin_context(item, false);
+	context_t *item = vector_pop(eval_stack);
+	setpin_context(item, false);
 
-    /* context_describe(item); */
+	/* context_describe(item); */
 
-    return item;
+	return item;
 }
 
 /**
  * @brief static array of predefined Scheme keywords
  */
 static keyword_t kwd[] = {
-    {"0x0584", eval_nested_car_cdr},
-    {"begin", eval_begin},
-    /* TODO: add cond keyword */
-    /* {"cond", eval_cond}, */
-    {"quote", eval_quote},
-    {"eval", eval_eval},
-    {"define", eval_define},
-    {"undef", eval_undef},
-    {"set", eval_set},
-    {"setq", eval_setq},
-    {"let", eval_let},
-    {"let*", eval_let_asterisk},
-    {"if", eval_if},
-    {"lambda", eval_lambda},
+	{"0x0584", eval_nested_car_cdr},
+	{"begin", eval_begin},
+	{"cond", eval_cond},
+	{"quote", eval_quote},
+	{"eval", eval_eval},
+	{"define", eval_define},
+	{"undef", eval_undef},
+	{"set", eval_set},
+	{"setq", eval_setq},
+	{"let", eval_let},
+	{"let*", eval_let_asterisk},
+	{"if", eval_if},
+	{"lambda", eval_lambda},
 
-    {NULL, NULL}
+	{NULL, NULL}
 };
 
 /**
@@ -232,15 +227,15 @@ static keyword_t kwd[] = {
  * the first thing to do is to determine the type whether it's a normal
  * s-expression or it does has an operator:
  *
- *   + if the expression is a keyword, we pass the cdr(), i.e. the args
- *     to the related function returned by eval_keyword() so that it runs
- *     evaluation on it's own and returns an evaluated s-expression.
+ *	 + if the expression is a keyword, we pass the cdr(), i.e. the args
+ *	   to the related function returned by eval_keyword() so that it runs
+ *	   evaluation on it's own and returns an evaluated s-expression.
  *
- *   + if the expression is bonded to a symbol, resolve the bond using
- *     resolve_bond() and return the result.
+ *	 + if the expression is bonded to a symbol, resolve the bond using
+ *	   resolve_bond() and return the result.
  *
- *   + if the expression is an atom, we just return it. (if symbol is not
- *     bonded it would be returned laterally)
+ *	 + if the expression is an atom, we just return it. (if symbol is not
+ *	   bonded it would be returned laterally)
  *
  * if none of the above situation was true, then it's must has an operator;
  * so we get the operator (evaluating the car() of the expression) and then
@@ -265,145 +260,145 @@ static keyword_t kwd[] = {
  * @note this function may call itself recursively
  */
 sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * sexpr) {
-    if (sexpr == NULL)
-	return sexpr_err();
+	if (sexpr == NULL)
+		return sexpr_err();
 
-    sexpr_t *result = NULL, *op = NULL;	/* operator */
-    bond_t *b = NULL;
-    k_func kwd_func = eval_keyword(car(sexpr));
+	sexpr_t *result = NULL, *op = NULL;	/* operator */
+	bond_t *b = NULL;
+	k_func kwd_func = eval_keyword(car(sexpr));
 
-    /* create a new evaluation context for the current
-     * s-expression and its scope */
-    context_t *context = context_new(scope, sexpr);
-    context_push(context);
+	/* create a new evaluation context for the current
+	 * s-expression and its scope */
+	context_t *context = context_new(scope, sexpr);
+	context_push(context);
 
-    vector_push(context->locals, &result);
+	vector_push(context->locals, &result);
 
-    /* ==================== ==================== ==================== */
+	/* ==================== ==================== ==================== */
 
 #if DEBUG_EVALUATOR == DEBUG_ON
-    puts("================ eval start ================");
-    sexpr_print(sexpr), putchar('\n');
-    puts("============================================");
+	puts("================ eval start ================");
+	sexpr_print(sexpr), putchar('\n');
+	puts("============================================");
 #endif
 
-    if (kwd_func)		/* symbol was a keyword */
-	result = kwd_func(scope, cdr(sexpr));
-    else if ((b = resolve_bond(scope, sexpr)))
-	result = b->sexpr;	/* symbol was bounded  */
-    else if (isatom(sexpr))
-	result = sexpr;		/* just an atom/nil */
+	if (kwd_func)		/* symbol was a keyword */
+		result = kwd_func(scope, cdr(sexpr));
+	else if ((b = resolve_bond(scope, sexpr)))
+		result = b->sexpr;	/* symbol was bounded  */
+	else if (isatom(sexpr))
+		result = sexpr;		/* just an atom/nil */
 
-    /* ==================== ==================== ==================== */
+	/* ==================== ==================== ==================== */
 
 #if DEBUG_EVALUATOR == DEBUG_ON
-    puts(result ? "we have a result" : "there is no result");
-    sexpr_print(result), putchar('\n');
+	puts(result ? "we have a result" : "there is no result");
+	sexpr_print(result), putchar('\n');
 #endif
 
-    if (result)
-	goto RET;		/* we have a result */
+	if (result)
+		goto RET;		/* we have a result */
 
-    op = eval_sexpr(scope, car(sexpr));
-
-    err_raise(ERR_OP_NOT_FOUND, !islambda(op));
-
-    if (err_log())
-	goto FAILED;		/* no operator was found */
-
-    vector_push(context->locals, &op);
-
-#if DEBUG_EVALUATOR == DEBUG_ON
-    puts(op ? "we have an operator " : "there is no operator");
-    sexpr_print(op), putchar('\n');
-    puts("============== collecting args ==============");
-#endif
-
-    /* ==================== ==================== ==================== */
-
-    sexpr_t *args = NULL, *nil = sexpr_nil();
-    sexpr_t *foo = cdr(sexpr), *arg = NULL, *tail = NULL;
-
-    vector_push(context->locals, &tail);
-    vector_push(context->locals, &nil);
-    vector_push(context->locals, &foo);
-
-    /* creating a list of arguments */
-    while (!isnil(foo)) {
-	arg = cons(eval_sexpr(scope, car(foo)), nil);
-
-	err_raise(ERR_ERR, iserror(arg));
+	op = eval_sexpr(scope, car(sexpr));
+	err_raise(ERR_OP_NOT_FOUND, !islambda(op));
 
 	if (err_log())
-	    goto FAILED;
+		goto FAILED;		/* no operator was found */
 
-	if (!args)
-	    args = arg;
-	else
-	    set_cdr(tail, arg);
-
-	tail = arg, foo = cdr(foo);
-    }
+	vector_push(context->locals, &op);
 
 #if DEBUG_EVALUATOR == DEBUG_ON
-    puts("============================================");
-    printf("args: ");
-    sexpr_print(args), putchar('\n');
-    printf("length: %d \n", sexpr_length(args));
-    puts("=============================================");
+	puts(op ? "we have an operator " : "there is no operator");
+	sexpr_print(op), putchar('\n');
+	puts("============== collecting args ==============");
 #endif
 
-    /* ==================== ==================== ==================== */
+	/* ==================== ==================== ==================== */
 
-    if (op->l->isnative)	/* call the native function */
-	result = op->l->native->func(args);
-    else {			/* evaluate the lambda's body */
+	sexpr_t *args = NULL, *nil = sexpr_nil();
+	sexpr_t *foo = cdr(sexpr), *arg = NULL, *tail = NULL;
 
-	err_raise(ERR_LMBD_ARGS,
-		  sexpr_length(args) != sexpr_length(op->l->args));
+	vector_push(context->locals, &args);
+	vector_push(context->locals, &nil);
+	vector_push(context->locals, &foo);
+	vector_push(context->locals, &arg);
+	vector_push(context->locals, &tail);
 
-	if (err_log())
-	    goto FAILED;
+	/* creating a list of arguments */
+	while (!isnil(foo)) {
+		arg = cons(eval_sexpr(scope, car(foo)), nil);
 
-	scope_t *child = scope_init(scope);
+		err_raise(ERR_ERR, iserror(arg));
 
-	bind_lambda_args(child, op->l, args);
-	result = eval_sexpr(child, op->l->body);
-    }
+		if (err_log())
+			goto FAILED;
+
+		if (!args)
+			args = arg;
+		else
+			set_cdr(tail, arg);
+
+		tail = arg, foo = cdr(foo);
+	}
+
+#if DEBUG_EVALUATOR == DEBUG_ON
+	puts("============================================");
+	printf("args: ");
+	sexpr_print(args), putchar('\n');
+	printf("length: %d \n", sexpr_length(args));
+	puts("=============================================");
+#endif
+
+	/* ==================== ==================== ==================== */
+
+	if (op->l->isnative)	/* call the native function */
+		result = op->l->native->func(args);
+	else {			/* evaluate the lambda's body */
+		err_raise(ERR_LMBD_ARGS,
+				  sexpr_length(args) != sexpr_length(op->l->args));
+
+		if (err_log())
+			goto FAILED;
+
+		scope_t *child = scope_init(scope);
+
+		bind_lambda_args(child, op->l, args);
+		result = eval_sexpr(child, op->l->body);
+	}
 
   RET:
 
-    err_raise(ERR_RSLT_NULL, !result);
-    err_raise(ERR_ERR, iserror(result));
+	err_raise(ERR_RSLT_NULL, !result);
+	err_raise(ERR_ERR, iserror(result));
 
-    if (err_log())
-	goto FAILED;
+	if (err_log())
+		goto FAILED;
 
-    if (eval_stack != NULL) {
-	context_t *ctx = context_pop();
+	if (eval_stack != NULL) {
+		context_t *ctx = context_pop();
 
-	/* end of evaluation */
-	if (eval_stack->size == 0) {
-	    vector_free(eval_stack);
-	    eval_stack = NULL;
-	} else {
-	    last_context()->result = result;
-	    gc_collect(false);
+		/* end of evaluation */
+		if (eval_stack->size == 0) {
+			vector_free(eval_stack);
+			eval_stack = NULL;
+		} else {
+			last_context()->result = result;
+			gc_collect(false);
+		}
+
+		context_free(ctx);
 	}
-
-	context_free(ctx);
-    }
 #if DEBUG_EVALUATOR == DEBUG_ON
-    printf("%s", "final result: "), sexpr_print(result), putchar('\n');
+	printf("%s", "final result: "), sexpr_print(result), putchar('\n');
 #endif
 
-    return result;
+	return result;
 
   FAILED:
 
-    vector_free(eval_stack);
-    eval_stack = NULL;
-    return NULL;
+	vector_free(eval_stack);
+	eval_stack = NULL;
+	return NULL;
 }
 
 /**
@@ -417,29 +412,29 @@ sexpr_t *eval_sexpr(scope_t * scope, sexpr_t * sexpr) {
  * @see vector.h
  */
 vector_t *eval_sexprs(vector_t * sexprs) {
-    vector_t *v = vector_new(NULL, sexpr_print, NULL);
-    sexpr_t *tmp = NULL;
-    scope_t *gs = get_global_scope();
-    int i;
+	vector_t *v = vector_new(NULL, sexpr_print, NULL);
+	sexpr_t *tmp = NULL;
+	scope_t *gs = get_global_scope();
+	int i;
 
-    for (i = 0; i < sexprs->size; ++i)
-	gc_setpin_sexpr(vector_get(sexprs, i), true);
+	for (i = 0; i < sexprs->size; ++i)
+		gc_setpin_sexpr(vector_get(sexprs, i), true);
 
-    for (i = 0; i < sexprs->size; ++i) {
+	for (i = 0; i < sexprs->size; ++i) {
 #if DEBUG_EVALUATOR == DEBUG_ON
-	printf("eval: "), sexpr_print(vector_get(sexprs, i)),
-	    putchar('\n');
+		printf("eval: "), sexpr_print(vector_get(sexprs, i)),
+			putchar('\n');
 #endif
 
-	tmp = eval_sexpr(gs, vector_get(sexprs, i));
-	tmp = vector_push(v, tmp);
+		tmp = eval_sexpr(gs, vector_get(sexprs, i));
+		tmp = vector_push(v, tmp);
 
 #if DEBUG_EVALUATOR == DEBUG_ON
-	printf(" > "), sexpr_print(tmp), putchar('\n');
+		printf(" > "), sexpr_print(tmp), putchar('\n');
 #endif
-    }
+	}
 
-    return vector_compact(v);
+	return vector_compact(v);
 }
 
 /**
@@ -451,41 +446,41 @@ vector_t *eval_sexprs(vector_t * sexprs) {
  * correspondent function otherwise
  */
 k_func eval_keyword(sexpr_t * sexpr) {
-    int i;
+	int i;
 
-    if (!sexpr || !issymbol(sexpr))
-	return NULL;		/* not a symbol */
+	if (!sexpr || !issymbol(sexpr))
+		return NULL;		/* not a symbol */
 
-    /* test nested cars and cdrs first */
-    int length = strlen(sexpr->s) - 1;
-    string_t str = sexpr->s;
+	/* test nested cars and cdrs first */
+	int length = strlen(sexpr->s) - 1;
+	string_t str = sexpr->s;
 
-    if (length < 2 || *str != 'c' || str[length] != 'r');
-    else {
-	call_cons_op_length = length - 1;
-	bool is_cons_op = true;
-	while (length - 1) {
-	    length--;
-	    if (str[length] == 'a')
-		call_cons_op[call_cons_op_length - length] = true;
-	    else if (str[length] == 'd')
-		call_cons_op[call_cons_op_length - length] = false;
-	    else {
-		is_cons_op = false, call_cons_op_length = 0;
-		break;
-	    }
+	if (length < 2 || *str != 'c' || str[length] != 'r');
+	else {
+		call_cons_op_length = length - 1;
+		bool is_cons_op = true;
+		while (length - 1) {
+			length--;
+			if (str[length] == 'a')
+				call_cons_op[call_cons_op_length - length] = true;
+			else if (str[length] == 'd')
+				call_cons_op[call_cons_op_length - length] = false;
+			else {
+				is_cons_op = false, call_cons_op_length = 0;
+				break;
+			}
+		}
+
+		if (is_cons_op)
+			return kwd[0].func;
 	}
 
-	if (is_cons_op)
-	    return kwd[0].func;
-    }
+	for (i = 0; kwd[i].keyword; ++i)
+		/* looking for the keyword */
+		if (!strcmp(sexpr->s, kwd[i].keyword))
+			return kwd[i].func;
 
-    for (i = 0; kwd[i].keyword; ++i)
-	/* looking for the keyword */
-	if (!strcmp(sexpr->s, kwd[i].keyword))
-	    return kwd[i].func;
-
-    return NULL;
+	return NULL;
 }
 
 /**
@@ -503,13 +498,13 @@ k_func eval_keyword(sexpr_t * sexpr) {
  * @note quote is defined as (quote expr)
  */
 sexpr_t *eval_quote(scope_t * scope, sexpr_t * sexpr) {
-    err_raise(ERR_ARG_COUNT, !sexpr_length(sexpr));
+	err_raise(ERR_ARG_COUNT, !sexpr_length(sexpr));
 
-    if (err_log())
-	return sexpr_err();
+	if (err_log())
+		return sexpr_err();
 
-    if (scope || true)
-	return car(sexpr);
+	if (scope || true)
+		return car(sexpr);
 }
 
 /**
@@ -528,36 +523,54 @@ sexpr_t *eval_quote(scope_t * scope, sexpr_t * sexpr) {
  */
 
 sexpr_t *eval_define(scope_t * scope, sexpr_t * sexpr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 2);
-    err_raise(ERR_ARG_TYPE, !issymbol(car(sexpr)));
+	err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 2);
+	err_raise(ERR_ARG_TYPE, !(issymbol(car(sexpr)) ^ islist(car(sexpr))));
+	/* either (define foo ...) or (define (foo ..) ...) */
+	err_raise(ERR_CANNOT_DEFINE, isreserved(scope, islist(car(sexpr))	\
+											? caar(sexpr) : car(sexpr)));
+	if (err_log())
+		return sexpr_err();
 
-    if (err_log())
-	return sexpr_err();
+	sexpr_t *symbol = islist(car(sexpr)) ? caar(sexpr) : car(sexpr),
+		*evaled = NULL;
+	/* bond_t bond = { symbol->s, NULL, false }; */
 
-    sexpr_t *evaled = NULL, *symbol = car(sexpr);
-    bond_t bond = { symbol->s, NULL, false };
+	/* TODO: if symbol is already exists, set it instead
+	 * we cannot call set since reserved raise an error */
+	/* if (vector_find(scope->bonds, &bond) != NULL) */
+	/*		return eval_set(scope, sexpr); */
 
-    /* TODO: if symbol is already exists, set it instead
-     * we cannot call set since reserved raise an error */
-    if (vector_find(scope->bonds, &bond) != NULL)
-	return eval_set(scope, sexpr);
+	if (islist(car(sexpr))) {
+		/* prevent stuff like (define (bar 1 x t) ...) */
+		sexpr_t *tmp = cdar(sexpr);
 
-    evaled = eval_sexpr(scope, cadr(sexpr));
+		while (!isnil(tmp)) {
+			err_raise(ERR_ARG_TYPE, !(issymbol(car(tmp))));
 
-    err_raise(ERR_RSLT_NULL, !evaled);
-    err_raise(ERR_ERR, iserror(evaled));
+			if (err_log())
+				return sexpr_err();
+			else
+				tmp = cdr(tmp);
+		}
 
-    if (err_log())
-	return sexpr_err();
+		evaled = lambda_new(cdar(sexpr), cadr(sexpr));
+	} else
+		evaled = eval_sexpr(scope, cadr(sexpr));
 
-    scope_push_bond(scope, bond_new(symbol->s, evaled));
+	err_raise(ERR_RSLT_NULL, !evaled);
+	err_raise(ERR_ERR, iserror(evaled));
+
+	if (err_log())
+		return sexpr_err();
+
+	scope_push_bond(scope, bond_new(symbol->s, evaled));
 
 #if DEBUG_EVALUATOR == DEBUG_ON
-    sexpr_print(evaled), putchar('\n');
-    scope_describe(scope);
+	sexpr_print(evaled), putchar('\n');
+	scope_describe(scope);
 #endif
 
-    return symbol;
+	return symbol;
 }
 
 /**
@@ -577,15 +590,15 @@ sexpr_t *eval_define(scope_t * scope, sexpr_t * sexpr) {
  * evaluated when `sexpr` is not `nil`, otherwise evaluate `bar`
  */
 sexpr_t *eval_if(scope_t * scope, sexpr_t * sexpr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 3);
+	err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 3);
 
-    if (err_log())
-	return sexpr_err();
+	if (err_log())
+		return sexpr_err();
 
-    if (istrue(eval_sexpr(scope, car(sexpr))))
-	return eval_sexpr(scope, cadr(sexpr));
-    else
-	return eval_sexpr(scope, caddr(sexpr));
+	if (istrue(eval_sexpr(scope, car(sexpr))))
+		return eval_sexpr(scope, cadr(sexpr));
+	else
+		return eval_sexpr(scope, caddr(sexpr));
 }
 
 /**
@@ -605,45 +618,45 @@ sexpr_t *eval_if(scope_t * scope, sexpr_t * sexpr) {
  * so the function signature must contain a scope.
  */
 sexpr_t *eval_lambda(scope_t * scope, sexpr_t * sexpr) {
-    err_raise(ERR_ARG_COUNT, !sexpr_length(sexpr));
+	err_raise(ERR_ARG_COUNT, !sexpr_length(sexpr));
 
-    if (err_log())
-	return sexpr_err();
+	if (err_log())
+		return sexpr_err();
 
-    if (scope) {
-	/* suppress warning */
-    }
+	if (scope) {
+		/* suppress warning */
+	}
 
-    return lambda_new(car(sexpr), cadr(sexpr));
+	return lambda_new(car(sexpr), cadr(sexpr));
 }
 
 sexpr_t *eval_setq_or_set(scope_t * scope, sexpr_t * sexpr, bool quoted) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 2);
-    err_raise(ERR_ARG_TYPE, !issymbol(car(sexpr)));
+	err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 2);
+	err_raise(ERR_ARG_TYPE, !issymbol(car(sexpr)));
 
-    if (err_log())
-	return sexpr_err();
+	if (err_log())
+		return sexpr_err();
 
-    bond_t *bond = resolve_bond(scope, car(sexpr));
+	bond_t *bond = resolve_bond(scope, car(sexpr));
 
-    if (bond == NULL)
-	return eval_define(scope, sexpr);
-    else {
-	setglobal(bond->sexpr, false);
-	bond->sexpr =
-	    quoted ? cadr(sexpr) : eval_sexpr(scope, cadr(sexpr));
-	setglobal(bond->sexpr, true);
-    }
+	if (bond == NULL)
+		return eval_define(scope, sexpr);
+	else {
+		setglobal(bond->sexpr, false);
+		bond->sexpr =
+			quoted ? cadr(sexpr) : eval_sexpr(scope, cadr(sexpr));
+		setglobal(bond->sexpr, true);
+	}
 
-    return bond->sexpr;
+	return bond->sexpr;
 }
 
 sexpr_t *eval_set(scope_t * scope, sexpr_t * sexpr) {
-    return eval_setq_or_set(scope, sexpr, false);
+	return eval_setq_or_set(scope, sexpr, false);
 }
 
 sexpr_t *eval_setq(scope_t * scope, sexpr_t * sexpr) {
-    return eval_setq_or_set(scope, sexpr, true);
+	return eval_setq_or_set(scope, sexpr, true);
 }
 
 /*
@@ -652,35 +665,35 @@ sexpr_t *eval_setq(scope_t * scope, sexpr_t * sexpr) {
  * since setting it to nil makes x resolves to nil not x
  */
 sexpr_t *eval_undef(scope_t * scope, sexpr_t * sexpr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 1);
-    err_raise(ERR_ARG_TYPE, !issymbol(car(sexpr)));
+	err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 1);
+	err_raise(ERR_ARG_TYPE, !issymbol(car(sexpr)));
 
-    if (err_log())
-	return sexpr_err();
+	if (err_log())
+		return sexpr_err();
 
-    bond_t *bond = resolve_bond(scope, car(sexpr));
+	bond_t *bond = resolve_bond(scope, car(sexpr));
 
-    if (bond == NULL)
-	return sexpr_nil();
+	if (bond == NULL)
+		return sexpr_nil();
 
-    /* for the moment undef just sets the symbol to nil */
-    setglobal(bond->sexpr, false);
-    bond->sexpr = sexpr_symbol(bond->symbol);
-    setglobal(bond->sexpr, true);
+	/* for the moment undef just sets the symbol to nil */
+	setglobal(bond->sexpr, false);
+	bond->sexpr = sexpr_symbol(bond->symbol);
+	setglobal(bond->sexpr, true);
 
-    return sexpr_true();
+	return sexpr_true();
 }
 
 /*
  * FIXME: recreate this function in pure lisp
  */
 sexpr_t *eval_eval(scope_t * scope, sexpr_t * sexpr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 1);
+	err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) != 1);
 
-    if (err_log())
-	return sexpr_err();
+	if (err_log())
+		return sexpr_err();
 
-    return eval_sexpr(scope, eval_sexpr(scope, car(sexpr)));
+	return eval_sexpr(scope, eval_sexpr(scope, car(sexpr)));
 }
 
 /**
@@ -705,62 +718,63 @@ sexpr_t *eval_eval(scope_t * scope, sexpr_t * sexpr) {
  * specified
  */
 sexpr_t *eval_let(scope_t * scope, sexpr_t * sexpr) {
-    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) < 1);
-    err_raise(ERR_ARG_TYPE, !islist(car(sexpr)) && !issymbol(car(sexpr)));
+	err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) < 1);
+	err_raise(ERR_ARG_TYPE, (!islist(car(sexpr)) &&
+							 !issymbol(car(sexpr))));
+	if (err_log())
+		return sexpr_err();
 
-    if (err_log())
-	return sexpr_err();
+	bool labeled = issymbol(car(sexpr));
 
-    bool labeled = issymbol(car(sexpr));
+	sexpr_t *args = NULL, *atail = NULL;
+	sexpr_t *params = NULL, *ptail = NULL;
 
-    sexpr_t *args = NULL, *atail = NULL;
-    sexpr_t *params = NULL, *ptail = NULL;
+	sexpr_t *arg_nil = sexpr_nil(), *param_nil = sexpr_nil();
 
-    sexpr_t *tmp = labeled ? cadr(sexpr) : car(sexpr),
-	*symbol = labeled ? car(sexpr) : sexpr_symbol("let-lambda"),
-	*body = labeled ? caddr(sexpr) : cadr(sexpr),
-	*let = cons(symbol, sexpr_nil());
+	sexpr_t *bindings = labeled ? cadr(sexpr) : car(sexpr),
+		*body = labeled ? caddr(sexpr) : cadr(sexpr);
 
-    while (!isnil(tmp)) {
-	if (isnil(car(tmp))) {
-	    args = sexpr_nil(), params = sexpr_nil();
-	    break;
+	while (!isnil(bindings)) {
+		/* getting each binding (arg param) */
+		err_raise(ERR_ARG_TYPE, !islist(car(bindings)));
+		err_raise(ERR_ARG_TYPE, !issymbol(caar(bindings)));
+
+		if (err_log())
+			return sexpr_err();
+
+		/* FIXME: create that fucking sexpr_append() */
+		/* create that straming application */
+		sexpr_t *arg = cons(caar(bindings), arg_nil),
+			*param = cons(cadar(bindings), param_nil);
+
+		/* appending the params to the whole let-lambda
+		 * so that it would look like: (let-lambda param ...) */
+		if (!params)
+			params = param;
+		else
+			set_cdr(ptail, param);
+
+		/* collecting let-lambda args which are the
+		 * arg in (let ((arg param) ...) body) */
+		if (!args)
+			args = arg;
+		else
+			set_cdr(atail, arg);
+
+		atail = arg, ptail = param, bindings = cdr(bindings);
 	}
 
-	/* getting (arg param) */
-	err_raise(ERR_ARG_TYPE, !islist(car(tmp)));
-	err_raise(ERR_ARG_TYPE, !issymbol(caar(tmp)));
+	scope_t *child = scope_init(scope);
+	sexpr_t *symbol = labeled ? car(sexpr) : sexpr_symbol("let-lambda"),
+		*let = cons(symbol, sexpr_nil());
+	sexpr_t *l = lambda_new(args, body);
+	scope_push_bond(child, bond_new(symbol->s, l));
+	set_cdr(let, params);
 
-	if (err_log())
-	    return sexpr_err();
+	/* sexpr_println(let); */
+	/* sexpr_println(l); */
 
-	/* FIXME: create that fucking sexpr_append() */
-	/* create that straming application */
-	sexpr_t *arg = CONS(caar(tmp)), *param = CONS(cadar(tmp));
-
-	/* appending the params to the whole let-lambda
-	 * so that it would look like: (let-lambda param ...) */
-
-	if (!params)
-	    params = param;
-	else
-	    set_cdr(ptail, param);
-
-	/* collecting let-lambda args
-	 * which are the arg in (let ((arg param) ...) body) */
-	if (!args)
-	    args = arg;
-	else
-	    set_cdr(atail, arg);
-
-	atail = args, ptail = params, tmp = cdr(tmp);
-    }
-
-    scope_t *child = scope_init(scope);
-    scope_push_bond(child, bond_new(symbol->s, lambda_new(args, body)));
-    set_cdr(let, params);
-
-    return eval_sexpr(child, let);
+	return eval_sexpr(child, let);
 }
 
 /**
@@ -791,108 +805,124 @@ sexpr_t *eval_let(scope_t * scope, sexpr_t * sexpr) {
  */
 sexpr_t *eval_let_asterisk(scope_t * scope, sexpr_t * sexpr) {
 
-    /* FIXME: find a way to create let for each argument
-     *
-     * the idea is to collect evaluated versions
-     *
-     * (let* ((x a) (b a) (c b)) body)
-     *		      V
-     * (let ((x a)) (let* ((b a) (c b)) body))
-     *		      V
-     * (let ((x a)) (let ((b a)) (let ((c b)) body)))
-     *		      V
-     * (let ((x a)) (let ((b a)) (let ((c b)) body)))).
-     */
+	/* FIXME: find a way to create let for each argument
+	 *
+	 * the idea is to collect evaluated versions
+	 *
+	 * (let* ((x a) (b a) (c b)) body)
+	 *						  V
+	 * (let ((x a)) (let* ((b a) (c b)) body))
+	 *						  V
+	 * (let ((x a)) (let ((b a)) (let* ((c b)) body)))
+	 *						  V
+	 * (let ((x a)) (let ((b a)) (let ((c b)) body))).
+	 */
 
-    /* puts("//////////"), sexpr_print(expr), puts(""); */
+	puts("//////////"), sexpr_print(sexpr), puts("");
 
-    err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) < 1);
-    err_raise(ERR_ARG_TYPE, (!islist(car(sexpr))
-			     && !issymbol(car(sexpr))));
+	err_raise(ERR_ARG_COUNT, sexpr_length(sexpr) < 1);
+	err_raise(ERR_ARG_TYPE, (!islist(car(sexpr))
+							 && !issymbol(car(sexpr))));
 
-    if (err_log())
-	return sexpr_err();
+	if (err_log())
+		return sexpr_err();
 
-    bool labeled = issymbol(car(sexpr));
-    sexpr_t *bindings = labeled ? cadr(sexpr) : car(sexpr),
-	*symbol = labeled ? car(sexpr) : sexpr_symbol("let-lambda");
+	bool labeled = issymbol(car(sexpr));
+	sexpr_t *bindings = labeled ? cadr(sexpr) : car(sexpr),
+		*symbol = labeled ? car(sexpr) : sexpr_symbol("let-lambda");
 
-    /* sexpr_print(bindings), puts("0"); */
-    /* sexpr_print(car(bindings)), puts("1"); */
-    /* sexpr_print(cdr(bindings)), puts("2"); */
-    /* sexpr_print(cadr(bindings)), puts("3"); */
+	sexpr_print(bindings), puts(":bindings");
+	sexpr_print(car(bindings)), puts("car(bindings)");
+	sexpr_print(cdr(bindings)), puts("cdr(bindings)");
+	sexpr_print(cadr(bindings)), puts("cadr(bindings)");
 
-    /*
-     * getting bindings
-     */
-    err_raise(ERR_ARG_TYPE, !islist(car(bindings)));
+	/*
+	 * getting bindings
+	 */
+	err_raise(ERR_ARG_TYPE, !islist(car(bindings)));
 
-    if (err_log())
-	return sexpr_err();
+	if (err_log())
+		return sexpr_err();
 
-    sexpr_t *let_asterisk = labeled
-	? CONS(cons(symbol, CONS(car(bindings)))) :
-	CONS(CONS(car(bindings))), *body =
-	CONS(labeled ? caddr(sexpr) : cadr(sexpr));
+	/* WTF IS THIS! I HAVE TO CLEAN THIS MESS */
+	/* ((symbol (x y))) */
+	sexpr_t *let_a = cons(symbol, sexpr_nil()),
+		/* ((body)) */
+		*body = cons(labeled ? caddr(sexpr) : cadr(sexpr), sexpr_nil());
 
-    /* sexpr_print(let_asterisk), puts("4"); */
-    /* sexpr_print(body), puts("5"); */
+	sexpr_print(let_a), puts("let_a");
+	sexpr_print(body), puts("body");
 
-    if (!cadr(bindings)) {
-	/* set the body as cdr */
-	set_cdr(let_asterisk, body);
-    } else {
-	sexpr_t *foo = cons(cdr(bindings), body);
-	/* sexpr_print(foo), puts("foo"); */
-	sexpr_t *evaled = eval_let_asterisk(scope, foo);
+	while (!isnil(bindings)) {
+		sexpr_t *foo = cons(cdr(bindings), body);
+		sexpr_print(foo), puts("foo");
+		set_cdr(let_a, cons(foo, body));
 
-	/* sexpr_print(evaled), puts("evaled"); */
-	set_cdr(let_asterisk, cons(evaled, body));
-    }
+		bindings = cdr(bindings);
+	}
 
-    /* sexpr_print(let_asterisk), puts("6"); */
+	set_cdr(let_a, body);	/* set the body as cdr */
 
-    return eval_let(scope, let_asterisk);
+	sexpr_print(let_a), puts("final let_a");
+
+	return eval_let(scope, let_a);
 }
 
 
 sexpr_t *eval_nested_car_cdr(scope_t * scope, sexpr_t * sexpr) {
-    err_raise(ERR_ARG_TYPE, !islist(sexpr));
-
-    if (err_log())
-	return sexpr_err();
-
-    sexpr_t *tmp = eval_sexpr(scope, car(sexpr));
-    int i;
-
-    for (i = 0; i < call_cons_op_length; ++i) {
-	tmp = call_cons_op[i] ? car(tmp) : cdr(tmp);
-
-	err_raise(ERR_ARG_TYPE, tmp == NULL);
+	err_raise(ERR_ARG_TYPE, !islist(sexpr));
 
 	if (err_log())
-	    return sexpr_err();
-    }
+		return sexpr_err();
 
-    return tmp;
+	sexpr_t *tmp = eval_sexpr(scope, car(sexpr));
+	int i;
+
+	for (i = 0; i < call_cons_op_length; ++i) {
+		tmp = call_cons_op[i] ? car(tmp) : cdr(tmp);
+
+		err_raise(ERR_ARG_TYPE, tmp == NULL);
+
+		if (err_log())
+			return sexpr_err();
+	}
+
+	return tmp;
 }
 
 sexpr_t *eval_begin(scope_t * scope, sexpr_t * sexpr) {
-    sexpr_t *evaled = NULL, *tmp = sexpr;
+	sexpr_t *evaled = sexpr_nil(), *tmp = sexpr;
 
-    while (!isnil(tmp)) {
-	evaled = eval_sexpr(scope, car(tmp));
+	while (!isnil(tmp)) {
+		evaled = eval_sexpr(scope, car(tmp));
 
-	err_raise(ERR_RSLT_NULL, !evaled);
-	err_raise(ERR_ERR, iserror(evaled));
+		err_raise(ERR_RSLT_NULL, !evaled);
+		err_raise(ERR_ERR, iserror(evaled));
 
-	if (err_log())
-	    return sexpr_err();
+		if (err_log())
+			return sexpr_err();
 
-	tmp = cdr(tmp);
-    }
+		tmp = cdr(tmp);
+	}
 
-    return evaled;
+	return evaled;
 }
 
-#undef CONS
+sexpr_t *eval_cond(scope_t * scope, sexpr_t * sexpr) {
+	sexpr_t *tmp = sexpr;
+
+	while (!isnil(tmp)) {
+		err_raise(ERR_ARG_COUNT, sexpr_length(car(tmp)) != 2);
+
+		if (err_log())
+			return sexpr_err();
+
+		if ((issymbol(caar(tmp)) && strcmp(caar(tmp)->s, "else"))
+			|| istrue(eval_sexpr(scope, caar(tmp))))
+			return eval_sexpr(scope, cadar(tmp));
+
+		tmp = cdr(tmp);
+	}
+
+	return sexpr_nil();
+}

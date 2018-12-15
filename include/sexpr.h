@@ -148,22 +148,23 @@ typedef struct SYMBOLIC_EXPRESSION {
     };
 } sexpr_t;
 
-bool isnil(sexpr_t * expr);
-bool istrue(sexpr_t * expr);
-bool isatom(sexpr_t * expr);
-bool isnumber(sexpr_t * expr);
-bool isstring(sexpr_t * expr);
-bool issymbol(sexpr_t * expr);
-bool islambda(sexpr_t * expr);
-bool ispair(sexpr_t * expr);
-bool islist(sexpr_t * expr);
-bool isnative(sexpr_t * expr);
-bool iserror(sexpr_t * expr);
+bool isnil(sexpr_t * sexpr);
+bool istrue(sexpr_t * sexpr);
+bool isatom(sexpr_t * sexpr);
+bool isnumber(sexpr_t * sexpr);
+bool isstring(sexpr_t * sexpr);
+bool issymbol(sexpr_t * sexpr);
+bool islambda(sexpr_t * sexpr);
+bool ispair(sexpr_t * sexpr);
+bool islist(sexpr_t * sexpr);
+bool isnative(sexpr_t * sexpr);
+bool iserror(sexpr_t * sexpr);
 
 sexpr_t *sexpr_new(type_t type);
-void sexpr_describe(object_t expr);
-void sexpr_print(object_t expr);
-int sexpr_length(sexpr_t * expr);
+void sexpr_describe(object_t sexpr);
+void sexpr_print(object_t sexpr);
+void sexpr_println(object_t sexpr);
+int sexpr_length(sexpr_t * sexpr);
 
 sexpr_t *sexpr_err(void);
 sexpr_t *sexpr_nil(void);
@@ -175,7 +176,7 @@ sexpr_t *sexpr_string(string_t string);
 
 sexpr_t *lambda_new_native(sexpr_t * args, nlambda_t * func);
 sexpr_t *lambda_new(sexpr_t * args, sexpr_t * body);
-void lambda_describe(object_t expr);
-void lambda_print(object_t expr);
+void lambda_describe(object_t sexpr);
+void lambda_print(object_t sexpr);
 
 #endif				/* _SCMIN_SEXPR_H */
